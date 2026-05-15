@@ -1,0 +1,16 @@
+.yadm/data/repo.git
+
+# Ignore encrypted files
+passwords
+
+# Ignore symbolic links
+configuration.nix
+hardware-configuration.nix
+syncthing-secrets.nix
+
+# NixOS build links
+result
+
+# Ignore swap files
+*.swp
+*~
