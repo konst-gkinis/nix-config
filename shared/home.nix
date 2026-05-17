@@ -51,6 +51,13 @@ in
 
         # Use difftastic, syntax-aware diffing
         alias diff=difft
+
+        # Add SSH keys to agent on login
+        ${if pkgs.stdenv.hostPlatform.isDarwin then ''
+          ssh-add --apple-load-keychain -q 2>/dev/null || true
+        '' else ''
+          ssh-add -q 2>/dev/null || true
+        ''}
       '';
 
       shellAliases = {
