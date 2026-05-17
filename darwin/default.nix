@@ -8,6 +8,7 @@ let user = "kg"; in
     ../shared/nixpkgs.nix
   ];
 
+  security.pam.services.sudo_local.touchIdAuth = true;
   nix = {
     package = pkgs.nix;
     settings = {
