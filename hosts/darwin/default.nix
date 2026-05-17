@@ -50,7 +50,6 @@ let user = "kg"; in
       };
 
       dock = {
-        autohide = false;
         show-recents = false;
         launchanim = true;
         orientation = "bottom";

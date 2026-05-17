@@ -31,6 +31,7 @@ with pkgs; [
   zsh-powerlevel10k
   
   # Development tools
+  claude-code
   curl
   gh
   lazygit
