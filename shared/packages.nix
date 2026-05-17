@@ -29,12 +29,12 @@ with pkgs; [
   tmux
   unzip
   zsh-powerlevel10k
-  
+
   # Development tools
   claude-code
   curl
   gh
   lazygit
   fzf
-  direnv  
+  direnv
 ]

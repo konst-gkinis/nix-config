@@ -2,9 +2,7 @@
 
 let
   user = "kg";
-  xdg_configHome  = "/home/${user}/.config";
-  shared-programs = import ../shared/home-manager.nix { inherit config pkgs lib; };
-  shared-files = import ../shared/files.nix { inherit config pkgs; };
+  xdg_configHome = "/home/${user}/.config";
 
   polybar-user_modules = builtins.readFile (pkgs.replaceVars ./config/polybar/user_modules.ini {
     packages = "${xdg_configHome}/polybar/bin/check-nixos-updates.sh";
@@ -16,25 +14,23 @@ let
 
   polybar-config = pkgs.replaceVars ./config/polybar/config.ini {
     font0 = "DejaVu Sans:size=12;3";
-    font1 = "feather:size=12;3"; # from overlay
+    font1 = "feather:size=12;3";
   };
 
   polybar-modules = builtins.readFile ./config/polybar/modules.ini;
   polybar-bars = builtins.readFile ./config/polybar/bars.ini;
   polybar-colors = builtins.readFile ./config/polybar/colors.ini;
-
 in
 {
   home = {
     enableNixpkgsReleaseCheck = false;
-    username = "${user}";
+    username = user;
     homeDirectory = "/home/${user}";
-    packages = pkgs.callPackage ./packages.nix {};
-    file = shared-files // import ./files.nix { inherit user; };
+    packages = import ./packages.nix { inherit pkgs; };
+    file = import ./files.nix { inherit user; };
     stateVersion = "21.05";
   };
 
-  # Use a dark theme
   gtk = {
     enable = true;
     iconTheme = {
@@ -47,7 +43,6 @@ in
     };
   };
 
-  # Screen lock
   services = {
     screen-locker = {
       enable = true;
@@ -55,7 +50,6 @@ in
       lockCmd = "${pkgs.i3lock-fancy-rapid}/bin/i3lock-fancy-rapid 10 15";
     };
 
-    # Auto mount devices
     udiskie.enable = true;
 
     polybar = {
@@ -111,7 +105,4 @@ in
       };
     };
   };
-
-  programs = shared-programs // {};
-
 }

@@ -102,7 +102,7 @@
                 autoMigrate = true;
               };
             }
-            ./hosts/darwin
+            ./darwin
           ];
         }
       );
@@ -112,14 +112,8 @@
         specialArgs = inputs;
         modules = [
           disko.nixosModules.disko
-          home-manager.nixosModules.home-manager {
-            home-manager = {
-              useGlobalPkgs = true;
-              useUserPackages = true;
-              users.${user} = import ./modules/nixos/home-manager.nix;
-            };
-          }
-          ./hosts/nixos
+          home-manager.nixosModules.home-manager
+          ./nixos
         ];
      });
   };
