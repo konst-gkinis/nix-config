@@ -6,8 +6,6 @@ let
   email = "konst.gkinis@gmail.com";
 in
 {
-  home.file.".emacs.d/init.el".text = builtins.readFile ../config/emacs/init.el;
-
   programs = {
     zsh = {
       enable = true;

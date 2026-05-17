@@ -48,7 +48,6 @@ let user = "kg"; in
       home = {
         enableNixpkgsReleaseCheck = false;
         packages = (import ../shared/packages.nix { inherit pkgs; }) ++ [ pkgs.dockutil ];
-        file = import ./files.nix { inherit user config pkgs; };
         stateVersion = "23.11";
       };
     };

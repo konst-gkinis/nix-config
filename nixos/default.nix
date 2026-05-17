@@ -173,10 +173,6 @@ in
     tumbler.enable = true;
   };
 
-  systemd.user.services.emacs = {
-    serviceConfig.TimeoutStartSec = "7min";
-  };
-
   hardware = {
     graphics.enable = true;
     ledger.enable = true;
@@ -210,7 +206,6 @@ in
 
   fonts.packages = with pkgs; [
     dejavu_fonts
-    emacs-all-the-icons-fonts
     feather-font
     jetbrains-mono
     font-awesome
