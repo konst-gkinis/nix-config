@@ -48,7 +48,11 @@ let user = "kg"; in
       imports = [ ../shared/home.nix ];
       home = {
         enableNixpkgsReleaseCheck = false;
-        packages = (import ../shared/packages.nix { inherit pkgs; }) ++ [ pkgs.dockutil ];
+        packages = (import ../shared/packages.nix { inherit pkgs; }) ++ [
+            pkgs.dockutil
+            (pkgs.writeShellScriptBin "macos-defaults-diff"
+              (builtins.readFile ./scripts/macos-defaults-diff.sh))
+          ];
         stateVersion = "23.11";
       };
     };
@@ -94,4 +98,17 @@ let user = "kg"; in
     enable = false;
     username = user;
   };
+
+  system.activationScripts.postActivation.text = lib.mkAfter ''
+    echo "Creating Spotlight-indexable aliases for Home Manager apps..." >&2
+    hm_apps="/Users/${user}/Applications/Home Manager Apps"
+    wrappers="/Users/${user}/Applications/Home Manager App Wrappers"
+    rm -rf "$wrappers"
+    mkdir -p "$wrappers"
+    if [ -d "$hm_apps" ]; then
+      find "$hm_apps" -maxdepth 1 -name "*.app" | while read -r app; do
+        ${pkgs.mkalias}/bin/mkalias "$app" "$wrappers/$(basename "$app")"
+      done
+    fi
+  '';
 }
