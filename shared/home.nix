@@ -8,6 +8,7 @@ in
 {
   programs = {
     zoxide.enable = true;
+    lazygit.enable = true;
     zsh = {
       enable = true;
       autocd = false;
@@ -49,10 +50,17 @@ in
 
         # Use difftastic, syntax-aware diffing
         alias diff=difft
-
-        # Always color ls and group directories
-        alias ls='ls --color=auto'
       '';
+
+      shellAliases = {
+        ls = "lsd";
+        l = "lsd -l";
+        tree = "lsd --tree --git";
+        cat = "bat";
+        g = "lazygit";
+        y = "yazi";
+        nbs = "nix run .#build-switch";
+      };
     };
 
     git = {
