@@ -7,9 +7,14 @@ let
 in
 {
   programs = {
+    zoxide.enable = true;
     zsh = {
       enable = true;
       autocd = false;
+      oh-my-zsh = {
+        enable = true;
+        theme = "robbyrussell";
+      };
       plugins = [
         {
           name = "powerlevel10k";
