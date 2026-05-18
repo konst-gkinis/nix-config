@@ -59,6 +59,11 @@ in
           . /nix/var/nix/profiles/default/etc/profile.d/nix.sh
         fi
 
+        # Force a valid UNIX locale (macOS region en_DK has no UNIX locale,
+        # which makes iTerm2 and CLI tools complain)
+        export LANG=en_US.UTF-8
+        export LC_ALL=en_US.UTF-8
+
         # Define variables for directories
         export PATH=$HOME/.pnpm-packages/bin:$HOME/.pnpm-packages:$PATH
         export PATH=$HOME/.npm-packages/bin:$HOME/bin:$PATH
