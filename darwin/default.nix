@@ -91,6 +91,10 @@ in
         "com.apple.mouse.tapBehavior" = 1;
       };
 
+      controlcenter = {
+        BatteryShowPercentage = true;
+      };
+
       dock = {
         show-recents = false;
         launchanim = true;
