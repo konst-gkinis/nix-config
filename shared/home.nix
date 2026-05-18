@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
   name = "Konstantinos Gkinis";
@@ -53,11 +58,16 @@ in
         alias diff=difft
 
         # Add SSH keys to agent on login
-        ${if pkgs.stdenv.hostPlatform.isDarwin then ''
-          ssh-add --apple-load-keychain -q 2>/dev/null || true
-        '' else ''
-          ssh-add -q 2>/dev/null || true
-        ''}
+        ${
+          if pkgs.stdenv.hostPlatform.isDarwin then
+            ''
+              ssh-add --apple-load-keychain -q 2>/dev/null || true
+            ''
+          else
+            ''
+              ssh-add -q 2>/dev/null || true
+            ''
+        }
       '';
 
       shellAliases = {
@@ -92,8 +102,15 @@ in
 
     vim = {
       enable = true;
-      plugins = with pkgs.vimPlugins; [ vim-airline vim-airline-themes vim-startify vim-tmux-navigator ];
-      settings = { ignorecase = true; };
+      plugins = with pkgs.vimPlugins; [
+        vim-airline
+        vim-airline-themes
+        vim-startify
+        vim-tmux-navigator
+      ];
+      settings = {
+        ignorecase = true;
+      };
       extraConfig = ''
         "" General
         set number
@@ -198,7 +215,7 @@ in
 
         let g:airline_theme='bubblegum'
         let g:airline_powerline_fonts = 1
-        '';
+      '';
     };
 
     alacritty = {
@@ -214,6 +231,10 @@ in
             x = 24;
             y = 24;
           };
+          dimensions = {
+            columns = 80;
+            lines = 30;
+          };
         };
 
         terminal.shell = {
@@ -227,7 +248,7 @@ in
           };
           size = lib.mkMerge [
             (lib.mkIf pkgs.stdenv.hostPlatform.isLinux 10)
-            (lib.mkIf pkgs.stdenv.hostPlatform.isDarwin 14)
+            (lib.mkIf pkgs.stdenv.hostPlatform.isDarwin 18)
           ];
         };
 
@@ -266,16 +287,15 @@ in
       enable = true;
       enableDefaultConfig = false;
       includes = [
-        (lib.mkIf pkgs.stdenv.hostPlatform.isLinux
-          "/home/${user}/.ssh/config_external"
-        )
-        (lib.mkIf pkgs.stdenv.hostPlatform.isDarwin
-          "/Users/${user}/.ssh/config_external"
-        )
+        (lib.mkIf pkgs.stdenv.hostPlatform.isLinux "/home/${user}/.ssh/config_external")
+        (lib.mkIf pkgs.stdenv.hostPlatform.isDarwin "/Users/${user}/.ssh/config_external")
       ];
       matchBlocks = {
         "*" = {
-          sendEnv = [ "LANG" "LC_*" ];
+          sendEnv = [
+            "LANG"
+            "LC_*"
+          ];
           hashKnownHosts = true;
         };
       };
@@ -291,7 +311,7 @@ in
         {
           plugin = power-theme;
           extraConfig = ''
-             set -g @tmux_power_theme 'gold'
+            set -g @tmux_power_theme 'gold'
           '';
         }
         {
@@ -359,7 +379,7 @@ in
         bind-key -T copy-mode-vi 'C-k' select-pane -U
         bind-key -T copy-mode-vi 'C-l' select-pane -R
         bind-key -T copy-mode-vi 'C-\' select-pane -l
-        '';
+      '';
     };
   };
 }
