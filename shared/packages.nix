@@ -1,6 +1,7 @@
 { pkgs }:
 
-with pkgs; [
+with pkgs;
+[
   # General packages for development and system management
   bash-completion
   bat
@@ -20,6 +21,7 @@ with pkgs; [
   nodejs_24
 
   # Text and terminal utilities
+  fastfetch
   htop
   jetbrains-mono
   jq
