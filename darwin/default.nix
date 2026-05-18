@@ -1,6 +1,14 @@
-{ config, pkgs, lib, home-manager, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  home-manager,
+  ...
+}:
 
-let user = "kg"; in
+let
+  user = "kg";
+in
 
 {
   imports = [
@@ -12,13 +20,23 @@ let user = "kg"; in
   nix = {
     package = pkgs.nix;
     settings = {
-      trusted-users = [ "@admin" "${user}" ];
-      substituters = [ "https://nix-community.cachix.org" "https://cache.nixos.org" ];
+      trusted-users = [
+        "@admin"
+        "${user}"
+      ];
+      substituters = [
+        "https://nix-community.cachix.org"
+        "https://cache.nixos.org"
+      ];
       trusted-public-keys = [ "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=" ];
     };
     gc = {
       automatic = true;
-      interval = { Weekday = 0; Hour = 2; Minute = 0; };
+      interval = {
+        Weekday = 0;
+        Hour = 2;
+        Minute = 0;
+      };
       options = "--delete-older-than 30d";
     };
     extraOptions = ''
@@ -37,25 +55,30 @@ let user = "kg"; in
 
   homebrew = {
     enable = true;
-    casks = pkgs.callPackage ./casks.nix {};
+    casks = pkgs.callPackage ./casks.nix { };
     # onActivation.cleanup = "uninstall";
   };
 
   home-manager = {
     backupFileExtension = "backup";
     useGlobalPkgs = true;
-    users.${user} = { pkgs, config, lib, ... }: {
-      imports = [ ../shared/home.nix ];
-      home = {
-        enableNixpkgsReleaseCheck = false;
-        packages = (import ../shared/packages.nix { inherit pkgs; }) ++ [
+    users.${user} =
+      {
+        pkgs,
+        config,
+        lib,
+        ...
+      }:
+      {
+        imports = [ ../shared/home.nix ];
+        home = {
+          enableNixpkgsReleaseCheck = false;
+          packages = (import ../shared/packages.nix { inherit pkgs; }) ++ [
             pkgs.dockutil
-            (pkgs.writeShellScriptBin "macos-defaults-diff"
-              (builtins.readFile ./scripts/macos-defaults-diff.sh))
           ];
-        stateVersion = "23.11";
+          stateVersion = "23.11";
+        };
       };
-    };
   };
 
   system = {
