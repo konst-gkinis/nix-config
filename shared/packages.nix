@@ -40,4 +40,5 @@ with pkgs; [
   lazygit
   fzf
   direnv
+  nixfmt
 ]
