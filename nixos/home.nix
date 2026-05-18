@@ -28,7 +28,7 @@ in
     homeDirectory = "/home/${user}";
     packages = import ./packages.nix { inherit pkgs; };
     file = import ./files.nix { inherit user; };
-    stateVersion = "21.05";
+    stateVersion = "25.11";
   };
 
   gtk = {
