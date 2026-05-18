@@ -14,6 +14,24 @@ in
   programs = {
     zoxide.enable = true;
     lazygit.enable = true;
+
+    yazi = {
+      enable = true;
+      shellWrapperName = "y";
+      flavors = {
+        ayu-dark = pkgs.fetchFromGitHub {
+          owner = "kmlupreti";
+          repo = "ayu-dark.yazi";
+          rev = "1da67a8195ebd0978fadc8cb1c6c9142ce331b8a";
+          hash = "sha256-Jyl4Vo7H8WXtG9o4H0SkHneBztjGLMdNgQ4GkY01a0E=";
+        };
+      };
+      theme = {
+        flavor = {
+          dark = "ayu-dark";
+        };
+      };
+    };
     zsh = {
       enable = true;
       autocd = false;
@@ -76,7 +94,6 @@ in
         tree = "lsd --tree --git";
         cat = "bat";
         g = "lazygit";
-        y = "yazi";
         nbs = "nix run .#build-switch";
       };
     };

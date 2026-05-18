@@ -28,7 +28,6 @@ with pkgs; [
   tmux
   unzip
   zsh-powerlevel10k
-  yazi
   bat
   lsd
   pinentry_mac
