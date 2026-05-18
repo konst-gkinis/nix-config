@@ -26,6 +26,7 @@ with pkgs;
   jetbrains-mono
   jq
   ripgrep
+  cheat
   tldr
   tree
   tmux
@@ -34,6 +35,11 @@ with pkgs;
   bat
   lsd
   pinentry_mac
+  lazydocker
+  gdu
+  difftastic
+  jless
+  sd
 
   # Development tools
   claude-code
