@@ -70,7 +70,10 @@ in
         ...
       }:
       {
-        imports = [ ../shared/home.nix ];
+        imports = [
+          ../shared/home.nix
+          ./home.nix
+        ];
         home = {
           enableNixpkgsReleaseCheck = false;
           packages = (import ../shared/packages.nix { inherit pkgs; }) ++ [
