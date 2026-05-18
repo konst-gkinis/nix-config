@@ -19,6 +19,11 @@ in
           Name = "Ayu Mirage";
           Guid = "ayu-mirage";
 
+          "Normal Font" = "MesloLGS-NF-Regular 14";
+          "Non ASCII Font" = "MesloLGS-NF-Regular 14";
+
+          "Custom Locale" = "en_US.UTF-8";
+
           "Background Color" = mkColor 0.1216 0.1412 0.1882;
           "Foreground Color" = mkColor 0.7961 0.8000 0.7765;
           "Cursor Color" = mkColor 1.0 0.8000 0.4000;
