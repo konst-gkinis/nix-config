@@ -24,6 +24,7 @@ with pkgs; [
   jetbrains-mono
   jq
   ripgrep
+  tldr
   tree
   tmux
   unzip
