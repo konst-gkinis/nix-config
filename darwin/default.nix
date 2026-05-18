@@ -100,6 +100,9 @@ in
 
       finder = {
         _FXShowPosixPathInTitle = false;
+        _FXSortFoldersFirst = true;
+        _FXSortFoldersFirstOnDesktop = true;
+        NewWindowTarget = "Home";
       };
 
       trackpad = {
