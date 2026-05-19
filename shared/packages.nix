@@ -39,6 +39,8 @@ with pkgs;
   difftastic
   jless
   sd
+  gnupg
+  pandoc
 
   # Development tools
   claude-code

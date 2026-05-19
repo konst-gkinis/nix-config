@@ -4,4 +4,10 @@
   "brave-browser"
   "discord"
   "spotify"
+  "fluor"
+  "maccy"
+  "caffeine"
+  "alt-tab"
+  "linearmouse"
+  "disk-inventory-x"
 ]
