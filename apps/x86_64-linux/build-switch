@@ -1,16 +1,13 @@
 #!/bin/sh -e
 
-VERSION=1.0
-
-RED='\033[1;31m'
 GREEN='\033[1;32m'
 YELLOW='\033[1;33m'
+RED='\033[1;31m'
 NC='\033[0m'
 
-# Parse arguments for --host parameter
+# Parse arguments for an optional --host override (named flake target)
 HOST=""
 OTHER_ARGS=""
-
 while [ $# -gt 0 ]; do
   case "$1" in
     --host=*)
@@ -28,32 +25,42 @@ while [ $# -gt 0 ]; do
   esac
 done
 
-# If host is specified, use it directly
-if [ -n "$HOST" ]; then
-  FLAKE_TARGET="$HOST"
-  echo -e "${YELLOW}Building for named host: $HOST${NC}"
+# Detect architecture
+case "$(uname -m)" in
+  x86_64) ARCH="x86_64" ;;
+  arm64 | aarch64) ARCH="aarch64" ;;
+  *)
+    printf "%bUnsupported architecture: %s%b\n" "$RED" "$(uname -m)" "$NC"
+    exit 1
+    ;;
+esac
+
+OS="$(uname -s)"
+
+if [ "$OS" = "Darwin" ]; then
+  SYSTEM_TYPE="${HOST:-${ARCH}-darwin}"
+  export NIXPKGS_ALLOW_UNFREE=1
+
+  printf "%bStarting build for %s...%b\n" "$YELLOW" "$SYSTEM_TYPE" "$NC"
+  nix --extra-experimental-features 'nix-command flakes' \
+    build ".#darwinConfigurations.${SYSTEM_TYPE}.system" $OTHER_ARGS
+
+  printf "%bSwitching to new generation...%b\n" "$YELLOW" "$NC"
+  # See https://github.com/nix-darwin/nix-darwin/issues/1457 on why we need sudo
+  sudo ./result/sw/bin/darwin-rebuild switch --flake ".#${SYSTEM_TYPE}" $OTHER_ARGS
+
+  printf "%bCleaning up...%b\n" "$YELLOW" "$NC"
+  unlink ./result
+elif [ "$OS" = "Linux" ]; then
+  FLAKE_TARGET="${HOST:-${ARCH}-linux}"
+
+  printf "%bStarting build for %s...%b\n" "$YELLOW" "$FLAKE_TARGET" "$NC"
+  # Pass SSH from user to root so root can download secrets from private Github
+  sudo SSH_AUTH_SOCK="$SSH_AUTH_SOCK" /run/current-system/sw/bin/nixos-rebuild \
+    switch --flake ".#${FLAKE_TARGET}" $OTHER_ARGS
 else
-  # Default behavior: detect system architecture
-  SYSTEM=$(uname -m)
-  
-  case "$SYSTEM" in
-    x86_64)
-      FLAKE_TARGET="x86_64-linux"
-      ;;
-    aarch64)
-      FLAKE_TARGET="aarch64-linux"
-      ;;
-    *)
-      echo -e "${RED}Unsupported architecture: $SYSTEM${NC}"
-      exit 1
-      ;;
-  esac
-  echo -e "${YELLOW}Building for platform: $FLAKE_TARGET${NC}"
+  printf "%bUnsupported OS: %s%b\n" "$RED" "$OS" "$NC"
+  exit 1
 fi
 
-echo -e "${YELLOW}Starting...${NC}"
-
-# We pass SSH from user to root so root can download secrets from our private Github
-sudo SSH_AUTH_SOCK=$SSH_AUTH_SOCK /run/current-system/sw/bin/nixos-rebuild switch --flake .#$FLAKE_TARGET $OTHER_ARGS
-
-echo -e "${GREEN}Switch to new generation complete!${NC}"
+printf "%bSwitch to new generation complete!%b\n" "$GREEN" "$NC"
