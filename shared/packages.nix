@@ -41,6 +41,7 @@ with pkgs;
   sd
   gnupg
   pandoc
+  terminal-notifier
 
   # Development tools
   claude-code

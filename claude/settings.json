@@ -5,7 +5,35 @@
         "hooks": [
           {
             "type": "command",
-            "command": "afplay /System/Library/Sounds/Glass.aiff 2>/dev/null & PROJ=$(echo \"$PWD\" | tr '/' '-'); LATEST=$(ls -t ~/.claude/projects/\"$PROJ\"/*.jsonl 2>/dev/null | head -1); [ -n \"$LATEST\" ] && MSG=$(grep '\"role\":\"assistant\"' \"$LATEST\" 2>/dev/null | jq -rs 'map(select(any(.message.content[]?; .type == \"text\"))) | last | [.message.content[] | select(.type==\"text\") | .text] | join(\" \")' 2>/dev/null | cut -c1-500) && [ -n \"$MSG\" ] && say -v Samantha -r 180 \"$MSG\"",
+            "command": "afplay /System/Library/Sounds/Glass.aiff 2>/dev/null",
+            "async": true
+          },
+          {
+            "type": "command",
+            "command": "terminal-notifier -title 'Claude Code' -subtitle \"$(basename \"$PWD\")\" -message 'Done / idle' -group claude-code-stop -sound default >/dev/null 2>&1 || true",
+            "async": true
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "AskUserQuestion",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "afplay /System/Library/Sounds/Funk.aiff 2>/dev/null & terminal-notifier -title 'Claude Code' -subtitle \"$(basename \"$PWD\")\" -message 'Question for you' -group claude-code-ask -activate com.googlecode.iterm2 >/dev/null 2>&1 || true",
+            "async": true
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "MSG=$(jq -r '.message // \"Waiting for input\"'); terminal-notifier -title 'Claude Code' -subtitle \"$(basename \"$PWD\")\" -message \"$MSG\" -group claude-code-notify -sound Funk -activate com.googlecode.iterm2 >/dev/null 2>&1 || true",
             "async": true
           }
         ]
