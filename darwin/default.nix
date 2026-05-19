@@ -18,7 +18,7 @@ in
 
   security.pam.services.sudo_local.touchIdAuth = true;
   nix = {
-    package = pkgs.nix;
+    package = pkgs.lixPackageSets.stable.lix;
     settings = {
       trusted-users = [
         "@admin"
