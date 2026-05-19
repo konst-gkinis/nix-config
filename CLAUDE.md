@@ -31,3 +31,8 @@ The script installs Nix (if missing), clones the repo to `~/.config/nix-config`,
 machine-specific values (user, name, email, hostname, timezone, etc.), writes a `host.nix` in
 the repo root, then runs `nix run ".#build-switch"`. The `host.nix` file is generated per-machine
 and is gitignored — it must not be committed.
+
+## Gotchas
+- `specialArg` for the git full name is called `fullName`, not `name`. Don't rename it
+  back — home-manager's module system reserves `name` for the user key, and overriding
+  it silently breaks `config.home.homeDirectory`.
