@@ -32,7 +32,6 @@ with pkgs;
   tmux
   unzip
   zsh-powerlevel10k
-  bat
   lsd
   pinentry_mac
   lazydocker

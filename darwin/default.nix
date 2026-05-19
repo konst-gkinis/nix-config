@@ -77,9 +77,7 @@
         ];
         home = {
           enableNixpkgsReleaseCheck = false;
-          packages = (import ../shared/packages.nix { inherit pkgs; }) ++ [
-            pkgs.dockutil
-          ];
+          packages = [ pkgs.dockutil ];
           stateVersion = "23.11";
         };
       };
