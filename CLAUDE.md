@@ -25,7 +25,7 @@ nix-darwin config for macOS, user `kg`, home `/Users/kg`.
 ## Bootstrapping a new machine
 Run this single command on a fresh macOS or NixOS machine:
 ```
-sh <(curl -L https://raw.githubusercontent.com/raidenfreeman/nix-config/main/bootstrap.sh)
+sh <(curl -L https://raw.githubusercontent.com/konst-gkinis/nix-config/main/bootstrap.sh)
 ```
 The script installs Nix (if missing), clones the repo to `~/.config/nix-config`, prompts for
 machine-specific values (user, name, email, hostname, timezone, etc.), writes a `host.nix` in

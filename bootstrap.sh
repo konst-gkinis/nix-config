@@ -1,6 +1,6 @@
 #!/bin/sh
 # Bootstrap script for nix-config
-# Usage: sh <(curl -L https://raw.githubusercontent.com/raidenfreeman/nix-config/main/bootstrap.sh)
+# Usage: sh <(curl -L https://raw.githubusercontent.com/konst-gkinis/nix-config/main/bootstrap.sh)
 #
 # Supports: macOS (fresh or existing), NixOS (existing system only).
 # NOTE: Fresh NixOS installs (disko + nixos-install) are out of scope.
@@ -14,7 +14,7 @@ YELLOW='\033[1;33m'
 RED='\033[1;31m'
 NC='\033[0m'
 
-REPO_URL="https://github.com/raidenfreeman/nix-config"
+REPO_URL="https://github.com/konst-gkinis/nix-config"
 REPO_DIR="${HOME}/.config/nix-config"
 
 # Helper: prompt with a default value

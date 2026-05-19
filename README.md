@@ -5,7 +5,7 @@ Declarative configuration for macOS (nix-darwin) and NixOS, sharing a single hom
 ## Bootstrap a new machine
 
 ```sh
-sh <(curl -L https://raw.githubusercontent.com/raidenfreeman/nix-config/main/bootstrap.sh)
+sh <(curl -L https://raw.githubusercontent.com/konst-gkinis/nix-config/main/bootstrap.sh)
 ```
 
 The script:
