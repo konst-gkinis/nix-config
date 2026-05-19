@@ -1,7 +1,16 @@
 #!/usr/bin/env bash
 # Claude Code status line — mirrors Powerlevel10k p10k-classic segments:
 #   left:  dir | git status
-#   right: model | context usage | user@host | time
+#   right: model | context usage | time
+
+# ANSI colors as real escape bytes (so they survive being passed through %s).
+ESC=$'\033'
+BLUE="${ESC}[34m"
+CYAN="${ESC}[36m"
+GREEN="${ESC}[32m"
+YELLOW="${ESC}[33m"
+GREY="${ESC}[90m"
+RESET="${ESC}[0m"
 
 input=$(cat)
 
@@ -15,9 +24,9 @@ git_info=""
 if branch=$(GIT_OPTIONAL_LOCKS=0 git -C "$cwd" symbolic-ref --short HEAD 2>/dev/null); then
   dirty=$(GIT_OPTIONAL_LOCKS=0 git -C "$cwd" status --porcelain 2>/dev/null | head -1)
   if [ -n "$dirty" ]; then
-    git_info=" \033[33m($branch *)\033[0m"
+    git_info=" ${YELLOW}(${branch} *)${RESET}"
   else
-    git_info=" \033[32m($branch)\033[0m"
+    git_info=" ${GREEN}(${branch})${RESET}"
   fi
 fi
 
@@ -42,12 +51,12 @@ if [ -n "$week" ]; then
   rate_info="$rate_info 7d:$(printf '%.0f' "$week")%"
 fi
 
-# --- user@host ---
-user_host="$(whoami)@$(hostname -s)"
-
 # --- time ---
 timestamp=$(date +%H:%M:%S)
 
 # --- assemble ---
-printf "\033[34m%s\033[0m%s  \033[36m%s\033[0m\033[90m%s%s\033[0m  \033[90m%s  %s\033[0m" \
-  "$dir" "$git_info" "$model" "$ctx_info" "$rate_info" "$user_host" "$timestamp"
+printf '%s%s%s%s  %s%s%s%s%s%s    %s%s%s' \
+  "$BLUE" "$dir" "$RESET" "$git_info" \
+  "$CYAN" "$model" "$RESET" \
+  "$GREY" "$ctx_info$rate_info" "$RESET" \
+  "$GREY" "$timestamp" "$RESET"
