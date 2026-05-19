@@ -1,10 +1,10 @@
-_: {
+{ diskDevice, ... }: {
   # This formats the disk with the ext4 filesystem
   # Other examples found here: https://github.com/nix-community/disko/tree/master/example
   disko.devices = {
     disk = {
       vdb = {
-        device = "/dev/nvme0n1";
+        device = diskDevice;
         type = "disk";
         content = {
           type = "gpt";

@@ -50,7 +50,19 @@
       claude-code,
     }@inputs:
     let
-      user = "kg";
+      settings =
+        let defaults = {
+          user = "kg";
+          name = "Konstantinos Gkinis";
+          email = "konst.gkinis@gmail.com";
+          isPersonal = true;
+          hostName = "nixos";
+          timeZone = "America/New_York";
+          sshKeys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOk8iAnIaa1deoc7jw8YACPNVka1ZFJxhnU4G74TmS+p" ];
+          diskDevice = "/dev/nvme0n1";
+        };
+        in defaults // (if builtins.pathExists ./host.nix then import ./host.nix else {});
+      user = settings.user;
       linuxSystems = [
         "x86_64-linux"
         "aarch64-linux"
@@ -120,7 +132,7 @@
           inherit system;
           specialArgs = inputs // {
             inherit user;
-            isPersonal = true;
+            inherit (settings) name email isPersonal hostName timeZone sshKeys diskDevice;
           };
           modules = [
             home-manager.darwinModules.home-manager
@@ -149,6 +161,7 @@
           inherit system;
           specialArgs = inputs // {
             inherit user;
+            inherit (settings) name email isPersonal hostName timeZone sshKeys diskDevice;
           };
           modules = [
             disko.nixosModules.disko

@@ -3,14 +3,14 @@
   inputs,
   pkgs,
   user,
+  name,
+  email,
+  hostName,
+  timeZone,
+  sshKeys,
+  diskDevice,
   ...
 }:
-
-let
-  sshKeys = [
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOk8iAnIaa1deoc7jw8YACPNVka1ZFJxhnU4G74TmS+p"
-  ];
-in
 {
   imports = [
     ./disk-config.nix
@@ -20,7 +20,7 @@ in
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
-    extraSpecialArgs = { inherit user; };
+    extraSpecialArgs = { inherit user name email; };
     users.${user} = {
       imports = [
         ../shared/home.nix
@@ -49,10 +49,10 @@ in
     kernelModules = [ "uinput" ];
   };
 
-  time.timeZone = "America/New_York";
+  time.timeZone = timeZone;
 
   networking = {
-    hostName = "nixos";
+    hostName = hostName;
     networkmanager.enable = true;
   };
 

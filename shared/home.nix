@@ -3,13 +3,10 @@
   pkgs,
   lib,
   user,
+  name ? "Konstantinos Gkinis",
+  email ? "konst.gkinis@gmail.com",
   ...
 }:
-
-let
-  name = "Konstantinos Gkinis";
-  email = "konst.gkinis@gmail.com";
-in
 {
   programs = {
     zoxide.enable = true;

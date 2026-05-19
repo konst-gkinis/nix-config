@@ -21,3 +21,13 @@ nix-darwin config for macOS, user `kg`, home `/Users/kg`.
 - Nix GC: weekly, deletes >30 days
 - Experimental features: nix-command, flakes
 - home-manager stateVersion: 23.11
+
+## Bootstrapping a new machine
+Run this single command on a fresh macOS or NixOS machine:
+```
+sh <(curl -L https://raw.githubusercontent.com/raidenfreeman/nix-config/main/bootstrap.sh)
+```
+The script installs Nix (if missing), clones the repo to `~/.config/nix-config`, prompts for
+machine-specific values (user, name, email, hostname, timezone, etc.), writes a `host.nix` in
+the repo root, then runs `nix run ".#build-switch"`. The `host.nix` file is generated per-machine
+and is gitignored — it must not be committed.
