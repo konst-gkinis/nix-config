@@ -52,9 +52,8 @@ in
   time.timeZone = "America/New_York";
 
   networking = {
-    hostName = "%HOST%";
-    useDHCP = false;
-    interfaces."%INTERFACE%".useDHCP = true;
+    hostName = "nixos";
+    networkmanager.enable = true;
   };
 
   nix = {
