@@ -88,7 +88,7 @@ in
       ) cfg.entries;
     in
     {
-      system.activationScripts.postActivation.text = ''
+      system.activationScripts.postActivation.text = mkBefore ''
           echo >&2 "Setting up the Dock for ${cfg.username}..."
           sudo -u ${cfg.username} ${pkgs.zsh}/bin/zsh -s /bin/sh <<'USERBLOCK'
         haveURIs="$(${dockutil}/bin/dockutil --list | ${pkgs.coreutils}/bin/cut -f2)"
