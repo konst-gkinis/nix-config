@@ -156,8 +156,19 @@ if [ ! -f "$SSH_KEY_PATH" ]; then
   printf "%b==> No SSH key at %s — generating ed25519 keypair...%b\n" "$GREEN" "$SSH_KEY_PATH" "$NC"
   mkdir -p "${HOME}/.ssh"
   chmod 700 "${HOME}/.ssh"
-  ssh-keygen -t ed25519 -C "$CFG_EMAIL" -N "" -f "$SSH_KEY_PATH"
+  printf "%bProtect the private key with a passphrase? [Y/n]: %b" "$YELLOW" "$NC"
+  read -r _pass_ans
+  case "$_pass_ans" in
+    n|N)
+      ssh-keygen -t ed25519 -C "$CFG_EMAIL" -N "" -f "$SSH_KEY_PATH"
+      ;;
+    *)
+      # ssh-keygen will prompt twice for the passphrase
+      ssh-keygen -t ed25519 -C "$CFG_EMAIL" -f "$SSH_KEY_PATH"
+      ;;
+  esac
   if [ "$OS" = "Darwin" ]; then
+    # Store passphrase in macOS Keychain so signing/auth is friction-free
     ssh-add --apple-use-keychain "$SSH_KEY_PATH" 2>/dev/null || true
   fi
 else
