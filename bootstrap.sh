@@ -148,6 +148,23 @@ if [ -z "$DEFAULT_TZ" ]; then
 fi
 CFG_TIMEZONE="$(ask "Timezone" "$DEFAULT_TZ")"
 
+# ── Ensure a per-machine SSH key exists ──────────────────────────────────────
+# Used for both SSH auth and git commit signing (gpg.format = ssh).
+
+SSH_KEY_PATH="${HOME}/.ssh/id_ed25519"
+if [ ! -f "$SSH_KEY_PATH" ]; then
+  printf "%b==> No SSH key at %s — generating ed25519 keypair...%b\n" "$GREEN" "$SSH_KEY_PATH" "$NC"
+  mkdir -p "${HOME}/.ssh"
+  chmod 700 "${HOME}/.ssh"
+  ssh-keygen -t ed25519 -C "$CFG_EMAIL" -N "" -f "$SSH_KEY_PATH"
+  if [ "$OS" = "Darwin" ]; then
+    ssh-add --apple-use-keychain "$SSH_KEY_PATH" 2>/dev/null || true
+  fi
+else
+  printf "%b==> Reusing existing SSH key at %s%b\n" "$GREEN" "$SSH_KEY_PATH" "$NC"
+fi
+SSH_PUBKEY="$(cat "${SSH_KEY_PATH}.pub")"
+
 # SSH keys and disk device — Linux only
 if [ "$OS" = "Linux" ]; then
   # SSH authorized public key
@@ -183,6 +200,14 @@ if [ "$OS" = "Linux" ]; then
   printf "  %-12s %s\n" "sshKeys:"    "$CFG_SSH_KEY"
   printf "  %-12s %s\n" "diskDevice:" "$CFG_DISK"
 fi
+
+printf "\n%b==> Add this SSH public key to GitHub as BOTH an Authentication%b\n" "$YELLOW" "$NC"
+printf "%b    key AND a Signing key (separate forms — paste twice):%b\n" "$YELLOW" "$NC"
+printf "    %s\n" "$SSH_PUBKEY"
+printf "    https://github.com/settings/ssh/new\n"
+printf "    https://github.com/settings/ssh/new?type=signing\n"
+printf "%bPress Enter when added (or to skip)...%b" "$YELLOW" "$NC"
+read -r _ack
 
 printf "\n%bProceed with build-switch? [y/N]: %b" "$YELLOW" "$NC"
 read -r _confirm

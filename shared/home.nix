@@ -3,7 +3,7 @@
   pkgs,
   lib,
   user,
-  name ? "Konstantinos Gkinis",
+  fullName ? "Konstantinos Gkinis",
   email ? "konst.gkinis@gmail.com",
   ...
 }:
@@ -106,8 +106,13 @@
       lfs = {
         enable = true;
       };
+      signing = {
+        key = "${config.home.homeDirectory}/.ssh/id_ed25519.pub";
+        format = "ssh";
+        signByDefault = true;
+      };
       settings = {
-        user.name = name;
+        user.name = fullName;
         user.email = email;
         init.defaultBranch = "main";
         core = {

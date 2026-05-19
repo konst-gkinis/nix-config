@@ -132,7 +132,8 @@
           inherit system;
           specialArgs = inputs // {
             inherit user;
-            inherit (settings) name email isPersonal hostName timeZone sshKeys diskDevice;
+            fullName = settings.name;
+            inherit (settings) email isPersonal hostName timeZone sshKeys diskDevice;
           };
           modules = [
             home-manager.darwinModules.home-manager
@@ -161,7 +162,8 @@
           inherit system;
           specialArgs = inputs // {
             inherit user;
-            inherit (settings) name email isPersonal hostName timeZone sshKeys diskDevice;
+            fullName = settings.name;
+            inherit (settings) email isPersonal hostName timeZone sshKeys diskDevice;
           };
           modules = [
             disko.nixosModules.disko

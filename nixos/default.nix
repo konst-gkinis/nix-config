@@ -3,7 +3,7 @@
   inputs,
   pkgs,
   user,
-  name,
+  fullName,
   email,
   hostName,
   timeZone,
@@ -20,7 +20,7 @@
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
-    extraSpecialArgs = { inherit user name email; };
+    extraSpecialArgs = { inherit user fullName email; };
     users.${user} = {
       imports = [
         ../shared/home.nix

@@ -4,7 +4,7 @@
   lib,
   home-manager,
   user,
-  name,
+  fullName,
   email,
   isPersonal ? false,
   ...
@@ -70,7 +70,7 @@ in
   home-manager = {
     backupFileExtension = "backup";
     useGlobalPkgs = true;
-    extraSpecialArgs = { inherit user name email; };
+    extraSpecialArgs = { inherit user fullName email; };
     users.${user} =
       {
         pkgs,
