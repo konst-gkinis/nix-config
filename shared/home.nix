@@ -8,6 +8,14 @@
   ...
 }:
 {
+  home.file = {
+    ".claude/settings.json".source = ../claude/settings.json;
+    ".claude/statusline-command.sh" = {
+      source = ../claude/statusline-command.sh;
+      executable = true;
+    };
+  };
+
   programs = {
     zoxide.enable = true;
     lazygit.enable = true;

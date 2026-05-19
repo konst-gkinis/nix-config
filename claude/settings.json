@@ -1,0 +1,28 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "afplay /System/Library/Sounds/Glass.aiff 2>/dev/null & PROJ=$(echo \"$PWD\" | tr '/' '-'); LATEST=$(ls -t ~/.claude/projects/\"$PROJ\"/*.jsonl 2>/dev/null | head -1); [ -n \"$LATEST\" ] && MSG=$(grep '\"role\":\"assistant\"' \"$LATEST\" 2>/dev/null | jq -rs 'map(select(any(.message.content[]?; .type == \"text\"))) | last | [.message.content[] | select(.type==\"text\") | .text] | join(\" \")' 2>/dev/null | cut -c1-500) && [ -n \"$MSG\" ] && say -v Samantha -r 180 \"$MSG\"",
+            "async": true
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash ~/.claude/statusline-command.sh"
+  },
+  "effortLevel": "medium",
+  "voice": {
+    "enabled": true,
+    "mode": "tap"
+  },
+  "theme": "dark",
+  "agentPushNotifEnabled": true,
+  "voiceEnabled": true,
+  "model": "opus"
+}

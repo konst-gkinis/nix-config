@@ -43,6 +43,7 @@ The script:
 | `apps/<system>/` | Flake apps: `build-switch`, `apply`, `clean`, etc. |
 | `overlays/` | nixpkgs overlays (custom fonts, etc.). |
 | `config/` | Static config files (p10k, polybar themes, login wallpaper). |
+| `claude/` | Claude Code static config (`settings.json`, `statusline-command.sh`), symlinked into `~/.claude/`. |
 
 ## Configurable values (`host.nix`)
 
@@ -81,6 +82,10 @@ nix run .#build-switch
 `programs.git.signing` is configured to sign commits and tags by default using your SSH key at `~/.ssh/id_ed25519.pub` (`gpg.format = ssh`). The bootstrap script generates that key per machine and prompts you to register it on GitHub as a signing key. Each machine has its own key — revoke one without affecting the others.
 
 For local verification (so `git log --show-signature` and `git verify-commit` work offline), the bootstrap script also runs `scripts/setup-signature-verification.sh`, which writes `~/.config/git/allowed_signers` and points `gpg.ssh.allowedSignersFile` at it. Re-run it manually if you ever rotate the key.
+
+## Claude Code config
+
+Static files under `claude/` are symlinked into `~/.claude/` by home-manager. To change them, edit the files in this repo and run `nix run .#build-switch`. The symlinks point into the nix store and are read-only — Claude's dynamic state (`projects/*/memory/`, sessions, history) is left untouched and is not synced by this repo.
 
 ## Key facts
 
