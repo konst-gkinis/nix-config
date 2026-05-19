@@ -120,6 +120,7 @@
           inherit system;
           specialArgs = inputs // {
             inherit user;
+            isPersonal = true;
           };
           modules = [
             home-manager.darwinModules.home-manager

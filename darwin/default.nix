@@ -4,8 +4,14 @@
   lib,
   home-manager,
   user,
+  isPersonal ? false,
   ...
 }:
+
+let
+  casks = import ./casks.nix;
+  casksPersonal = import ./casks-personal.nix;
+in
 
 {
   imports = [
@@ -55,7 +61,7 @@
 
   homebrew = {
     enable = true;
-    casks = import ./casks.nix;
+    casks = casks ++ lib.optionals isPersonal casksPersonal;
     # onActivation.cleanup = "uninstall";
   };
 
