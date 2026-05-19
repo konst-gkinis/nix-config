@@ -55,7 +55,7 @@
 
   homebrew = {
     enable = true;
-    casks = pkgs.callPackage ./casks.nix { };
+    casks = import ./casks.nix;
     # onActivation.cleanup = "uninstall";
   };
 
