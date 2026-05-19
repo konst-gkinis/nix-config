@@ -2,4 +2,8 @@
   "iterm2"
   "visual-studio-code"
   "godot"
+  "brave-browser"
+  "discord"
+  "nordvpn"
+  "spotify"
 ]
