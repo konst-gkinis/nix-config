@@ -1,4 +1,9 @@
-{ config, inputs, pkgs, ... }:
+{
+  config,
+  inputs,
+  pkgs,
+  ...
+}:
 
 let
   user = "kg";
@@ -15,7 +20,12 @@ in
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
-    users.${user} = { imports = [ ../shared/home.nix ./home.nix ]; };
+    users.${user} = {
+      imports = [
+        ../shared/home.nix
+        ./home.nix
+      ];
+    };
   };
 
   boot = {
@@ -26,7 +36,14 @@ in
       };
       efi.canTouchEfiVariables = true;
     };
-    initrd.availableKernelModules = [ "xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod" ];
+    initrd.availableKernelModules = [
+      "xhci_pci"
+      "ahci"
+      "nvme"
+      "usbhid"
+      "usb_storage"
+      "sd_mod"
+    ];
     kernelPackages = pkgs.linuxPackages_latest;
     kernelModules = [ "uinput" ];
   };
@@ -43,8 +60,14 @@ in
     nixPath = [ "nixos-config=/home/${user}/.local/share/src/nixos-config:/etc/nixos" ];
     settings = {
       allowed-users = [ "${user}" ];
-      trusted-users = [ "@admin" "${user}" ];
-      substituters = [ "https://nix-community.cachix.org" "https://cache.nixos.org" ];
+      trusted-users = [
+        "@admin"
+        "${user}"
+      ];
+      substituters = [
+        "https://nix-community.cachix.org"
+        "https://cache.nixos.org"
+      ];
       trusted-public-keys = [ "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=" ];
     };
     package = pkgs.nix;
@@ -94,7 +117,7 @@ in
       overrideFolders = true;
       overrideDevices = true;
       settings = {
-        devices = {};
+        devices = { };
         options.globalAnnounceEnabled = false;
       };
     };
@@ -118,8 +141,8 @@ in
           "class_g = 'i3lock'"
         ];
         round-borders = 3;
-        round-borders-exclude = [];
-        round-borders-rule = [];
+        round-borders-exclude = [ ];
+        round-borders-rule = [ ];
         shadow = true;
         shadow-radius = 8;
         shadow-opacity = 0.4;
@@ -130,7 +153,7 @@ in
         frame-opacity = 0.7;
         inactive-opacity-override = false;
         active-opacity = 1.0;
-        focus-exclude = [];
+        focus-exclude = [ ];
         opacity-rule = [
           "100:class_g = 'i3lock'"
           "60:class_g = 'Dunst'"
@@ -159,12 +182,29 @@ in
         use-damage = true;
         log-level = "info";
         wintypes = {
-          normal = { fade = true; shadow = false; };
-          tooltip = { fade = true; shadow = false; opacity = 0.75; focus = true; full-shadow = false; };
-          dock = { shadow = false; };
-          dnd = { shadow = false; };
-          popup_menu = { opacity = 1.0; };
-          dropdown_menu = { opacity = 1.0; };
+          normal = {
+            fade = true;
+            shadow = false;
+          };
+          tooltip = {
+            fade = true;
+            shadow = false;
+            opacity = 0.75;
+            focus = true;
+            full-shadow = false;
+          };
+          dock = {
+            shadow = false;
+          };
+          dnd = {
+            shadow = false;
+          };
+          popup_menu = {
+            opacity = 1.0;
+          };
+          dropdown_menu = {
+            opacity = 1.0;
+          };
         };
       };
     };
@@ -186,7 +226,10 @@ in
   users.users = {
     ${user} = {
       isNormalUser = true;
-      extraGroups = [ "wheel" "docker" ];
+      extraGroups = [
+        "wheel"
+        "docker"
+      ];
       shell = pkgs.zsh;
       openssh.authorizedKeys.keys = sshKeys;
     };
@@ -195,13 +238,17 @@ in
 
   security.sudo = {
     enable = true;
-    extraRules = [{
-      commands = [{
-        command = "${pkgs.systemd}/bin/reboot";
-        options = [ "NOPASSWD" ];
-      }];
-      groups = [ "wheel" ];
-    }];
+    extraRules = [
+      {
+        commands = [
+          {
+            command = "${pkgs.systemd}/bin/reboot";
+            options = [ "NOPASSWD" ];
+          }
+        ];
+        groups = [ "wheel" ];
+      }
+    ];
   };
 
   fonts.packages = with pkgs; [
