@@ -3,12 +3,9 @@
   pkgs,
   lib,
   home-manager,
+  user,
   ...
 }:
-
-let
-  user = "kg";
-in
 
 {
   imports = [
@@ -62,6 +59,7 @@ in
   home-manager = {
     backupFileExtension = "backup";
     useGlobalPkgs = true;
+    extraSpecialArgs = { inherit user; };
     users.${user} =
       {
         pkgs,

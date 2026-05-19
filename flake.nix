@@ -113,12 +113,11 @@
 
       darwinConfigurations = nixpkgs.lib.genAttrs darwinSystems (
         system:
-        let
-          user = "kg";
-        in
         darwin.lib.darwinSystem {
           inherit system;
-          specialArgs = inputs;
+          specialArgs = inputs // {
+            inherit user;
+          };
           modules = [
             home-manager.darwinModules.home-manager
             nix-homebrew.darwinModules.nix-homebrew
@@ -144,7 +143,9 @@
         system:
         nixpkgs.lib.nixosSystem {
           inherit system;
-          specialArgs = inputs;
+          specialArgs = inputs // {
+            inherit user;
+          };
           modules = [
             disko.nixosModules.disko
             home-manager.nixosModules.home-manager

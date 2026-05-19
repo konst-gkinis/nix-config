@@ -2,12 +2,12 @@
   config,
   pkgs,
   lib,
+  user,
   ...
 }:
 
 let
   name = "Konstantinos Gkinis";
-  user = "kg";
   email = "konst.gkinis@gmail.com";
 in
 {

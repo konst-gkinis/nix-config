@@ -2,11 +2,11 @@
   config,
   pkgs,
   lib,
+  user,
   ...
 }:
 
 let
-  user = "kg";
   xdg_configHome = "/home/${user}/.config";
 
   polybar-user_modules = builtins.readFile (
