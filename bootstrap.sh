@@ -269,4 +269,11 @@ esac
 printf "%b==> Running build-switch...%b\n" "$GREEN" "$NC"
 nix --extra-experimental-features 'nix-command flakes' run ".#build-switch"
 
+# ── Local signature verification ─────────────────────────────────────────────
+# Run after build-switch so home-manager has populated git user.email.
+
+printf "%b==> Configuring local SSH signature verification...%b\n" "$GREEN" "$NC"
+sh "${REPO_DIR}/scripts/setup-signature-verification.sh" "$CFG_EMAIL" || \
+  printf "%bSignature verification setup failed (non-fatal).%b\n" "$YELLOW" "$NC"
+
 printf "%b==> Bootstrap complete!%b\n" "$GREEN" "$NC"
