@@ -10,4 +10,5 @@
   "alt-tab"
   "linearmouse"
   "disk-inventory-x"
+  "betterdisplay"
 ]
