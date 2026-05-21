@@ -11,4 +11,5 @@
   "linearmouse"
   "disk-inventory-x"
   "betterdisplay"
+  "zed"
 ]
