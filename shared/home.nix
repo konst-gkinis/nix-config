@@ -39,7 +39,7 @@
     };
     zsh = {
       enable = true;
-      autocd = false;
+      autocd = true;
       oh-my-zsh = {
         enable = true;
         theme = "robbyrussell";
