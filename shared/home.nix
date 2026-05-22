@@ -100,7 +100,7 @@
 
       shellAliases = {
         ls = "lsd";
-        l = "lsd -l";
+        l = "lsd -l --group-directories-first --blocks \"name,date,size\"";
         tree = "lsd --tree --git";
         cat = "bat";
         g = "lazygit";
