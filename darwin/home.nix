@@ -14,6 +14,19 @@ in
   home.file."Library/Application Support/iTerm2/DynamicProfiles/ayu-mirage.json".text =
     builtins.toJSON profileWithBg;
 
+  programs.zed-editor = {
+    enable = true;
+    extensions = [
+      "nix"
+      "terraform"
+      "catppuccin"
+      "catppuccin-icons"
+      "codebook"
+      "monokai-og"
+      "ayu-darker"
+    ];
+  };
+
   home.activation.itermDefaults = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     run /usr/bin/defaults write com.googlecode.iterm2 "Default Bookmark Guid" -string "ayu-mirage"
     run /usr/bin/defaults write com.googlecode.iterm2 "Default Browser Profile Guid" -string "ayu-mirage"
