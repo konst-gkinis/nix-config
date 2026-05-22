@@ -193,6 +193,7 @@
         "telnet"
       ],
       "Keyboard Map": {},
+      "Load Shell Integration Automatically": true,
       "Link Color": {
         "Alpha Component": 1.0,
         "Blue Component": 0.9337158203125,
