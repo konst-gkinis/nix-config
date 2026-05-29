@@ -20,6 +20,11 @@
     zoxide.enable = true;
     lazygit.enable = true;
 
+    direnv = {
+      enable = true;
+      nix-direnv.enable = true;
+    };
+
     yazi = {
       enable = true;
       shellWrapperName = "y";

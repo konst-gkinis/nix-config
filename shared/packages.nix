@@ -49,6 +49,5 @@ with pkgs;
   gh
   lazygit
   fzf
-  direnv
   nixfmt
 ]
