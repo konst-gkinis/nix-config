@@ -322,13 +322,13 @@
         (lib.mkIf pkgs.stdenv.hostPlatform.isLinux "/home/${user}/.ssh/config_external")
         (lib.mkIf pkgs.stdenv.hostPlatform.isDarwin "/Users/${user}/.ssh/config_external")
       ];
-      matchBlocks = {
+      settings = {
         "*" = {
-          sendEnv = [
+          SendEnv = [
             "LANG"
             "LC_*"
           ];
-          hashKnownHosts = true;
+          HashKnownHosts = true;
         };
       };
     };
