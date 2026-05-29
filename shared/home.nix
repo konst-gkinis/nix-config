@@ -82,6 +82,22 @@
             nix-shell '<nixpkgs>' -A "$1"
         }
 
+        # Temporary shell with extra packages, keeping zsh + p10k visible.
+        # The flakes `nix shell` doesn't set $IN_NIX_SHELL, so the p10k
+        # nix_shell segment never lights up (classic `nix-shell -p` does set
+        # it). We set it ourselves; `nix shell` inherits it into the inner
+        # zsh, so the segment shows. Bare names resolve to nixpkgs#<name>;
+        # refs containing `#` or `:` pass through (e.g. `ns nixpkgs#hello`).
+        ns() {
+          emulate -L zsh
+          local -a refs
+          local p
+          for p in "$@"; do
+            if [[ $p == *[#:]* ]]; then refs+=("$p"); else refs+=("nixpkgs#$p"); fi
+          done
+          IN_NIX_SHELL=impure nix shell "''${refs[@]}" --command zsh -i
+        }
+
         # Use difftastic, syntax-aware diffing
         alias diff=difft
 
