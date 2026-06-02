@@ -9,7 +9,7 @@ shared-packages
 
   # Security and authentication
   yubikey-agent
-  pinetry-curses
+  pinentry-curses
 
   # App and package management
   appimage-run
