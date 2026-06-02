@@ -33,7 +33,6 @@ with pkgs;
   unzip
   zsh-powerlevel10k
   lsd
-  pinentry_mac
   lazydocker
   gdu
   difftastic
@@ -41,7 +40,6 @@ with pkgs;
   sd
   gnupg
   pandoc
-  terminal-notifier
 
   # Development tools
   claude-code

@@ -52,7 +52,10 @@ in
     '';
   };
 
-  environment.systemPackages = import ../shared/packages.nix { inherit pkgs; };
+  environment.systemPackages = (import ../shared/packages.nix { inherit pkgs; }) ++ [
+    pkgs.pinentry_mac
+    pkgs.terminal-notifier
+  ];
 
   users.users.${user} = {
     name = "${user}";
