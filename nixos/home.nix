@@ -48,7 +48,7 @@ in
       name = "Adwaita-dark";
       package = pkgs.adwaita-icon-theme;
     };
-    gtk.gtk4.theme = config.gtk.theme;
+    gtk4.theme = config.gtk.theme;
   };
 
   services = {
