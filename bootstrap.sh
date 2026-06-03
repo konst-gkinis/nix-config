@@ -50,9 +50,22 @@ case "$ARCH" in
     ;;
 esac
 
+IS_WSL=0
+if [ "$OS" = "Linux" ]; then
+  if grep -qi microsoft /proc/version 2>/dev/null || grep -qi microsoft /proc/sys/kernel/osrelease 2>/dev/null; then
+    IS_WSL=1
+  fi
+fi
+
 case "$OS" in
   Darwin) FLAKE_SYSTEM="${ARCH}-darwin" ;;
-  Linux)  FLAKE_SYSTEM="${ARCH}-linux" ;;
+  Linux)
+    if [ "$IS_WSL" = "1" ]; then
+      FLAKE_SYSTEM="wsl"
+    else
+      FLAKE_SYSTEM="${ARCH}-linux"
+    fi
+    ;;
   *)
     printf "%bUnsupported OS: %s%b\n" "$RED" "$OS" "$NC"
     exit 1
