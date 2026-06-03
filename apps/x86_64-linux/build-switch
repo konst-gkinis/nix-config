@@ -52,11 +52,33 @@ if [ "$OS" = "Darwin" ]; then
   printf "%bCleaning up...%b\n" "$YELLOW" "$NC"
   unlink ./result
 elif [ "$OS" = "Linux" ]; then
-  FLAKE_TARGET="${HOST:-${ARCH}-linux}"
+  # Detect WSL (Microsoft kernel string present in /proc/version or osrelease)
+  if grep -qi microsoft /proc/version 2>/dev/null || grep -qi microsoft /proc/sys/kernel/osrelease 2>/dev/null; then
+    IS_WSL=1
+  else
+    IS_WSL=0
+  fi
+
+  if [ -n "$HOST" ]; then
+    FLAKE_TARGET="$HOST"
+  elif [ "$IS_WSL" = "1" ]; then
+    FLAKE_TARGET="wsl"
+  else
+    FLAKE_TARGET="${ARCH}-linux"
+  fi
 
   printf "%bStarting build for %s...%b\n" "$YELLOW" "$FLAKE_TARGET" "$NC"
+  # Prefer the activated system's nixos-rebuild; fall back to PATH (e.g. fresh installs)
+  NIXOS_REBUILD_BIN="/run/current-system/sw/bin/nixos-rebuild"
+  if [ ! -x "$NIXOS_REBUILD_BIN" ]; then
+    NIXOS_REBUILD_BIN="$(command -v nixos-rebuild 2>/dev/null || true)"
+  fi
+  if [ -z "$NIXOS_REBUILD_BIN" ]; then
+    printf "%bnixos-rebuild not found. Is this a NixOS system?%b\n" "$RED" "$NC"
+    exit 1
+  fi
   # Pass SSH from user to root so root can download secrets from private Github
-  sudo SSH_AUTH_SOCK="$SSH_AUTH_SOCK" /run/current-system/sw/bin/nixos-rebuild \
+  sudo SSH_AUTH_SOCK="$SSH_AUTH_SOCK" "$NIXOS_REBUILD_BIN" \
     switch --flake ".#${FLAKE_TARGET}" $OTHER_ARGS
 else
   printf "%bUnsupported OS: %s%b\n" "$RED" "$OS" "$NC"

@@ -30,6 +30,10 @@
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nixos-wsl = {
+      url = "github:nix-community/NixOS-WSL";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     claude-code = {
       url = "github:sadjow/claude-code-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -47,6 +51,7 @@
       home-manager,
       nixpkgs,
       disko,
+      nixos-wsl,
       claude-code,
     }@inputs:
     let
@@ -155,21 +160,37 @@
         }
       );
 
-      nixosConfigurations = nixpkgs.lib.genAttrs linuxSystems (
-        system:
-        nixpkgs.lib.nixosSystem {
-          inherit system;
-          specialArgs = inputs // {
-            inherit user;
-            fullName = settings.name;
-            inherit (settings) email isPersonal hostName timeZone sshKeys diskDevice;
+      nixosConfigurations =
+        nixpkgs.lib.genAttrs linuxSystems (
+          system:
+          nixpkgs.lib.nixosSystem {
+            inherit system;
+            specialArgs = inputs // {
+              inherit user;
+              fullName = settings.name;
+              inherit (settings) email isPersonal hostName timeZone sshKeys diskDevice;
+            };
+            modules = [
+              disko.nixosModules.disko
+              home-manager.nixosModules.home-manager
+              ./nixos
+            ];
+          }
+        )
+        // {
+          wsl = nixpkgs.lib.nixosSystem {
+            system = "x86_64-linux";
+            specialArgs = inputs // {
+              inherit user;
+              fullName = settings.name;
+              inherit (settings) email isPersonal hostName timeZone sshKeys diskDevice;
+            };
+            modules = [
+              nixos-wsl.nixosModules.wsl
+              home-manager.nixosModules.home-manager
+              ./wsl
+            ];
           };
-          modules = [
-            disko.nixosModules.disko
-            home-manager.nixosModules.home-manager
-            ./nixos
-          ];
-        }
-      );
+        };
     };
 }
