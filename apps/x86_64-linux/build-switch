@@ -77,16 +77,18 @@ elif [ "$OS" = "Linux" ]; then
     printf "%bnixos-rebuild not found. Is this a NixOS system?%b\n" "$RED" "$NC"
     exit 1
   fi
-  # Ensure git is in PATH — nixos-rebuild needs it to resolve the flake lock.
-  # On a fresh install no generation exists yet, so it won't be in PATH.
-  if ! command -v git >/dev/null 2>&1; then
-    printf "%bgit not in PATH; building from nixpkgs...%b\n" "$YELLOW" "$NC"
-    NIX_GIT_BIN="$(nix-build '<nixpkgs>' -A git --no-out-link 2>/dev/null)/bin"
-    [ -d "$NIX_GIT_BIN" ] && export PATH="$NIX_GIT_BIN:$PATH"
+  # Nix resolves "." as "git+file:." and calls git to read the repo.
+  # On a fresh install git isn't available yet, so use "path:." instead —
+  # it copies the directory into the store without needing git.
+  if command -v git >/dev/null 2>&1; then
+    FLAKE_REF=".#${FLAKE_TARGET}"
+  else
+    printf "%bgit not in PATH; using path: flake ref for initial build...%b\n" "$YELLOW" "$NC"
+    FLAKE_REF="path:.#${FLAKE_TARGET}"
   fi
   # Pass SSH and full PATH to root so flake + private repos are reachable
   sudo env PATH="$PATH" SSH_AUTH_SOCK="$SSH_AUTH_SOCK" "$NIXOS_REBUILD_BIN" \
-    switch --flake ".#${FLAKE_TARGET}" $OTHER_ARGS
+    switch --flake "$FLAKE_REF" $OTHER_ARGS
 else
   printf "%bUnsupported OS: %s%b\n" "$RED" "$OS" "$NC"
   exit 1
