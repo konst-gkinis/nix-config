@@ -32,8 +32,8 @@
         ayu-dark = pkgs.fetchFromGitHub {
           owner = "kmlupreti";
           repo = "ayu-dark.yazi";
-          rev = "1da67a8195ebd0978fadc8cb1c6c9142ce331b8a";
-          hash = "sha256-Jyl4Vo7H8WXtG9o4H0SkHneBztjGLMdNgQ4GkY01a0E=";
+          rev = "00804daeffe723719a404f72d1c3350751468c61";
+          hash = "sha256-uN+ZmczfpYrs1N5oIg/oIjVJJnT29IQE2ALyp6f5pD4=";
         };
       };
       theme = {
