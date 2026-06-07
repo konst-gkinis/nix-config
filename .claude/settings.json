@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(nix-instantiate --parse *)",
+      "Bash(nix flake show *)",
+      "Bash(nix eval *)"
+    ]
+  }
+}
