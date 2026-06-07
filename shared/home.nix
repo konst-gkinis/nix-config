@@ -25,6 +25,14 @@
       nix-direnv.enable = true;
     };
 
+    fzf = {
+      enable = true;
+      enableZshIntegration = true;
+      historyWidgetOptions = [
+        "--preview 'echo {}' --preview-window down:3:wrap"
+      ];
+    };
+
     yazi = {
       enable = true;
       shellWrapperName = "y";
