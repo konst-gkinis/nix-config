@@ -14,6 +14,7 @@
       source = ../claude/statusline-command.sh;
       executable = true;
     };
+    ".claude/themes/ayu-dark.json".source = ../claude/themes/ayu-dark.json;
   };
 
   programs = {
