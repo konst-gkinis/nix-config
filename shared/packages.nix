@@ -46,6 +46,5 @@ with pkgs;
   curl
   gh
   lazygit
-  fzf
   nixfmt
 ]
