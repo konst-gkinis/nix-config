@@ -64,3 +64,27 @@ else
 fi
 
 printf "%bSwitch to new generation complete!%b\n" "$GREEN" "$NC"
+
+  echo "✨ Switch successful!"
+
+  # Check if we are actually running inside iTerm2
+  if [ "$TERM_PROGRAM" = "iTerm.app" ]; then
+    echo "🔄 iTerm2 detected. Restarting terminal..."
+
+    # Quitting iTerm kills this script (it runs inside an iTerm session), so the
+    # reopen has to happen in a process that outlives both. Detach it via a
+    # subshell ( ... & ) so it reparents to launchd, and nohup so the SIGHUP
+    # from the closing terminal doesn't take it down. It waits for iTerm to
+    # fully exit, then relaunches it.
+    #
+    # If this ever stops reopening iTerm on some macOS version (the quit may
+    # signal the whole process group, taking the detached watcher with it), the
+    # bulletproof alternative is to register a launchd agent to do the relaunch.
+    ( nohup sh -c 'while pgrep -x iTerm2 > /dev/null 2>&1; do sleep 0.5; done; sleep 1; open -a iTerm' > /dev/null 2>&1 & )
+
+    osascript -e 'tell application "iTerm" to quit'
+
+  else
+    echo "ℹ️ Not running in iTerm2 (detected: ${TERM_PROGRAM:-unknown}). Skipping auto-restart."
+    echo "👉 Please run 'exec zsh' or restart your current terminal manually."
+  fi
