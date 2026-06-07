@@ -51,6 +51,5 @@
   },
   "theme": "dark",
   "agentPushNotifEnabled": true,
-  "voiceEnabled": true,
-  "model": "opus"
+  "voiceEnabled": true
 }
