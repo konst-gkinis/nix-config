@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ lib, pkgs, ... }:
 
 let
   bgImage = builtins.path {
@@ -11,8 +11,20 @@ let
   };
 in
 {
-  home.file."Library/Application Support/iTerm2/DynamicProfiles/ayu-mirage.json".text =
-    builtins.toJSON profileWithBg;
+  home.file = {
+    "Library/Application Support/iTerm2/DynamicProfiles/ayu-mirage.json".text =
+      builtins.toJSON profileWithBg;
+    ".iterm2_shell_integration.zsh".source = pkgs.fetchurl {
+      url = "https://iterm2.com/shell_integration/zsh";
+      sha256 = "sha256-kQJ8bVIh7nEjYJ6OWqiEDqIY+YWD5RbD1CXV+KKyDno=";
+    };
+  };
+
+  programs.zsh.initContent = ''
+    # iTerm2 shell integration — enables Claude Code terminal awareness (OSC 1337).
+    # VS Code integration is automatic via TERM_PROGRAM=vscode set by VS Code itself.
+    test -e ~/.iterm2_shell_integration.zsh && source ~/.iterm2_shell_integration.zsh
+  '';
 
   programs.zed-editor = {
     enable = true;
@@ -42,5 +54,17 @@ in
     run /usr/bin/defaults write com.googlecode.iterm2 VisualIndicatorForEsc -bool false
     run /usr/bin/defaults write com.googlecode.iterm2 TabStyleWithAutomaticOption -int 4
     run /usr/bin/defaults write com.googlecode.iterm2 ApplePressAndHoldEnabled -bool false
+    # Required for Claude Code's /copy command (OSC 52 clipboard writes)
+    run /usr/bin/defaults write com.googlecode.iterm2 AllowClipboardAccess -bool true
+  '';
+
+  # Prevents garbled text in VS Code's integrated terminal when using Claude Code
+  home.activation.vscodeClaudeCodeSettings = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    settings="$HOME/Library/Application Support/Code/User/settings.json"
+    if [ -f "$settings" ]; then
+      tmp=$(mktemp)
+      ${pkgs.jq}/bin/jq '."terminal.integrated.gpuAcceleration" = "off"' "$settings" > "$tmp" \
+        && mv "$tmp" "$settings"
+    fi
   '';
 }
