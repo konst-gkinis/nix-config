@@ -49,7 +49,7 @@
     "enabled": true,
     "mode": "tap"
   },
-  "theme": "dark",
+  "theme": "custom:ayu-dark",
   "agentPushNotifEnabled": true,
   "voiceEnabled": true
 }
