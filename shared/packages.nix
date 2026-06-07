@@ -4,8 +4,7 @@ with pkgs;
 [
   # General packages for development and system management
   bash-completion
-  bat
-  btop
+  # bat, btop: installed via home-manager (programs.bat / programs.btop)
   coreutils
 
   # Media-related packages
@@ -25,14 +24,14 @@ with pkgs;
   htop
   jetbrains-mono
   jq
-  ripgrep
+  # ripgrep: installed via home-manager (programs.ripgrep)
   cheat
   tldr
   tree
   tmux
   unzip
   zsh-powerlevel10k
-  lsd
+  # lsd: installed via home-manager (programs.lsd)
   lazydocker
   gdu
   difftastic
@@ -45,6 +44,6 @@ with pkgs;
   claude-code
   curl
   gh
-  lazygit
+  # lazygit: installed via home-manager (programs.lazygit)
   nixfmt
 ]

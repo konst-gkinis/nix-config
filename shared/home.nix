@@ -17,12 +17,99 @@
   };
 
   programs = {
-    zoxide.enable = true;
-    lazygit.enable = true;
+    # `z`/`zi` are the default zoxide commands; `cd`/`cdi` are aliased to them
+    # via shellAliases so both sets of muscle memory work.
+    zoxide = {
+      enable = true;
+    };
+
+    # `g` alias (see shellAliases). Nerd-font icons, file tree, command
+    # log hidden, and an Ayu accent theme. Editor left to auto-detect
+    # ($EDITOR/$VISUAL), so no editPreset.
+    lazygit = {
+      enable = true;
+      settings = {
+        gui = {
+          nerdFontsVersion = "3";
+          showFileTree = true;
+          showCommandLog = false;
+          theme = {
+            activeBorderColor = [
+              "#ffb454"
+              "bold"
+            ];
+            inactiveBorderColor = [ "#565b66" ];
+            optionsTextColor = [ "#59c2ff" ];
+            selectedLineBgColor = [ "#2d3640" ];
+            cherryPickedCommitBgColor = [ "#2d3640" ];
+            cherryPickedCommitFgColor = [ "#ffb454" ];
+            unstagedChangesColor = [ "#f07178" ];
+            defaultFgColor = [ "#bfbdb6" ];
+          };
+        };
+      };
+    };
 
     direnv = {
       enable = true;
       nix-direnv.enable = true;
+      # Keep the "direnv: loading ..." notice but hide the full env-var
+      # diff dump on each load.
+      config.global.hide_env_diff = true;
+    };
+
+    # Aliased to `cat` (see shellAliases). Ayu Dark theme + line numbers
+    # and git change markers; pages long output through less.
+    bat = {
+      enable = true;
+      config = {
+        theme = "ayu-dark";
+        style = "numbers,changes";
+        paging = "auto";
+      };
+      # bat only reads .tmTheme (XML) themes; current dempfi/ayu ships the
+      # newer .sublime-color-scheme format, so pin the last commit that
+      # still had the .tmTheme files. home-manager runs `bat cache --build`.
+      themes = {
+        ayu-dark = {
+          src = pkgs.fetchFromGitHub {
+            owner = "dempfi";
+            repo = "ayu";
+            rev = "d7c307c5024b56909c9b9259f54e88ff9cb931bd";
+            hash = "sha256-O0zoKAmCgSAHv2gcORYrorIlw0kdXN1+2k2Emtntc2g=";
+          };
+          file = "ayu-dark.tmTheme";
+        };
+      };
+    };
+
+    # Resource monitor. Bundled Ayu theme, 1s refresh, braille graphs.
+    btop = {
+      enable = true;
+      settings = {
+        color_theme = "ayu";
+        update_ms = 1000;
+        graph_symbol = "braille";
+        vim_keys = false;
+      };
+    };
+
+    # Written to a config file referenced via RIPGREP_CONFIG_PATH. Smart
+    # case, search dotfiles but skip VCS/build dirs, truncate long lines,
+    # Ayu-orange match highlight.
+    ripgrep = {
+      enable = true;
+      arguments = [
+        "--smart-case"
+        "--hidden"
+        "--glob=!.git/*"
+        "--glob=!node_modules/*"
+        "--glob=!.direnv/*"
+        "--max-columns=150"
+        "--max-columns-preview"
+        "--colors=match:fg:255,180,84"
+        "--colors=match:style:bold"
+      ];
     };
 
     fzf = {
@@ -86,6 +173,149 @@
         shellIntegrationOptions = [
           "-p"
           "80%,70%"
+        ];
+      };
+    };
+
+    # Provides ls/ll/la/lt/lla/llt aliases via zsh integration. The custom
+    # `ls` alias was removed from shellAliases to avoid clashing; `l` and
+    # `tree` remain (lsd doesn't define those).
+    lsd = {
+      enable = true;
+      enableZshIntegration = true;
+      settings = {
+        icons = {
+          when = "auto";
+          theme = "fancy";
+        };
+        date = "relative";
+        sorting = {
+          column = "name";
+          "dir-grouping" = "first";
+        };
+      };
+      # Ayu Dark palette (RGB triples) for the metadata columns. Setting
+      # `colors` makes the module switch color.theme to "custom".
+      colors = {
+        user = [
+          255
+          180
+          84
+        ];
+        group = [
+          230
+          180
+          80
+        ];
+        permission = {
+          read = [
+            170
+            217
+            76
+          ];
+          write = [
+            230
+            180
+            80
+          ];
+          exec = [
+            240
+            113
+            120
+          ];
+          "exec-sticky" = [
+            210
+            166
+            255
+          ];
+          "no-access" = [
+            108
+            115
+            128
+          ];
+          octal = [
+            57
+            186
+            230
+          ];
+          acl = [
+            89
+            194
+            255
+          ];
+          context = [
+            108
+            115
+            128
+          ];
+        };
+        date = {
+          "hour-old" = [
+            170
+            217
+            76
+          ];
+          "day-old" = [
+            230
+            180
+            80
+          ];
+          older = [
+            108
+            115
+            128
+          ];
+        };
+        size = {
+          none = [
+            108
+            115
+            128
+          ];
+          small = [
+            170
+            217
+            76
+          ];
+          medium = [
+            230
+            180
+            80
+          ];
+          large = [
+            255
+            180
+            84
+          ];
+        };
+        inode = {
+          valid = [
+            191
+            189
+            182
+          ];
+          invalid = [
+            108
+            115
+            128
+          ];
+        };
+        links = {
+          valid = [
+            89
+            194
+            255
+          ];
+          invalid = [
+            108
+            115
+            128
+          ];
+        };
+        "tree-edge" = [
+          108
+          115
+          128
         ];
       };
     };
@@ -185,12 +415,14 @@
       '';
 
       shellAliases = {
-        ls = "lsd";
+        # `ls` is provided by programs.lsd's zsh integration.
         l = "lsd -l --group-directories-first --blocks \"name,date,size\"";
         tree = "lsd --tree --git";
         cat = "bat";
         g = "lazygit";
         nbs = "nix run .#build-switch";
+        cd = "z";
+        cdi = "zi";
       };
     };
 
