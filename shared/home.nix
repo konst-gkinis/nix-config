@@ -9,6 +9,7 @@
 }:
 {
   home.file = {
+    ".claude/CLAUDE.md".source = ../claude/CLAUDE.md;
     ".claude/settings.json".source = ../claude/settings.json;
     ".claude/statusline-command.sh" = {
       source = ../claude/statusline-command.sh;
