@@ -56,6 +56,11 @@ in
     run /usr/bin/defaults write com.googlecode.iterm2 ApplePressAndHoldEnabled -bool false
     # Required for Claude Code's /copy command (OSC 52 clipboard writes)
     run /usr/bin/defaults write com.googlecode.iterm2 AllowClipboardAccess -bool true
+    # Global hotkey: Ctrl+` to show/hide iTerm2
+    run /usr/bin/defaults write com.googlecode.iterm2 Hotkey -bool true
+    run /usr/bin/defaults write com.googlecode.iterm2 HotkeyChar -int 96
+    run /usr/bin/defaults write com.googlecode.iterm2 HotkeyCode -int 50
+    run /usr/bin/defaults write com.googlecode.iterm2 HotkeyModifiers -int 262144
   '';
 
   # Prevents garbled text in VS Code's integrated terminal when using Claude Code
