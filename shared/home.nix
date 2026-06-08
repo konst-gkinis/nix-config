@@ -425,6 +425,8 @@
         nbs = "nix run .#build-switch";
         cd = "z";
         cdi = "zi";
+        gstl = "git stash list --format='%gd: %s — %ar'";
+        gstam = "git stash push -m '%1'";
       };
     };
 
