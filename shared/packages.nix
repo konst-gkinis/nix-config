@@ -21,7 +21,6 @@ with pkgs;
 
   # Text and terminal utilities
   fastfetch
-  htop
   jetbrains-mono
   jq
   # ripgrep: installed via home-manager (programs.ripgrep)
