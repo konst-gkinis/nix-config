@@ -422,6 +422,7 @@
         cat = "bat";
         g = "lazygit";
         nbs = "nix run .#build-switch";
+        ncl = "nix run .#clean";
         cdi = "zi";
         gstl = "git stash list --format='%gd: %s — %ar'";
         gstam = "git stash push -m '%1'";
