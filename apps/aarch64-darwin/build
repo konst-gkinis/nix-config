@@ -13,6 +13,6 @@ FLAKE_TARGET="${ARCH}-darwin"
 export NIXPKGS_ALLOW_UNFREE=1
 
 printf "%bBuilding %s (dry-run)...%b\n" "$YELLOW" "$FLAKE_TARGET" "$NC"
-nh os build . --hostname "$FLAKE_TARGET" -- "$@"
+nh darwin build . --hostname "$FLAKE_TARGET" -- "$@"
 
 printf "%bBuild complete!%b\n" "$GREEN" "$NC"

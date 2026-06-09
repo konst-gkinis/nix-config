@@ -148,7 +148,6 @@
           modules = [
             home-manager.darwinModules.home-manager
             nix-homebrew.darwinModules.nix-homebrew
-            nh.darwinModules.default
             {
               nix-homebrew = {
                 inherit user;
