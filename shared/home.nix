@@ -23,6 +23,7 @@
     # via shellAliases so both sets of muscle memory work.
     zoxide = {
       enable = true;
+      enableBashIntegration = false;
     };
 
     # `g` alias (see shellAliases). Nerd-font icons, file tree, command
