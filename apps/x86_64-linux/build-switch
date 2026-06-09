@@ -5,93 +5,43 @@ YELLOW='\033[1;33m'
 RED='\033[1;31m'
 NC='\033[0m'
 
-# Parse arguments for an optional --host override (named flake target)
+# Parse --host argument
 HOST=""
 OTHER_ARGS=""
 while [ $# -gt 0 ]; do
   case "$1" in
-    --host=*)
-      HOST="${1#*=}"
-      shift
-      ;;
-    --host)
-      HOST="$2"
-      shift 2
-      ;;
-    *)
-      OTHER_ARGS="$OTHER_ARGS $1"
-      shift
-      ;;
+    --host=*) HOST="${1#*=}"; shift ;;
+    --host)   HOST="$2"; shift 2 ;;
+    *)        OTHER_ARGS="$OTHER_ARGS $1"; shift ;;
   esac
 done
 
 # Detect architecture
 case "$(uname -m)" in
-  x86_64) ARCH="x86_64" ;;
-  arm64 | aarch64) ARCH="aarch64" ;;
+  x86_64)        ARCH="x86_64" ;;
+  arm64|aarch64) ARCH="aarch64" ;;
   *)
     printf "%bUnsupported architecture: %s%b\n" "$RED" "$(uname -m)" "$NC"
     exit 1
     ;;
 esac
 
-OS="$(uname -s)"
-
-if [ "$OS" = "Darwin" ]; then
-  SYSTEM_TYPE="${HOST:-${ARCH}-darwin}"
-  export NIXPKGS_ALLOW_UNFREE=1
-
-  printf "%bStarting build for %s...%b\n" "$YELLOW" "$SYSTEM_TYPE" "$NC"
-  nix --extra-experimental-features 'nix-command flakes' \
-    build ".#darwinConfigurations.${SYSTEM_TYPE}.system" $OTHER_ARGS
-
-  printf "%bSwitching to new generation...%b\n" "$YELLOW" "$NC"
-  # See https://github.com/nix-darwin/nix-darwin/issues/1457 on why we need sudo
-  sudo ./result/sw/bin/darwin-rebuild switch --flake ".#${SYSTEM_TYPE}" $OTHER_ARGS
-
-  printf "%bCleaning up...%b\n" "$YELLOW" "$NC"
-  unlink ./result
-elif [ "$OS" = "Linux" ]; then
-  # Detect WSL (Microsoft kernel string present in /proc/version or osrelease)
-  if grep -qi microsoft /proc/version 2>/dev/null || grep -qi microsoft /proc/sys/kernel/osrelease 2>/dev/null; then
-    IS_WSL=1
-  else
-    IS_WSL=0
-  fi
-
-  if [ -n "$HOST" ]; then
-    FLAKE_TARGET="$HOST"
-  elif [ "$IS_WSL" = "1" ]; then
-    FLAKE_TARGET="wsl"
-  else
-    FLAKE_TARGET="${ARCH}-linux"
-  fi
-
-  printf "%bStarting build for %s...%b\n" "$YELLOW" "$FLAKE_TARGET" "$NC"
-  # Prefer the activated system's nixos-rebuild; fall back to PATH (e.g. fresh installs)
-  NIXOS_REBUILD_BIN="/run/current-system/sw/bin/nixos-rebuild"
-  if [ ! -x "$NIXOS_REBUILD_BIN" ]; then
-    NIXOS_REBUILD_BIN="$(command -v nixos-rebuild 2>/dev/null || true)"
-  fi
-  if [ -z "$NIXOS_REBUILD_BIN" ]; then
-    printf "%bnixos-rebuild not found. Is this a NixOS system?%b\n" "$RED" "$NC"
-    exit 1
-  fi
-  # Nix resolves "." as "git+file:." and calls git to read the repo.
-  # On a fresh install git isn't available yet, so use "path:." instead —
-  # it copies the directory into the store without needing git.
-  if command -v git >/dev/null 2>&1; then
-    FLAKE_REF=".#${FLAKE_TARGET}"
-  else
-    printf "%bgit not in PATH; using path: flake ref for initial build...%b\n" "$YELLOW" "$NC"
-    FLAKE_REF="path:.#${FLAKE_TARGET}"
-  fi
-  # Pass SSH and full PATH to root so flake + private repos are reachable
-  sudo env PATH="$PATH" SSH_AUTH_SOCK="$SSH_AUTH_SOCK" "$NIXOS_REBUILD_BIN" \
-    switch --flake "$FLAKE_REF" $OTHER_ARGS
+# WSL detection
+if grep -qi microsoft /proc/version 2>/dev/null || grep -qi microsoft /proc/sys/kernel/osrelease 2>/dev/null; then
+  IS_WSL=1
 else
-  printf "%bUnsupported OS: %s%b\n" "$RED" "$OS" "$NC"
-  exit 1
+  IS_WSL=0
 fi
+
+if [ -n "$HOST" ]; then
+  FLAKE_TARGET="$HOST"
+elif [ "$IS_WSL" = "1" ]; then
+  FLAKE_TARGET="wsl"
+else
+  FLAKE_TARGET="${ARCH}-linux"
+fi
+
+printf "%bSwitching to new generation (%s)...%b\n" "$YELLOW" "$FLAKE_TARGET" "$NC"
+sudo env SSH_AUTH_SOCK="$SSH_AUTH_SOCK" nh os switch . --hostname "$FLAKE_TARGET" -- $OTHER_ARGS
 
 printf "%bSwitch to new generation complete!%b\n" "$GREEN" "$NC"

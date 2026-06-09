@@ -5,30 +5,21 @@ YELLOW='\033[1;33m'
 RED='\033[1;31m'
 NC='\033[0m'
 
-# Parse arguments for an optional --host override (named flake target)
+# Parse --host argument
 HOST=""
 OTHER_ARGS=""
 while [ $# -gt 0 ]; do
   case "$1" in
-    --host=*)
-      HOST="${1#*=}"
-      shift
-      ;;
-    --host)
-      HOST="$2"
-      shift 2
-      ;;
-    *)
-      OTHER_ARGS="$OTHER_ARGS $1"
-      shift
-      ;;
+    --host=*) HOST="${1#*=}"; shift ;;
+    --host)   HOST="$2"; shift 2 ;;
+    *)        OTHER_ARGS="$OTHER_ARGS $1"; shift ;;
   esac
 done
 
 # Detect architecture
 case "$(uname -m)" in
-  x86_64) ARCH="x86_64" ;;
-  arm64 | aarch64) ARCH="aarch64" ;;
+  x86_64)        ARCH="x86_64" ;;
+  arm64|aarch64) ARCH="aarch64" ;;
   *)
     printf "%bUnsupported architecture: %s%b\n" "$RED" "$(uname -m)" "$NC"
     exit 1
@@ -38,26 +29,30 @@ esac
 OS="$(uname -s)"
 
 if [ "$OS" = "Darwin" ]; then
-  SYSTEM_TYPE="${HOST:-${ARCH}-darwin}"
+  FLAKE_TARGET="${HOST:-${ARCH}-darwin}"
   export NIXPKGS_ALLOW_UNFREE=1
 
-  printf "%bStarting build for %s...%b\n" "$YELLOW" "$SYSTEM_TYPE" "$NC"
-  nix --extra-experimental-features 'nix-command flakes' \
-    build ".#darwinConfigurations.${SYSTEM_TYPE}.system" $OTHER_ARGS
+  printf "%bSwitching to new generation (%s)...%b\n" "$YELLOW" "$FLAKE_TARGET" "$NC"
+  nh os switch . --hostname "$FLAKE_TARGET" -- $OTHER_ARGS
 
-  printf "%bSwitching to new generation...%b\n" "$YELLOW" "$NC"
-  # See https://github.com/nix-darwin/nix-darwin/issues/1457 on why we need sudo
-  sudo ./result/sw/bin/darwin-rebuild switch --flake ".#${SYSTEM_TYPE}" $OTHER_ARGS
-
-  printf "%bCleaning up...%b\n" "$YELLOW" "$NC"
-  unlink ./result
 elif [ "$OS" = "Linux" ]; then
-  FLAKE_TARGET="${HOST:-${ARCH}-linux}"
+  if grep -qi microsoft /proc/version 2>/dev/null || grep -qi microsoft /proc/sys/kernel/osrelease 2>/dev/null; then
+    IS_WSL=1
+  else
+    IS_WSL=0
+  fi
 
-  printf "%bStarting build for %s...%b\n" "$YELLOW" "$FLAKE_TARGET" "$NC"
-  # Pass SSH from user to root so root can download secrets from private Github
-  sudo SSH_AUTH_SOCK="$SSH_AUTH_SOCK" /run/current-system/sw/bin/nixos-rebuild \
-    switch --flake ".#${FLAKE_TARGET}" $OTHER_ARGS
+  if [ -n "$HOST" ]; then
+    FLAKE_TARGET="$HOST"
+  elif [ "$IS_WSL" = "1" ]; then
+    FLAKE_TARGET="wsl"
+  else
+    FLAKE_TARGET="${ARCH}-linux"
+  fi
+
+  printf "%bSwitching to new generation (%s)...%b\n" "$YELLOW" "$FLAKE_TARGET" "$NC"
+  sudo env SSH_AUTH_SOCK="$SSH_AUTH_SOCK" nh os switch . --hostname "$FLAKE_TARGET" -- $OTHER_ARGS
+
 else
   printf "%bUnsupported OS: %s%b\n" "$RED" "$OS" "$NC"
   exit 1
@@ -65,26 +60,14 @@ fi
 
 printf "%bSwitch to new generation complete!%b\n" "$GREEN" "$NC"
 
-  echo "✨ Switch successful!"
+echo "✨ Switch successful!"
 
-  # Check if we are actually running inside iTerm2
-  if [ "$TERM_PROGRAM" = "iTerm.app" ]; then
-    echo "🔄 iTerm2 detected. Restarting terminal..."
-
-    # Quitting iTerm kills this script (it runs inside an iTerm session), so the
-    # reopen has to happen in a process that outlives both. Detach it via a
-    # subshell ( ... & ) so it reparents to launchd, and nohup so the SIGHUP
-    # from the closing terminal doesn't take it down. It waits for iTerm to
-    # fully exit, then relaunches it.
-    #
-    # If this ever stops reopening iTerm on some macOS version (the quit may
-    # signal the whole process group, taking the detached watcher with it), the
-    # bulletproof alternative is to register a launchd agent to do the relaunch.
-    ( nohup sh -c 'while pgrep -x iTerm2 > /dev/null 2>&1; do sleep 0.5; done; sleep 1; open -a iTerm' > /dev/null 2>&1 & )
-
-    osascript -e 'tell application "iTerm" to quit'
-
-  else
-    echo "ℹ️ Not running in iTerm2 (detected: ${TERM_PROGRAM:-unknown}). Skipping auto-restart."
-    echo "👉 Please run 'exec zsh' or restart your current terminal manually."
-  fi
+# Check if we are actually running inside iTerm2
+if [ "$TERM_PROGRAM" = "iTerm.app" ]; then
+  echo "🔄 iTerm2 detected. Restarting terminal..."
+  ( nohup sh -c 'while pgrep -x iTerm2 > /dev/null 2>&1; do sleep 0.5; done; sleep 1; open -a iTerm' > /dev/null 2>&1 & )
+  osascript -e 'tell application "iTerm" to quit'
+else
+  echo "ℹ️ Not running in iTerm2 (detected: ${TERM_PROGRAM:-unknown}). Skipping auto-restart."
+  echo "👉 Please run 'exec zsh' or restart your current terminal manually."
+fi
