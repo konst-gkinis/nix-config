@@ -33,7 +33,7 @@ if [ "$OS" = "Darwin" ]; then
   export NIXPKGS_ALLOW_UNFREE=1
 
   printf "%bSwitching to new generation (%s)...%b\n" "$YELLOW" "$FLAKE_TARGET" "$NC"
-  nh darwin switch . --hostname "$FLAKE_TARGET" -- $OTHER_ARGS
+  nh darwin switch . --hostname "$FLAKE_TARGET" --no-nom -- $OTHER_ARGS
 
 elif [ "$OS" = "Linux" ]; then
   if grep -qi microsoft /proc/version 2>/dev/null || grep -qi microsoft /proc/sys/kernel/osrelease 2>/dev/null; then
