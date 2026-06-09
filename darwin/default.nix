@@ -38,18 +38,20 @@ in
         "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
       ];
     };
-    gc = {
-      automatic = true;
-      interval = {
-        Weekday = 0;
-        Hour = 2;
-        Minute = 0;
-      };
-      options = "--delete-older-than 1d";
-    };
+    gc.automatic = false;
     extraOptions = ''
       experimental-features = nix-command flakes
     '';
+  };
+
+  programs.nh = {
+    enable = true;
+    flake = "/Users/${user}/nixos-config";
+    clean = {
+      enable = true;
+      interval = { Weekday = 0; Hour = 2; Minute = 0; };
+      extraArgs = "--keep 2 --keep-since 3d";
+    };
   };
 
   environment.systemPackages = (import ../shared/packages.nix { inherit pkgs; }) ++ [

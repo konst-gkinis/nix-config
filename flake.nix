@@ -38,6 +38,10 @@
       url = "github:sadjow/claude-code-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nh = {
+      url = "github:nix-community/nh";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -53,6 +57,7 @@
       disko,
       nixos-wsl,
       claude-code,
+      nh,
     }@inputs:
     let
       settings =
@@ -99,7 +104,7 @@
         program = "${
           (nixpkgs.legacyPackages.${system}.writeScriptBin scriptName ''
             #!/usr/bin/env bash
-            PATH=${nixpkgs.legacyPackages.${system}.git}/bin:$PATH
+            PATH=${nixpkgs.legacyPackages.${system}.git}/bin:${nixpkgs.legacyPackages.${system}.nh}/bin:$PATH
             echo "Running ${scriptName} for ${system}"
             exec ${self}/apps/${system}/${scriptName}
           '')
@@ -142,6 +147,7 @@
           modules = [
             home-manager.darwinModules.home-manager
             nix-homebrew.darwinModules.nix-homebrew
+            nh.darwinModules.default
             {
               nix-homebrew = {
                 inherit user;
