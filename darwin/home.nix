@@ -1,6 +1,33 @@
-{ lib, pkgs, ... }:
+{ lib, pkgs, user, ... }:
 
 let
+  flakeDir = "/Users/${user}/nixos-config";
+
+  pkgUpdateCheck = pkgs.writeShellScript "nix-pkg-update-check" ''
+    export PATH="/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:$PATH"
+
+    PINNED_REV=$(${pkgs.jq}/bin/jq -r '.nodes.nixpkgs.locked.rev' "${flakeDir}/flake.lock")
+
+    PACKAGES=(claude-code)
+    UPDATES=()
+
+    for pkg in "''${PACKAGES[@]}"; do
+      current=$(nix eval --raw "github:NixOS/nixpkgs/''${PINNED_REV}#''${pkg}.version" 2>/dev/null)
+      latest=$(nix eval --raw "github:NixOS/nixpkgs/nixpkgs-unstable#''${pkg}.version" 2>/dev/null)
+      if [ -n "$current" ] && [ -n "$latest" ] && [ "$current" != "$latest" ]; then
+        UPDATES+=("$pkg: $current → $latest")
+      fi
+    done
+
+    if [ "''${#UPDATES[@]}" -gt 0 ]; then
+      MSG=$(printf '%s\n' "''${UPDATES[@]}")
+      ${pkgs.terminal-notifier}/bin/terminal-notifier \
+        -title "Nix Package Updates Available" \
+        -message "$MSG" \
+        -sound default
+    fi
+  '';
+
   bgImage = builtins.path {
     path = ./iterm2/iterm_background.jpg;
     name = "iterm_background.jpg";
@@ -72,4 +99,14 @@ in
         && mv "$tmp" "$settings"
     fi
   '';
+
+  launchd.agents.nix-pkg-update-check = {
+    enable = true;
+    config = {
+      ProgramArguments = [ "${pkgUpdateCheck}" ];
+      StartCalendarInterval = [ { Hour = 9; Minute = 0; } ];
+      StandardOutPath = "/tmp/nix-pkg-update-check.log";
+      StandardErrorPath = "/tmp/nix-pkg-update-check.log";
+    };
+  };
 }
