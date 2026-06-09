@@ -19,8 +19,6 @@
   };
 
   programs = {
-    # `z`/`zi` are the default zoxide commands; `cd`/`cdi` are aliased to them
-    # via shellAliases so both sets of muscle memory work.
     zoxide = {
       enable = true;
       enableBashIntegration = false;
@@ -424,7 +422,6 @@
         cat = "bat";
         g = "lazygit";
         nbs = "nix run .#build-switch";
-        cd = "z";
         cdi = "zi";
         gstl = "git stash list --format='%gd: %s — %ar'";
         gstam = "git stash push -m '%1'";
