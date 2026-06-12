@@ -413,6 +413,24 @@
         # Use difftastic, syntax-aware diffing
         alias diff=difft
 
+        # Reclaim disk space: nix GC, optimise store, brew cleanup.
+        cleanup() {
+          local nixos_dir="$HOME/nixos-config"
+          printf '\033[1;33m→ nix store GC\033[0m\n'
+          (cd "$nixos_dir" && nix run .#clean) || return 1
+          printf '\033[1;33m→ nix store optimise\033[0m\n'
+          nix store optimise
+          ${
+            if pkgs.stdenv.hostPlatform.isDarwin then
+              ''
+                printf '\033[1;33m→ brew cleanup\033[0m\n'
+                brew cleanup
+              ''
+            else
+              ""
+          }
+        }
+
         halp() {
           printf '\033[1;33mAliases\033[0m\n'
           printf '  \033[1ml\033[0m       lsd long listing (name, date, size; dirs first)\n'
@@ -424,11 +442,11 @@
           printf '  \033[1mgstl\033[0m    git stash list (readable format)\n'
           printf '  \033[1mgstam\033[0m   git stash push -m <msg>\n'
           printf '  \033[1mnbs\033[0m     nix run .#build-switch — apply nix config\n'
-          printf '  \033[1mncl\033[0m     nix run .#clean — garbage-collect nix store\n'
           printf '\n\033[1;33mFunctions\033[0m\n'
           printf '  \033[1mshell\033[0m <pkg>          nix-shell into a nixpkgs package\n'
           printf '  \033[1mns\033[0m <pkg> [pkg …]     temp zsh with extra packages (keeps prompt)\n'
           printf '  \033[1mnup\033[0m                  update flake inputs, commit lock, build-switch\n'
+          printf '  \033[1mcleanup\033[0m              nix GC + store optimise + brew cleanup\n'
           printf '  \033[1mhalp\033[0m                 show this help\n'
         }
 
@@ -452,7 +470,6 @@
         cat = "bat";
         g = "lazygit";
         nbs = "nix run .#build-switch";
-        ncl = "nix run .#clean";
         cdi = "zi";
         gstl = "git stash list --format='%gd: %s — %ar'";
         gstam = "git stash push -m '%1'";
