@@ -383,6 +383,17 @@
             nix-shell '<nixpkgs>' -A "$1"
         }
 
+        # Update flake inputs, commit if flake.lock changed, then build-switch.
+        # Idempotent: no-ops if flake.lock is already up to date.
+        nup() {
+          local nixos_dir="$HOME/nixos-config"
+          nix flake update || return 1
+          git -C "$nixos_dir" diff --quiet flake.lock && return 0
+          git -C "$nixos_dir" add flake.lock && \
+          git -C "$nixos_dir" commit -m "chore: update flake inputs" && \
+          nbs
+        }
+
         # Temporary shell with extra packages, keeping zsh + p10k visible.
         # The flakes `nix shell` doesn't set $IN_NIX_SHELL, so the p10k
         # nix_shell segment never lights up (classic `nix-shell -p` does set
@@ -401,6 +412,25 @@
 
         # Use difftastic, syntax-aware diffing
         alias diff=difft
+
+        halp() {
+          printf '\033[1;33mAliases\033[0m\n'
+          printf '  \033[1ml\033[0m       lsd long listing (name, date, size; dirs first)\n'
+          printf '  \033[1mtree\033[0m    lsd tree view with git status\n'
+          printf '  \033[1mcat\033[0m     bat — syntax-highlighted pager\n'
+          printf '  \033[1mdiff\033[0m    difft — syntax-aware structural diff\n'
+          printf '  \033[1mg\033[0m       lazygit TUI\n'
+          printf '  \033[1mcdi\033[0m     zi — interactive zoxide directory picker\n'
+          printf '  \033[1mgstl\033[0m    git stash list (readable format)\n'
+          printf '  \033[1mgstam\033[0m   git stash push -m <msg>\n'
+          printf '  \033[1mnbs\033[0m     nix run .#build-switch — apply nix config\n'
+          printf '  \033[1mncl\033[0m     nix run .#clean — garbage-collect nix store\n'
+          printf '\n\033[1;33mFunctions\033[0m\n'
+          printf '  \033[1mshell\033[0m <pkg>          nix-shell into a nixpkgs package\n'
+          printf '  \033[1mns\033[0m <pkg> [pkg …]     temp zsh with extra packages (keeps prompt)\n'
+          printf '  \033[1mnup\033[0m                  update flake inputs, commit lock, build-switch\n'
+          printf '  \033[1mhalp\033[0m                 show this help\n'
+        }
 
         # Add SSH keys to agent on login
         ${
