@@ -24,6 +24,7 @@ with pkgs;
   jetbrains-mono
   jq
   # ripgrep: installed via home-manager (programs.ripgrep)
+  bat-extras.batman
   cheat
   tldr
   tree
