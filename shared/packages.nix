@@ -39,6 +39,8 @@ with pkgs;
   sd
   gnupg
   pandoc
+  less
+  moor
 
   # Development tools
   claude-code
