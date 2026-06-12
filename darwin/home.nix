@@ -88,6 +88,7 @@ in
     run /usr/bin/defaults write com.googlecode.iterm2 HotkeyChar -int 96
     run /usr/bin/defaults write com.googlecode.iterm2 HotkeyCode -int 50
     run /usr/bin/defaults write com.googlecode.iterm2 HotkeyModifiers -int 262144
+    run /usr/bin/defaults write com.googlecode.iterm2 AlternateMouseScroll -bool true
   '';
 
   # Prevents garbled text in VS Code's integrated terminal when using Claude Code
