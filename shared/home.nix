@@ -391,7 +391,7 @@
           git -C "$nixos_dir" diff --quiet flake.lock && return 0
           git -C "$nixos_dir" add flake.lock && \
           git -C "$nixos_dir" commit -m "chore: update flake inputs" && \
-          nbs
+          (cd "$nixos_dir" && nix run .#build-switch)
         }
 
         # Temporary shell with extra packages, keeping zsh + p10k visible.
