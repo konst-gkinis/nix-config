@@ -344,7 +344,10 @@
       oh-my-zsh = {
         enable = true;
         theme = "robbyrussell";
-        plugins = [ "git" "colored-man-pages" ];
+        plugins = [
+          "git"
+          "colored-man-pages"
+        ];
       };
       plugins = [
         {
@@ -387,7 +390,7 @@
         # Idempotent: no-ops if flake.lock is already up to date.
         nup() {
           local nixos_dir="$HOME/nixos-config"
-          nix flake update || return 1
+          (cd "$nixos_dir" && nix flake update || return 1)
           git -C "$nixos_dir" diff --quiet flake.lock && return 0
           git -C "$nixos_dir" add flake.lock && \
           git -C "$nixos_dir" commit -m "chore: update flake inputs" && \
