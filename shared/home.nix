@@ -30,6 +30,9 @@
     lazygit = {
       enable = true;
       settings = {
+        git = {
+          overrideGpg = true;
+        };
         gui = {
           nerdFontsVersion = "3";
           showFileTree = true;
