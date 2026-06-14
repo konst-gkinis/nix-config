@@ -501,6 +501,8 @@
       settings = {
         user.name = fullName;
         user.email = email;
+        branch.sort = "committerdate";
+        merge.conflictStyle = "zdiff3";
         init.defaultBranch = "main";
         core = {
           editor = "vim";
