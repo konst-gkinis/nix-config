@@ -479,6 +479,11 @@
       };
     };
 
+    tealdeer = {
+      enable = true;
+      enableAutoUpdates = true;
+    };
+
     git = {
       enable = true;
       ignores = [ "*.swp" ];

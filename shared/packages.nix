@@ -26,7 +26,6 @@ with pkgs;
   # ripgrep: installed via home-manager (programs.ripgrep)
   bat-extras.batman
   cheat
-  tldr
   tree
   tmux
   unzip
