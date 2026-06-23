@@ -1,4 +1,10 @@
 {
+  "sandbox": {
+    "enabled": true,
+    "network": {
+      "allowAllUnixSockets": true
+    }
+  },
   "hooks": {
     "Stop": [
       {
