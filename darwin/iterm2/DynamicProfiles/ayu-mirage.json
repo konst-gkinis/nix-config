@@ -132,7 +132,7 @@
         "Green Component": 0.11610633134841919,
         "Red Component": 0.7461385726928711
       },
-      "Blend": 0.20270529197080292,
+      "Blend": 0.5,
       "Blinking Cursor": false,
       "Blur": false,
       "Bold Color": {
@@ -185,7 +185,7 @@
       "Horizontal Spacing": 1.0,
       "Icon": 1,
       "Idle Code": 0,
-      "Initial Use Transparency": true,
+      "Initial Use Transparency": false,
       "Jobs to Ignore": [
         "rlogin",
         "ssh",
@@ -193,14 +193,38 @@
         "telnet"
       ],
       "Keyboard Map": {
-        "0x7f-0x100000": { "Action": 11, "Text": "0x15" },
-        "0x7f-0x80000": { "Action": 11, "Text": "0x1b 0x7f" },
-        "0xf702-0x280000": { "Action": 10, "Text": "b" },
-        "0xf702-0x300000": { "Action": 11, "Text": "0x1" },
-        "0xf703-0x280000": { "Action": 10, "Text": "f" },
-        "0xf703-0x300000": { "Action": 11, "Text": "0x5" },
-        "0xf728-0x0": { "Action": 11, "Text": "0x4" },
-        "0xf728-0x80000": { "Action": 10, "Text": "d" }
+        "0x7f-0x100000": {
+          "Action": 11,
+          "Text": "0x15"
+        },
+        "0x7f-0x80000": {
+          "Action": 11,
+          "Text": "0x1b 0x7f"
+        },
+        "0xf702-0x280000": {
+          "Action": 10,
+          "Text": "b"
+        },
+        "0xf702-0x300000": {
+          "Action": 11,
+          "Text": "0x1"
+        },
+        "0xf703-0x280000": {
+          "Action": 10,
+          "Text": "f"
+        },
+        "0xf703-0x300000": {
+          "Action": 11,
+          "Text": "0x5"
+        },
+        "0xf728-0x0": {
+          "Action": 11,
+          "Text": "0x4"
+        },
+        "0xf728-0x80000": {
+          "Action": 10,
+          "Text": "d"
+        }
       },
       "Load Shell Integration Automatically": true,
       "Link Color": {
