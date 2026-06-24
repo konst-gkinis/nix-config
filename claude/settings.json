@@ -50,6 +50,16 @@
     "type": "command",
     "command": "bash ~/.claude/statusline-command.sh"
   },
+  "mcpServers": {
+    "nixos": {
+      "command": "nix",
+      "args": ["run", "github:utensils/mcp-nixos", "--"]
+    },
+    "godot": {
+      "command": "npx",
+      "args": ["@coding-solo/godot-mcp"]
+    }
+  },
   "effortLevel": "medium",
   "voice": {
     "enabled": true,
