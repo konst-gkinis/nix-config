@@ -47,4 +47,5 @@ with pkgs;
   gh
   # lazygit: installed via home-manager (programs.lazygit)
   nixfmt
+  mcp-nixos
 ]
