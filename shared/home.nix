@@ -154,21 +154,27 @@
 
       # CTRL-T: insert a file path. Smart preview — directory listing for
       # dirs, syntax-highlighted file contents otherwise.
-      fileWidgetCommand = "fd --type f --hidden --exclude .git";
-      fileWidgetOptions = [
-        "--preview 'if [ -d {} ]; then lsd --tree --color=always {}; else bat --color=always --style=numbers --line-range :500 {}; fi'"
-      ];
+      fileWidget = {
+        command = "fd --type f --hidden --exclude .git";
+        options = [
+          "--preview 'if [ -d {} ]; then lsd --tree --color=always {}; else bat --color=always --style=numbers --line-range :500 {}; fi'"
+        ];
+      };
 
       # ALT-C: cd into a directory, previewing its tree first.
-      changeDirWidgetCommand = "fd --type d --hidden --exclude .git";
-      changeDirWidgetOptions = [
-        "--preview 'lsd --tree --color=always {} | head -200'"
-      ];
+      changeDirWidget = {
+        command = "fd --type d --hidden --exclude .git";
+        options = [
+          "--preview 'lsd --tree --color=always {} | head -200'"
+        ];
+      };
 
       # CTRL-R: search shell history; wrap long commands in a 3-line pane.
-      historyWidgetOptions = [
-        "--preview 'echo {}' --preview-window down:3:wrap"
-      ];
+      historyWidget = {
+        options = [
+          "--preview 'echo {}' --preview-window down:3:wrap"
+        ];
+      };
 
       # Render the widgets in a centered floating tmux popup (falls back
       # to inline when not inside tmux).
