@@ -48,4 +48,5 @@ with pkgs;
   # lazygit: installed via home-manager (programs.lazygit)
   nixfmt
   mcp-nixos
+  dotnetCorePackages.sdk_8_0
 ]
