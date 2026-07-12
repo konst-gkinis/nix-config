@@ -69,6 +69,10 @@ in
   homebrew = {
     enable = true;
     casks = casks ++ lib.optionals isPersonal casksPersonal;
+    brews = [
+      "python3"
+      "uv"
+    ];
     # onActivation.cleanup = "uninstall";
   };
 
