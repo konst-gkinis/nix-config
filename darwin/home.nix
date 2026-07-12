@@ -1,4 +1,9 @@
-{ lib, pkgs, user, ... }:
+{
+  lib,
+  pkgs,
+  user,
+  ...
+}:
 
 let
   flakeDir = "/Users/${user}/nixos-config";
@@ -53,18 +58,18 @@ in
     test -e ~/.iterm2_shell_integration.zsh && source ~/.iterm2_shell_integration.zsh
   '';
 
-  programs.zed-editor = {
-    enable = true;
-    extensions = [
-      "nix"
-      "terraform"
-      "catppuccin"
-      "catppuccin-icons"
-      "codebook"
-      "monokai-og"
-      "ayu-darker"
-    ];
-  };
+  # programs.zed-editor = {
+  #   enable = true;
+  #   extensions = [
+  #     "nix"
+  #     "terraform"
+  #     "catppuccin"
+  #     "catppuccin-icons"
+  #     "codebook"
+  #     "monokai-og"
+  #     "ayu-darker"
+  #   ];
+  # };
 
   home.activation.itermDefaults = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     run /usr/bin/defaults write com.googlecode.iterm2 "Default Bookmark Guid" -string "ayu-mirage"
@@ -104,7 +109,12 @@ in
     enable = true;
     config = {
       ProgramArguments = [ "${pkgUpdateCheck}" ];
-      StartCalendarInterval = [ { Hour = 9; Minute = 0; } ];
+      StartCalendarInterval = [
+        {
+          Hour = 9;
+          Minute = 0;
+        }
+      ];
       StandardOutPath = "/tmp/nix-pkg-update-check.log";
       StandardErrorPath = "/tmp/nix-pkg-update-check.log";
     };
