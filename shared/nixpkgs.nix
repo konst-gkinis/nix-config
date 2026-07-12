@@ -1,4 +1,4 @@
-{ config, pkgs, claude-code, ... }:
+{ config, pkgs, claude-code, nh, ... }:
 
 {
   nixpkgs = {
@@ -18,6 +18,6 @@
         filter (n: match ".*\\.nix" n != null || pathExists (path + ("/" + n + "/default.nix"))) (
           attrNames (readDir path)
         )
-      ) ++ [ claude-code.overlays.default ];
+      ) ++ [ claude-code.overlays.default nh.overlays.default ];
   };
 }
