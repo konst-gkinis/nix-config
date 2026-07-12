@@ -6,5 +6,9 @@
       "Bash(claude --version)",
       "Bash(bash -i -c 'type cd; echo \"---\"; type __zoxide_z 2>/dev/null || echo \"no zoxide in bash\"')"
     ]
+  },
+  "sandbox": {
+    "enabled": false,
+    "autoAllowBashIfSandboxed": false
   }
 }
