@@ -50,4 +50,5 @@ with pkgs;
   mcp-nixos
   dotnetCorePackages.sdk_8_0
   python3
+  uv
 ]
