@@ -49,4 +49,5 @@ with pkgs;
   nixfmt
   mcp-nixos
   dotnetCorePackages.sdk_8_0
+  python3
 ]
