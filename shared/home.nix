@@ -10,13 +10,29 @@
 {
   home.file = {
     ".claude/CLAUDE.md".source = ../claude/CLAUDE.md;
-    ".claude/settings.json".source = ../claude/settings.json;
     ".claude/statusline-command.sh" = {
       source = ../claude/statusline-command.sh;
       executable = true;
     };
     ".claude/themes/ayu-dark.json".source = ../claude/themes/ayu-dark.json;
   };
+
+  # Keep ~/.claude/settings.json a plain, writeable file (Claude Code writes to it
+  # directly, e.g. to persist permission grants) instead of a read-only Nix store
+  # symlink. Recursively merge the repo's defaults into it on every activation,
+  # with the live file winning on any conflicting key.
+  home.activation.mergeClaudeSettings = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    target="$HOME/.claude/settings.json"
+    defaults="${../claude/settings.json}"
+    if [ ! -f "$target" ]; then
+      $DRY_RUN_CMD mkdir -p "$(dirname "$target")"
+      $DRY_RUN_CMD cp "$defaults" "$target"
+    else
+      tmp=$(mktemp)
+      ${pkgs.jq}/bin/jq -s '.[0] * .[1]' "$defaults" "$target" > "$tmp"
+      $DRY_RUN_CMD mv "$tmp" "$target"
+    fi
+  '';
 
   programs = {
     zoxide = {
