@@ -1,10 +1,4 @@
 {
-  "sandbox": {
-    "enabled": true,
-    "network": {
-      "allowAllUnixSockets": true
-    }
-  },
   "permissions": {
     "defaultMode": "auto"
   },
@@ -66,12 +60,7 @@
       "url": "http://127.0.0.1:8090/mcp"
     }
   },
-  "effortLevel": "medium",
-  "voice": {
-    "enabled": true,
-    "mode": "tap"
-  },
+  "effortLevel": "high",
   "theme": "custom:ayu-dark",
-  "agentPushNotifEnabled": true,
-  "voiceEnabled": true
+  "agentPushNotifEnabled": true
 }
