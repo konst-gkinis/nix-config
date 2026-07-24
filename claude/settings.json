@@ -5,6 +5,9 @@
       "allowAllUnixSockets": true
     }
   },
+  "permissions": {
+    "defaultMode": "auto"
+  },
   "hooks": {
     "Stop": [
       {
