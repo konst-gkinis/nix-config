@@ -30,8 +30,12 @@
     else
       tmp=$(mktemp)
       ${pkgs.jq}/bin/jq -s '.[0] * .[1]' "$defaults" "$target" > "$tmp"
-      $DRY_RUN_CMD mv "$tmp" "$target"
+      # -f: the target may be read-only (files copied out of the Nix store keep
+      # mode 0444), which otherwise makes mv prompt and fail activation.
+      $DRY_RUN_CMD mv -f "$tmp" "$target"
     fi
+    # Claude Code must be able to write this file itself.
+    $DRY_RUN_CMD chmod u+w "$target"
   '';
 
   programs = {
