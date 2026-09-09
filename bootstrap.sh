@@ -200,7 +200,7 @@ if [ "$OS" = "Linux" ]; then
     DEFAULT_SSH_KEY="$(cat "${HOME}/.ssh/id_ed25519.pub")"
   fi
   if [ -z "$DEFAULT_SSH_KEY" ]; then
-    DEFAULT_SSH_KEY="ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOk8iAnIaa1deoc7jw8YACPNVka1ZFJxhnU4G74TmS+p"
+    DEFAULT_SSH_KEY="ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICz8fpWR17uro4SHsoQJHwAJvERwaiKvSwddpj4jCD8A konst.gkinis@gmail.com (KG-air)"
   fi
   CFG_SSH_KEY="$(ask "SSH authorized public key" "$DEFAULT_SSH_KEY")"
 
@@ -210,7 +210,7 @@ if [ "$OS" = "Linux" ]; then
   CFG_DISK="$(ask "Disk device" "/dev/nvme0n1")"
 else
   # macOS — use defaults from flake settings
-  CFG_SSH_KEY="ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOk8iAnIaa1deoc7jw8YACPNVka1ZFJxhnU4G74TmS+p"
+  CFG_SSH_KEY="ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICz8fpWR17uro4SHsoQJHwAJvERwaiKvSwddpj4jCD8A konst.gkinis@gmail.com (KG-air)"
   CFG_DISK="/dev/nvme0n1"
 fi
 

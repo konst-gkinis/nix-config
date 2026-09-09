@@ -68,7 +68,7 @@
           isPersonal = true;
           hostName = "nixos";
           timeZone = "America/New_York";
-          sshKeys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOk8iAnIaa1deoc7jw8YACPNVka1ZFJxhnU4G74TmS+p" ];
+          sshKeys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICz8fpWR17uro4SHsoQJHwAJvERwaiKvSwddpj4jCD8A konst.gkinis@gmail.com (KG-air)" ];
           diskDevice = "/dev/nvme0n1";
         };
         in defaults // (if builtins.pathExists ./host.nix then import ./host.nix else {});
