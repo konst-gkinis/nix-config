@@ -165,6 +165,9 @@ CFG_TIMEZONE="$(ask "Timezone" "$DEFAULT_TZ")"
 # Used for both SSH auth and git commit signing (gpg.format = ssh).
 
 SSH_KEY_PATH="${HOME}/.ssh/id_ed25519"
+# Comment identifies which machine a key came from, so keys can be told apart
+# (and revoked individually) in an authorized_keys file.
+SSH_KEY_COMMENT="${CFG_EMAIL} (${CFG_HOSTNAME})"
 if [ ! -f "$SSH_KEY_PATH" ]; then
   printf "%b==> No SSH key at %s — generating ed25519 keypair...%b\n" "$GREEN" "$SSH_KEY_PATH" "$NC"
   mkdir -p "${HOME}/.ssh"
@@ -173,11 +176,11 @@ if [ ! -f "$SSH_KEY_PATH" ]; then
   read -r _pass_ans
   case "$_pass_ans" in
     n|N)
-      ssh-keygen -t ed25519 -C "$CFG_EMAIL" -N "" -f "$SSH_KEY_PATH"
+      ssh-keygen -t ed25519 -C "$SSH_KEY_COMMENT" -N "" -f "$SSH_KEY_PATH"
       ;;
     *)
       # ssh-keygen will prompt twice for the passphrase
-      ssh-keygen -t ed25519 -C "$CFG_EMAIL" -f "$SSH_KEY_PATH"
+      ssh-keygen -t ed25519 -C "$SSH_KEY_COMMENT" -f "$SSH_KEY_PATH"
       ;;
   esac
   if [ "$OS" = "Darwin" ]; then
