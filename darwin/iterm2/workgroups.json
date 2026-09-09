@@ -1,0 +1,91 @@
+[
+  {
+    "name": "Claude Code",
+    "sessions": [
+      {
+        "command": "",
+        "displayName": "Chat",
+        "kind": {
+          "kind": "root"
+        },
+        "mode": "regular",
+        "perFileCommand": "",
+        "toolbarItems": [
+          {
+            "kind": "modeSwitcher"
+          },
+          {
+            "kind": "gitStatus"
+          },
+          {
+            "kind": "autoRequestReviewWhenIdle"
+          }
+        ],
+        "uniqueIdentifier": "builtin.claudeCode.main",
+        "urlString": ""
+      },
+      {
+        "command": "git difftool -y -x vimdiff \\(gitBase)",
+        "displayName": "Diff",
+        "kind": {
+          "kind": "peer"
+        },
+        "mode": "diff",
+        "parentID": "builtin.claudeCode.main",
+        "perFileCommand": "git difftool -y -x vimdiff \\(gitBase) -- \\(file)",
+        "toolbarItems": [
+          {
+            "kind": "modeSwitcher"
+          },
+          {
+            "kind": "changedFileSelector"
+          },
+          {
+            "kind": "gitBaseSelector"
+          },
+          {
+            "backShortcut": {
+              "serialized": "0xf702-0x340000-0x7b"
+            },
+            "forwardShortcut": {
+              "serialized": "0xf703-0x340000-0x7c"
+            },
+            "kind": "navigation",
+            "reloadShortcut": {
+              "serialized": "0x72-0x100000-0xf"
+            }
+          }
+        ],
+        "uniqueIdentifier": "builtin.claudeCode.diff",
+        "urlString": ""
+      },
+      {
+        "command": "claude \\(codeReviewPrompt) --append-system-prompt-file '\\(codeReviewSystemPromptFile)' --settings '\\(iterm2.appBundlePath)/Contents/Resources/code-review-settings.txt'",
+        "displayName": "Code Review",
+        "kind": {
+          "kind": "peer"
+        },
+        "mode": "codeReview",
+        "parentID": "builtin.claudeCode.main",
+        "perFileCommand": "",
+        "toolbarItems": [
+          {
+            "kind": "modeSwitcher"
+          },
+          {
+            "kind": "reload",
+            "shortcut": {
+              "serialized": "0x72-0x100000-0xf"
+            }
+          },
+          {
+            "kind": "autoSendClippingsWhenIdle"
+          }
+        ],
+        "uniqueIdentifier": "builtin.claudeCode.review",
+        "urlString": ""
+      }
+    ],
+    "uniqueIdentifier": "builtin.claudeCode"
+  }
+]

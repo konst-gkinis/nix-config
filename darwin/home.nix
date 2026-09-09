@@ -93,6 +93,11 @@ in
     run /usr/bin/defaults delete com.googlecode.iterm2 HotkeyCode 2>/dev/null || true
     run /usr/bin/defaults delete com.googlecode.iterm2 HotkeyModifiers 2>/dev/null || true
     run /usr/bin/defaults write com.googlecode.iterm2 AlternateMouseScroll -bool true
+    # Claude Code workgroup (Chat / Diff / Code Review panes). iTerm2 stores this
+    # as an opaque base64 blob, so the readable source of truth is the JSON in the
+    # repo, hex-encoded here for `defaults write -data`. The profile-level triggers
+    # that activate it live in iterm2/DynamicProfiles/ayu-mirage.json.
+    run /usr/bin/defaults write com.googlecode.iterm2 Workgroups -data "$(/usr/bin/od -An -tx1 -v ${./iterm2/workgroups.json} | tr -d ' \n')"
   '';
 
   # Prevents garbled text in VS Code's integrated terminal when using Claude Code

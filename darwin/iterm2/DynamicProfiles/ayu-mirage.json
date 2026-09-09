@@ -272,6 +272,33 @@
       "Terminal Type": "xterm-256color",
       "Title Components": 2,
       "Transparency": 0.0,
+      "Triggers": [
+        {
+          "action": "iTermEnterWorkgroupTrigger",
+          "contentregex": "",
+          "disabled": false,
+          "eventParams": {
+            "jobName": "claude"
+          },
+          "matchType": 113,
+          "parameter": "builtin.claudeCode",
+          "partial": false,
+          "regex": ""
+        },
+        {
+          "action": "iTermExitWorkgroupTrigger",
+          "contentregex": "",
+          "disabled": false,
+          "eventParams": {
+            "jobName": "claude",
+            "leaderOnly": true
+          },
+          "matchType": 114,
+          "parameter": "",
+          "partial": false,
+          "regex": ""
+        }
+      ],
       "Unlimited Scrollback": false,
       "Use Bold Font": true,
       "Use Bright Bold": true,
