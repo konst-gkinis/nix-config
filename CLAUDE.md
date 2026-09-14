@@ -49,21 +49,25 @@ the repo root, then runs `nix run ".#build-switch"`. The `host.nix` file is gene
 and is gitignored — it must not be committed.
 
 ## Second git identity
-`host.nix` may set `workGitDir` to scope a second GitHub account to a directory:
-```nix
-workGitDir = "~/work/";   # trailing slash required; null (default) emits nothing
-```
-This adds a conditional include at the end of `~/.config/git/config`, so repos under
-that directory additionally read `~/work/.gitconfig` — a plain, machine-local file
-holding the work `user.name` / `user.email` / `user.signingKey`. The identity itself
-is deliberately *not* in this repo and needs no rebuild to change.
+`workGitDir` in the `flake.nix` defaults scopes a second GitHub account to a directory
+(currently `~/workspace/portchain`; `null` emits nothing). A trailing slash is optional —
+`shared/home.nix` normalises it, which matters because git treats `gitdir:~/foo` as
+"a repo at exactly that path" and only `gitdir:~/foo/` as "everything beneath it".
+
+It adds a conditional include at the end of `~/.config/git/config`, so repos under that
+directory additionally read `<dir>/.gitconfig` — a plain, machine-local file holding the
+work `user.name` / `user.email` / `user.signingKey`. The identity itself is deliberately
+*not* in this repo and needs no rebuild to change. A missing target file is a silent
+no-op, so the pointer is safe to commit and ship to machines that have no work setup.
 
 Git has no directory-inherited config of its own (it never walks up the tree looking
 for one), so the pointer has to be global — that part cannot live outside home-manager.
 
 GitHub refuses the same public key on two accounts, so the second account also needs
 its own keypair plus a `Host` alias in `~/.ssh/config_external` (included from
-`shared/home.nix`) with `IdentitiesOnly yes`.
+`shared/home.nix`) with `IdentitiesOnly yes`. For local verification of work-signed
+commits, `~/.config/git/allowed_signers` needs a second line mapping the work email to
+the work pubkey.
 
 ## Git config ownership
 All global git config is home-manager's (`shared/home.nix` → `~/.config/git/config`,
@@ -82,7 +86,11 @@ Consequences:
   longer writes the pointer).
 
 ## Gotchas
-- `programs.git.includes` must be used for the `workGit` override, not a hand-rolled
+- `nix run .#build-switch` quits iTerm2 when `TERM_PROGRAM=iTerm.app`
+  (`apps/aarch64-darwin/build-switch:66`), which kills any agent session running inside
+  it mid-switch. Run it as `env TERM_PROGRAM=other nix run .#build-switch` to skip the
+  restart.
+- `programs.git.includes` must be used for the `workGitDir` override, not a hand-rolled
   `settings.includeIf`. home-manager emits `includes` with `mkAfter` so they land after
   the global `user.*`; sections in `settings` are sorted alphabetically, which would put
   `includeIf` *before* `user` and let the global identity win.

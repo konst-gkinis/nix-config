@@ -61,22 +61,26 @@
     }@inputs:
     let
       settings =
-        let defaults = {
-          user = "kg";
-          name = "Konstantinos Gkinis";
-          email = "konst.gkinis@gmail.com";
-          isPersonal = true;
-          hostName = "nixos";
-          timeZone = "America/New_York";
-          sshKeys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICz8fpWR17uro4SHsoQJHwAJvERwaiKvSwddpj4jCD8A konst.gkinis@gmail.com (KG-air)" ];
-          diskDevice = "/dev/nvme0n1";
-          # Directory holding a second git identity, e.g. "~/work/" (trailing
-          # slash required). Git then reads "<dir>.gitconfig" — a plain,
-          # machine-local file, not managed here — for repos under it.
-          # null disables the conditional include.
-          workGitDir = null;
-        };
-        in defaults // (if builtins.pathExists ./host.nix then import ./host.nix else {});
+        let
+          defaults = {
+            user = "kg";
+            name = "Konstantinos Gkinis";
+            email = "konst.gkinis@gmail.com";
+            isPersonal = true;
+            hostName = "nixos";
+            timeZone = "America/New_York";
+            sshKeys = [
+              "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICz8fpWR17uro4SHsoQJHwAJvERwaiKvSwddpj4jCD8A konst.gkinis@gmail.com (KG-air)"
+            ];
+            diskDevice = "/dev/nvme0n1";
+            # Directory holding a second git identity, e.g. "~/work". Git then
+            # reads "<dir>/.gitconfig" — a plain, machine-local file, not
+            # managed here — for repos under it.
+            # null disables the conditional include.
+            workGitDir = "~/workspace/portchain";
+          };
+        in
+        defaults // (if builtins.pathExists ./host.nix then import ./host.nix else { });
       user = settings.user;
       linuxSystems = [
         "x86_64-linux"
@@ -148,7 +152,15 @@
             inherit inputs;
             inherit user;
             fullName = settings.name;
-            inherit (settings) email isPersonal hostName timeZone sshKeys diskDevice workGitDir;
+            inherit (settings)
+              email
+              isPersonal
+              hostName
+              timeZone
+              sshKeys
+              diskDevice
+              workGitDir
+              ;
           };
           modules = [
             home-manager.darwinModules.home-manager
@@ -180,7 +192,15 @@
               inherit inputs;
               inherit user;
               fullName = settings.name;
-              inherit (settings) email isPersonal hostName timeZone sshKeys diskDevice workGitDir;
+              inherit (settings)
+                email
+                isPersonal
+                hostName
+                timeZone
+                sshKeys
+                diskDevice
+                workGitDir
+                ;
             };
             modules = [
               disko.nixosModules.disko
@@ -196,7 +216,15 @@
               inherit inputs;
               inherit user;
               fullName = settings.name;
-              inherit (settings) email isPersonal hostName timeZone sshKeys diskDevice workGitDir;
+              inherit (settings)
+                email
+                isPersonal
+                hostName
+                timeZone
+                sshKeys
+                diskDevice
+                workGitDir
+                ;
             };
             modules = [
               nixos-wsl.nixosModules.wsl

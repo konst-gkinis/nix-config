@@ -531,12 +531,20 @@
       # name/email/signing key stay in that plain file, editable without a
       # rebuild. home-manager emits includes with mkAfter, so this lands after
       # the global user.* below and wins.
-      includes = lib.optionals (workGitDir != null) [
-        {
-          condition = "gitdir:${workGitDir}";
-          path = "${workGitDir}.gitconfig";
-        }
-      ];
+      includes = lib.optionals (workGitDir != null) (
+        # The trailing slash is load-bearing: "gitdir:~/foo" matches only a repo
+        # at exactly that path, while "gitdir:~/foo/" gets an implicit "**" and
+        # matches everything beneath it. Normalise so either spelling works.
+        let
+          dir = (lib.removeSuffix "/" workGitDir) + "/";
+        in
+        [
+          {
+            condition = "gitdir:${dir}";
+            path = "${dir}.gitconfig";
+          }
+        ]
+      );
       signing = {
         key = "${config.home.homeDirectory}/.ssh/id_ed25519.pub";
         format = "ssh";
