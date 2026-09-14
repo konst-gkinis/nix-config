@@ -5,6 +5,7 @@
   user,
   fullName,
   email,
+  workGit ? null,
   hostName,
   timeZone,
   sshKeys,
@@ -20,7 +21,7 @@
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
-    extraSpecialArgs = { inherit user fullName email; };
+    extraSpecialArgs = { inherit user fullName email workGit; };
     users.${user} = {
       imports = [
         ../shared/home.nix

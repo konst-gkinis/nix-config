@@ -5,6 +5,7 @@
   user,
   fullName ? "Konstantinos Gkinis",
   email ? "konst.gkinis@gmail.com",
+  workGit ? null,
   ...
 }:
 {
@@ -519,6 +520,21 @@
       lfs = {
         enable = true;
       };
+      # Second GitHub identity: overrides name/email/signing key for repos under
+      # `workGit.dir`. home-manager emits these with mkAfter, so the include lands
+      # at the end of ~/.config/git/config and wins over the global user.* below.
+      includes = lib.optionals (workGit != null) [
+        {
+          condition = "gitdir:${workGit.dir or "~/work/"}";
+          contentSuffix = "gitconfig-work";
+          contents.user = {
+            name = workGit.name or fullName;
+            email = workGit.email;
+            signingKey =
+              workGit.signingKey or "${config.home.homeDirectory}/.ssh/id_ed25519_work.pub";
+          };
+        }
+      ];
       signing = {
         key = "${config.home.homeDirectory}/.ssh/id_ed25519.pub";
         format = "ssh";

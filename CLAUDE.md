@@ -48,7 +48,29 @@ machine-specific values (user, name, email, hostname, timezone, etc.), writes a 
 the repo root, then runs `nix run ".#build-switch"`. The `host.nix` file is generated per-machine
 and is gitignored — it must not be committed.
 
+## Second git identity
+`host.nix` may set `workGit` to scope a second GitHub account to a directory:
+```nix
+workGit = {
+  email = "you@work.com";
+  dir = "~/work/";          # optional, default "~/work/"
+  name = "Your Name";       # optional, defaults to the global fullName
+  signingKey = "...";       # optional, default ~/.ssh/id_ed25519_work.pub
+};
+```
+`null` (the default) emits nothing. It becomes a conditional include at the end of
+`~/.config/git/config`. GitHub refuses the same public key on two accounts, so the
+second account needs its own keypair plus a `Host` alias in `~/.ssh/config_external`
+(included from `shared/home.nix`) with `IdentitiesOnly yes`.
+
 ## Gotchas
+- `programs.git.includes` must be used for the `workGit` override, not a hand-rolled
+  `settings.includeIf`. home-manager emits `includes` with `mkAfter` so they land after
+  the global `user.*`; sections in `settings` are sorted alphabetically, which would put
+  `includeIf` *before* `user` and let the global identity win.
+- `host.nix` is gitignored, and flake evaluation only sees git-tracked files — so
+  `nix eval`/`build-switch` on a dirty tree silently ignores it until it is at least
+  `git add -N`'d.
 - `specialArg` for the git full name is called `fullName`, not `name`. Don't rename it
   back — home-manager's module system reserves `name` for the user key, and overriding
   it silently breaks `config.home.homeDirectory`.
