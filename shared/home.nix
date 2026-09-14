@@ -5,7 +5,7 @@
   user,
   fullName ? "Konstantinos Gkinis",
   email ? "konst.gkinis@gmail.com",
-  workGit ? null,
+  workGitDir ? null,
   ...
 }:
 {
@@ -516,23 +516,25 @@
 
     git = {
       enable = true;
-      ignores = [ "*.swp" ];
+      ignores = [
+        "*.swp"
+        ".DS_Store"
+        ".idea/"
+        "**/.claude/settings.local.json"
+        "**/.claude/.cc-writes/"
+      ];
       lfs = {
         enable = true;
       };
-      # Second GitHub identity: overrides name/email/signing key for repos under
-      # `workGit.dir`. home-manager emits these with mkAfter, so the include lands
-      # at the end of ~/.config/git/config and wins over the global user.* below.
-      includes = lib.optionals (workGit != null) [
+      # Second GitHub identity: for repos under `workGitDir`, git additionally
+      # reads "<workGitDir>.gitconfig". Only the pointer lives here — the work
+      # name/email/signing key stay in that plain file, editable without a
+      # rebuild. home-manager emits includes with mkAfter, so this lands after
+      # the global user.* below and wins.
+      includes = lib.optionals (workGitDir != null) [
         {
-          condition = "gitdir:${workGit.dir or "~/work/"}";
-          contentSuffix = "gitconfig-work";
-          contents.user = {
-            name = workGit.name or fullName;
-            email = workGit.email;
-            signingKey =
-              workGit.signingKey or "${config.home.homeDirectory}/.ssh/id_ed25519_work.pub";
-          };
+          condition = "gitdir:${workGitDir}";
+          path = "${workGitDir}.gitconfig";
         }
       ];
       signing = {
@@ -550,6 +552,9 @@
           editor = "vim";
           autocrlf = "input";
         };
+        # The file itself is generated per-machine by
+        # scripts/setup-signature-verification.sh; only the pointer is declarative.
+        gpg.ssh.allowedSignersFile = "${config.home.homeDirectory}/.config/git/allowed_signers";
         pull.rebase = true;
         push.autoSetupRemote = true;
         rebase.autoStash = true;

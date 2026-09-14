@@ -70,11 +70,11 @@
           timeZone = "America/New_York";
           sshKeys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICz8fpWR17uro4SHsoQJHwAJvERwaiKvSwddpj4jCD8A konst.gkinis@gmail.com (KG-air)" ];
           diskDevice = "/dev/nvme0n1";
-          # Second git identity, applied only inside `dir`. Set in host.nix, e.g.
-          #   workGit = { email = "you@work.com"; dir = "~/work/"; };
-          # `name` defaults to the global full name and `signingKey` to
-          # ~/.ssh/id_ed25519_work.pub. null disables the conditional include.
-          workGit = null;
+          # Directory holding a second git identity, e.g. "~/work/" (trailing
+          # slash required). Git then reads "<dir>.gitconfig" — a plain,
+          # machine-local file, not managed here — for repos under it.
+          # null disables the conditional include.
+          workGitDir = null;
         };
         in defaults // (if builtins.pathExists ./host.nix then import ./host.nix else {});
       user = settings.user;
@@ -148,7 +148,7 @@
             inherit inputs;
             inherit user;
             fullName = settings.name;
-            inherit (settings) email isPersonal hostName timeZone sshKeys diskDevice workGit;
+            inherit (settings) email isPersonal hostName timeZone sshKeys diskDevice workGitDir;
           };
           modules = [
             home-manager.darwinModules.home-manager
@@ -180,7 +180,7 @@
               inherit inputs;
               inherit user;
               fullName = settings.name;
-              inherit (settings) email isPersonal hostName timeZone sshKeys diskDevice workGit;
+              inherit (settings) email isPersonal hostName timeZone sshKeys diskDevice workGitDir;
             };
             modules = [
               disko.nixosModules.disko
@@ -196,7 +196,7 @@
               inherit inputs;
               inherit user;
               fullName = settings.name;
-              inherit (settings) email isPersonal hostName timeZone sshKeys diskDevice workGit;
+              inherit (settings) email isPersonal hostName timeZone sshKeys diskDevice workGitDir;
             };
             modules = [
               nixos-wsl.nixosModules.wsl

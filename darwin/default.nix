@@ -6,7 +6,7 @@
   user,
   fullName,
   email,
-  workGit ? null,
+  workGitDir ? null,
   isPersonal ? false,
   ...
 }:
@@ -80,7 +80,7 @@ in
   home-manager = {
     backupFileExtension = "backup";
     useGlobalPkgs = true;
-    extraSpecialArgs = { inherit user fullName email workGit; };
+    extraSpecialArgs = { inherit user fullName email workGitDir; };
     users.${user} =
       {
         pkgs,

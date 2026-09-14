@@ -49,19 +49,37 @@ the repo root, then runs `nix run ".#build-switch"`. The `host.nix` file is gene
 and is gitignored — it must not be committed.
 
 ## Second git identity
-`host.nix` may set `workGit` to scope a second GitHub account to a directory:
+`host.nix` may set `workGitDir` to scope a second GitHub account to a directory:
 ```nix
-workGit = {
-  email = "you@work.com";
-  dir = "~/work/";          # optional, default "~/work/"
-  name = "Your Name";       # optional, defaults to the global fullName
-  signingKey = "...";       # optional, default ~/.ssh/id_ed25519_work.pub
-};
+workGitDir = "~/work/";   # trailing slash required; null (default) emits nothing
 ```
-`null` (the default) emits nothing. It becomes a conditional include at the end of
-`~/.config/git/config`. GitHub refuses the same public key on two accounts, so the
-second account needs its own keypair plus a `Host` alias in `~/.ssh/config_external`
-(included from `shared/home.nix`) with `IdentitiesOnly yes`.
+This adds a conditional include at the end of `~/.config/git/config`, so repos under
+that directory additionally read `~/work/.gitconfig` — a plain, machine-local file
+holding the work `user.name` / `user.email` / `user.signingKey`. The identity itself
+is deliberately *not* in this repo and needs no rebuild to change.
+
+Git has no directory-inherited config of its own (it never walks up the tree looking
+for one), so the pointer has to be global — that part cannot live outside home-manager.
+
+GitHub refuses the same public key on two accounts, so the second account also needs
+its own keypair plus a `Host` alias in `~/.ssh/config_external` (included from
+`shared/home.nix`) with `IdentitiesOnly yes`.
+
+## Git config ownership
+All global git config is home-manager's (`shared/home.nix` → `~/.config/git/config`,
+a nix store symlink). There is deliberately **no `~/.gitconfig`**; one existed
+pre-Nix and silently overrode the generated `user.*`, since git reads both and
+`~/.gitconfig` last. Don't recreate it.
+
+Consequences:
+- `git config --global ...` now fails with `could not lock config file` — with
+  `~/.gitconfig` absent, git targets the store symlink. That's intended: global
+  config changes belong in `shared/home.nix`. Use `--local` for per-repo settings.
+- Global ignores live in `programs.git.ignores` → `~/.config/git/ignore`. Don't set
+  `core.excludesFile`; it would make git ignore that file entirely.
+- `gpg.ssh.allowedSignersFile` is set declaratively; only the file's *contents* are
+  machine-specific, written by `scripts/setup-signature-verification.sh` (which no
+  longer writes the pointer).
 
 ## Gotchas
 - `programs.git.includes` must be used for the `workGit` override, not a hand-rolled

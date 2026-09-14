@@ -2,7 +2,9 @@
 # Configure local verification of SSH-signed git commits.
 #
 # Writes ~/.config/git/allowed_signers mapping your git email to your
-# ~/.ssh/id_ed25519.pub, and points git at it via gpg.ssh.allowedSignersFile.
+# ~/.ssh/id_ed25519.pub. The gpg.ssh.allowedSignersFile pointer is set
+# declaratively in shared/home.nix, not here — this script only fills in the
+# file, whose contents depend on the machine's actual key.
 # Idempotent: safe to run multiple times.
 #
 # Standalone usage:
@@ -46,8 +48,6 @@ else
   printf "%bAdded entry for %s to %s%b\n" \
     "$GREEN" "$EMAIL" "$ALLOWED_SIGNERS" "$NC"
 fi
-
-git config --global gpg.ssh.allowedSignersFile "$ALLOWED_SIGNERS"
 
 printf "%bLocal SSH signature verification is configured.%b\n" "$GREEN" "$NC"
 printf "%bTry: git log --show-signature -1%b\n" "$YELLOW" "$NC"
