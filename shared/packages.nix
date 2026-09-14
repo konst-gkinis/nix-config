@@ -43,6 +43,7 @@ with pkgs;
 
   # Development tools
   claude-code
+  pi-coding-agent
   curl
   gh
   # lazygit: installed via home-manager (programs.lazygit)
