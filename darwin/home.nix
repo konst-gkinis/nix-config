@@ -93,6 +93,13 @@ in
     run /usr/bin/defaults delete com.googlecode.iterm2 HotkeyCode 2>/dev/null || true
     run /usr/bin/defaults delete com.googlecode.iterm2 HotkeyModifiers 2>/dev/null || true
     run /usr/bin/defaults write com.googlecode.iterm2 AlternateMouseScroll -bool true
+    # Session restoration: iTerm2 runs each session's job in a detached server
+    # process (RunJobsInServers), so the job outlives the window.
+    # KillJobsInServersOnQuit=false stops a user-initiated cmd-Q from killing
+    # those jobs, so e.g. a running `claude` is still there when iTerm2
+    # relaunches and reattaches. Both are Prefs > Advanced settings.
+    run /usr/bin/defaults write com.googlecode.iterm2 RunJobsInServers -bool true
+    run /usr/bin/defaults write com.googlecode.iterm2 KillJobsInServersOnQuit -bool false
     # Claude Code workgroup (Chat / Diff / Code Review panes). iTerm2 stores this
     # as an opaque base64 blob, so the readable source of truth is the JSON in the
     # repo, hex-encoded here for `defaults write -data`. The profile-level triggers
