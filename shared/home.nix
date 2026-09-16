@@ -55,6 +55,17 @@
       settings = {
         git = {
           overrideGpg = true;
+          # lazygit ignores git's core.pager, so delta has to be named again
+          # here (the pre-0.65 `paging` key is gone; lazygit can't migrate the
+          # config itself because it's a read-only nix store symlink).
+          # --paging=never because lazygit does its own scrolling; delta still
+          # reads its [delta] section from ~/.config/git/config. The hyperlinks
+          # format makes file/line links open in lazygit's editor.
+          diffRenderers = [
+            {
+              command = ''delta --dark --paging=never --hyperlinks --hyperlinks-file-link-format="lazygit-edit://{path}:{line}"'';
+            }
+          ];
         };
         gui = {
           nerdFontsVersion = "3";
@@ -497,6 +508,25 @@
       enableAutoUpdates = true;
     };
 
+    # Pager for git diff/log/show/blame and for interactive staging. Ayu
+    # colours to match bat/lazygit; the syntax theme is bat's (delta reads
+    # bat's built asset cache, so the custom ayu-dark theme above applies).
+    delta = {
+      enable = true;
+      enableGitIntegration = true;
+      options = {
+        navigate = true; # n / N jump between files in the pager
+        line-numbers = true;
+        syntax-theme = "ayu-dark";
+        file-style = "bold #ffb454";
+        file-decoration-style = "#565b66 ul";
+        hunk-header-decoration-style = "#565b66 box";
+        line-numbers-minus-style = "#f07178";
+        line-numbers-plus-style = "#aad976";
+        line-numbers-zero-style = "#565b66";
+      };
+    };
+
     git = {
       enable = true;
       ignores = [
@@ -537,6 +567,8 @@
         user.name = fullName;
         user.email = email;
         branch.sort = "committerdate";
+        # Distinguishes moved lines from added/removed ones; delta renders it.
+        diff.colorMoved = "default";
         merge.conflictStyle = "zdiff3";
         init.defaultBranch = "main";
         core = {

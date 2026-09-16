@@ -46,7 +46,7 @@ with pkgs;
   pi-coding-agent
   curl
   gh
-  # lazygit: installed via home-manager (programs.lazygit)
+  # delta, lazygit: installed via home-manager (programs.delta / programs.lazygit)
   nh
   nixfmt
   mcp-nixos
