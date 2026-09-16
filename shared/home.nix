@@ -456,6 +456,31 @@
           IN_NIX_SHELL=impure nix shell "''${refs[@]}" --command zsh -i
         }
 
+        # ripgrep rendered by delta's grep view. `rg --json` is what delta
+        # wants — parsing plain grep output is ambiguous when a match itself
+        # contains a colon. rg ignores --json for --files/-l/-c, where delta
+        # would render nothing and just append its "this isn't a diff" hint,
+        # so those bypass it, as does a non-terminal stdout (scripts, pipes,
+        # $(...)). `command rg` skips the wrapper entirely.
+        rg() {
+          emulate -L zsh
+          if [[ ! -t 1 ]]; then
+            command rg "$@"
+            return
+          fi
+          local a
+          for a in "$@"; do
+            case $a in
+              --files|--files-with-matches|-l|--count|-c|--count-matches|--json|--help|-h|--version|-V)
+                command rg "$@"
+                return
+                ;;
+            esac
+          done
+          command rg --json "$@" | delta
+          return $pipestatus[1]
+        }
+
         # Reclaim disk space: nix GC, optimise store, brew cleanup.
         cleanup() {
           local nixos_dir="$HOME/nixos-config"
@@ -517,6 +542,10 @@
       options = {
         navigate = true; # n / N jump between files in the pager
         line-numbers = true;
+        side-by-side = true;
+        # Styling for delta's grep view (git grep / the rg wrapper below).
+        grep-file-style = "bold #ffb454";
+        grep-line-number-style = "#59c2ff";
         syntax-theme = "ayu-dark";
         file-style = "bold #ffb454";
         file-decoration-style = "#565b66 ul";
@@ -569,6 +598,10 @@
         branch.sort = "committerdate";
         # Distinguishes moved lines from added/removed ones; delta renders it.
         diff.colorMoved = "default";
+        # delta renders `git grep` too. It needs the line numbers in the
+        # output to parse it, and git only emits them with grep.lineNumber.
+        pager.grep = "delta";
+        grep.lineNumber = true;
         merge.conflictStyle = "zdiff3";
         init.defaultBranch = "main";
         core = {
@@ -882,6 +915,7 @@
     nbs = "nix run .#build-switch — apply nix config";
     shell = "nix-shell into a nixpkgs package: shell <pkg>";
     ns = "temp zsh with extra packages, keeps prompt: ns <pkg> [pkg …]";
+    rg = "ripgrep, rendered by delta (plain rg when piped)";
     nup = "update flake inputs, commit lock, build-switch";
     cleanup = "nix GC + store optimise + brew cleanup";
     halp = "show this help";
