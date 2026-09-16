@@ -9,6 +9,8 @@
   ...
 }:
 {
+  imports = [ ./halp.nix ];
+
   home.file = {
     ".claude/CLAUDE.md".source = ../claude/CLAUDE.md;
     ".claude/statusline-command.sh" = {
@@ -443,9 +445,6 @@
           IN_NIX_SHELL=impure nix shell "''${refs[@]}" --command zsh -i
         }
 
-        # Use difftastic, syntax-aware diffing
-        alias diff=difft
-
         # Reclaim disk space: nix GC, optimise store, brew cleanup.
         cleanup() {
           local nixos_dir="$HOME/nixos-config"
@@ -462,25 +461,6 @@
             else
               ""
           }
-        }
-
-        halp() {
-          printf '\033[1;33mAliases\033[0m\n'
-          printf '  \033[1ml\033[0m       lsd long listing (name, date, size; dirs first)\n'
-          printf '  \033[1mtree\033[0m    lsd tree view with git status\n'
-          printf '  \033[1mcat\033[0m     bat — syntax-highlighted pager\n'
-          printf '  \033[1mdiff\033[0m    difft — syntax-aware structural diff\n'
-          printf '  \033[1mg\033[0m       lazygit TUI\n'
-          printf '  \033[1mcdi\033[0m     zi — interactive zoxide directory picker\n'
-          printf '  \033[1mgstl\033[0m    git stash list (readable format)\n'
-          printf '  \033[1mgstam\033[0m   git stash push -m <msg>\n'
-          printf '  \033[1mnbs\033[0m     nix run .#build-switch — apply nix config\n'
-          printf '\n\033[1;33mFunctions\033[0m\n'
-          printf '  \033[1mshell\033[0m <pkg>          nix-shell into a nixpkgs package\n'
-          printf '  \033[1mns\033[0m <pkg> [pkg …]     temp zsh with extra packages (keeps prompt)\n'
-          printf '  \033[1mnup\033[0m                  update flake inputs, commit lock, build-switch\n'
-          printf '  \033[1mcleanup\033[0m              nix GC + store optimise + brew cleanup\n'
-          printf '  \033[1mhalp\033[0m                 show this help\n'
         }
 
         # Add SSH keys to agent on login
@@ -503,6 +483,9 @@
         cat = "bat";
         g = "lazygit";
         nbs = "nix run .#build-switch";
+        # Syntax-aware diffing. Belongs here rather than as a raw `alias` line
+        # in initContent so halp can discover it.
+        diff = "difft";
         cdi = "zi";
         gstl = "git stash list --format='%gd: %s — %ar'";
         gstam = "git stash push -m '%1'";
@@ -850,5 +833,29 @@
         bind-key -T copy-mode-vi 'C-\' select-pane -l
       '';
     };
+  };
+
+  # Descriptions for `halp` (see halp.nix). Adding a command here is optional —
+  # halp discovers aliases and functions on its own — so this is prose only.
+  # Platform-specific modules add their own entries.
+  halp.descriptions = {
+    l = "lsd long listing (name, date, size; dirs first)";
+    tree = "lsd tree view with git status";
+    cat = "bat — syntax-highlighted pager";
+    diff = "difft — syntax-aware structural diff";
+    g = "lazygit TUI";
+    cdi = "zi — interactive zoxide directory picker";
+    gstl = "git stash list (readable format)";
+    gstam = "git stash push -m <msg>";
+    nbs = "nix run .#build-switch — apply nix config";
+    shell = "nix-shell into a nixpkgs package: shell <pkg>";
+    ns = "temp zsh with extra packages, keeps prompt: ns <pkg> [pkg …]";
+    nup = "update flake inputs, commit lock, build-switch";
+    cleanup = "nix GC + store optimise + brew cleanup";
+    halp = "show this help";
+    y = "yazi file manager; cd's to the directory it exits in";
+    lg = "lazygit; cd's to the directory it exits in";
+    z = "zoxide jump: z <part of a path>";
+    zi = "zoxide interactive directory picker";
   };
 }

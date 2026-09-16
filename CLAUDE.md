@@ -85,6 +85,22 @@ Consequences:
   machine-specific, written by `scripts/setup-signature-verification.sh` (which no
   longer writes the pointer).
 
+## halp
+`shared/halp.nix` generates the `halp` cheat sheet. It is self-maintaining — adding a
+command does not require touching it:
+- **Aliases** come from the final merged `programs.zsh.shellAliases` at build time, so an
+  alias added in any module (or by a home-manager module, like lsd's `ls`/`ll`) is listed
+  on its own. This is why aliases belong in `shellAliases` and not a raw `alias` line in
+  `initContent` — a raw line is invisible to halp.
+- **Functions** are discovered at run time from zsh's `functions_source`, which maps a
+  function name to the file that defined it; anything defined in the generated `.zshrc`
+  is ours, so plugin and completion functions are excluded. Names starting with `_` are
+  skipped (zoxide's `__zoxide_*`, direnv's `_direnv_hook`).
+- **Descriptions** are the only hand-written part, in the `halp.descriptions` option
+  (an `attrsOf str` keyed by command name, held in `shared/home.nix`). A command with
+  no entry is still listed — an alias shows its expansion instead, a function shows a
+  blank.
+
 ## Gotchas
 - `nix run .#build-switch` quits iTerm2 when `TERM_PROGRAM=iTerm.app`
   (`apps/aarch64-darwin/build-switch:66`), which kills any agent session running inside
