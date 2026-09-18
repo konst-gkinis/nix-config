@@ -71,9 +71,17 @@ add_segment() { seg_bg+=("$1"); seg_fg+=("$2"); seg_tx+=("$3"); }
 cwd=$(echo "$input" | jq -r '.workspace.current_dir // .cwd')
 add_segment "$ayu_orange" "$ayu_ink" "${ico_dir} $(fish_path "$cwd")"
 
-# --- model ---
+# --- model (with effort level, same glyphs as the /model picker) ---
 model=$(echo "$input" | jq -r '.model.display_name // "Claude"')
-add_segment "$ayu_blue" "$ayu_ink" "${ico_model} ${model}"
+effort=$(echo "$input" | jq -r '.effort.level // empty')
+case "$effort" in
+  low)       effort_ico=$'\xe2\x97\x8b' ;;  # U+25CB empty circle
+  medium)    effort_ico=$'\xe2\x97\x90' ;;  # U+25D0 half-filled circle
+  high)      effort_ico=$'\xe2\x97\x8f' ;;  # U+25CF full circle
+  xhigh|max) effort_ico=$'\xe2\x9c\xb3' ;;  # U+2733 star
+  *)         effort_ico="" ;;
+esac
+add_segment "$ayu_blue" "$ayu_ink" "${ico_model} ${model}${effort_ico:+ $effort_ico}"
 
 # --- context usage (bg shifts to warn/critical as it fills) ---
 used_pct=$(echo "$input" | jq -r '.context_window.used_percentage // empty')
