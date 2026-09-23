@@ -34,6 +34,9 @@ A test is read far more often than written, usually by someone debugging it. Mak
 - Only the values the assertion depends on appear in the test; everything else is a default. A reader should tell what the test is about from Arrange alone. After builders exist, Arrange is 1–3 statements — if longer, the test covers several behaviours, a scenario builder is missing, or the production API needs too much ceremony (raise that as a design finding).
 - Use obviously-fake string values that name the field they fill: a player's `name` gets `"PLAYER_NAME"`, not `"Alice"`.
 - When several instances of the same struct appear in one test, encode each one's role in its values: `"AUTHORIZED_PLAYER_NAME"` vs `"UNAUTHORIZED_PLAYER_NAME"`.
+- One behaviour per test. Several assertions are fine when they check the same behaviour.
+- No logic in test bodies: no loops, conditionals or computed expected values. When cases differ only in inputs, use a parametrised/table test with a named case per row.
+- Test through the public interface: assert on outputs and observable effects, not private state or which internal helpers ran, so refactors don't break tests.
 - Name the test after the behaviour, since the name is what a CI failure shows. A plain name like "returns an order" is right only for a genuine happy-path / golden-master test.
 
 ## Builders (setup and expected objects)
@@ -51,4 +54,13 @@ A test is read far more often than written, usually by someone debugging it. Mak
 ## Expectations
 - Pin expectations as literals rather than re-deriving them from the seed data the code under test reads. Where the expectation genuinely depends on a generated value (db id, timestamp), pass it explicitly into the expected-object builder.
 - A golden-master test states its contract in a docblock: it asserts the output does not change, not that it is correct, and intentional changes must update the expected body in the same commit.
-- Keep tests deterministic and independent of each other.
+- Keep tests deterministic and independent of each other. Control time and randomness: inject the clock, seed RNGs, never use real sleeps — wait on a condition instead.
+- When a test expects an error, assert that specific error — its type or a short identifying message, not the whole error — so a different error can't make the test pass by accident.
+
+## Test doubles
+- Whether to use a mock, stub or fake depends on the case. When in doubt, prefer a stub that throws if called with unexpected arguments over one that silently returns a default.
+
+## Process
+- Watch every new test fail for the right reason before calling it done — run it against the old code or break the code deliberately. A test that has never failed may test nothing.
+- A bug fix starts with a test that reproduces the bug and fails; then fix it.
+- Never weaken a failing test to make it pass: no loosened assertions, skip markers, deleted cases, or expected values changed to match current output, unless I agree the old expectation was wrong. Otherwise stop and report the failure.
