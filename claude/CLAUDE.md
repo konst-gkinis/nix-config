@@ -34,18 +34,18 @@ A test is read far more often than written, usually by someone debugging it. Mak
 - Only the values the assertion depends on appear in the test; everything else is a default. A reader should tell what the test is about from Arrange alone. After builders exist, Arrange is 1–3 statements — if longer, the test covers several behaviours, a scenario builder is missing, or the production API needs too much ceremony (raise that as a design finding).
 - Use obviously-fake string values that name the field they fill: a player's `name` gets `"PLAYER_NAME"`, not `"Alice"`.
 - When several instances of the same struct appear in one test, encode each one's role in its values: `"AUTHORIZED_PLAYER_NAME"` vs `"UNAUTHORIZED_PLAYER_NAME"`.
-- Name the test after the behaviour, since the name is what a CI failure shows. A plain name like "returns a terminal call" is right only for a genuine happy-path / golden-master test.
+- Name the test after the behaviour, since the name is what a CI failure shows. A plain name like "returns an order" is right only for a genuine happy-path / golden-master test.
 
 ## Builders (setup and expected objects)
-- Extract setup into a builder that returns a complete, valid, type-checked object and takes partial overrides (`buildTerminalCall({ berthId: null })`). Prefer this over casts (`as unknown as T`, `mock<T>()`), which go stale silently.
+- Extract setup into a builder: a function that returns a complete, valid object and lets the caller override only the fields the test cares about (e.g. "build an order with no shipping address"). Prefer this over hand-built partial or stubbed objects that bypass the type system or constructor, which go stale silently when the type gains a field.
 - Don't parametrise what the test doesn't care about — a parameter claims the value matters. When nothing differentiates the test, pass nothing.
-- Name builders as noun phrases (`buildUser`, `buildPendingInvoice`). Defaults are valid and boring; don't default to `0`/`null`/`""` unless genuinely neutral.
-- Never let a default satisfy an assertion: if the test asserts `status === "omitted"`, it sets `status` itself. Randomise identity fields (ids, unique names) only, never asserted fields.
-- Return a fresh object on every call; never share a mutable fixture across tests. No mystery guests: values the test depends on don't live in a distant fixture or `beforeEach`.
-- Nest builders for nested graphs and deep-merge overrides (don't shallow-spread away nested defaults). Extract a named domain scenario (`buildOmittedTerminalCall`) when a combination recurs; no builders-for-builders. Small value objects don't need one.
-- A builder is a pure data constructor: no logic, validation, persistence or mock/stub setup. Persist as a separate visible step: `seed(buildX({...}))`.
-- Builders live in test-only files, never in production code; never add test-only constructors/fields to production types.
-- Large expected objects get a builder too, following the same rule: `expect(body).toEqual(expectedResponse({ status: "omitted" }))`. One or two values inline is fine.
+- Name builders as noun phrases (build user, build pending invoice). Defaults are valid and boring; don't default to zero/empty/null unless that is genuinely neutral for the domain.
+- Never let a default satisfy an assertion: if the test asserts the status is "cancelled", it sets the status itself. Randomise identity fields (ids, unique names) only, never asserted fields.
+- Return a fresh object on every call; never share a mutable fixture across tests. No mystery guests: values the test depends on don't live in a distant shared fixture or setup hook.
+- Build nested graphs with nested builders; overriding one nested field must keep that nested object's other defaults. Extract a named domain scenario (build cancelled order) when a combination recurs; no builders-for-builders. Small value objects don't need one.
+- A builder is a pure data constructor: no logic, validation, persistence or mock/stub setup. Persisting the built object is a separate, visible step in the test.
+- Builders live in test-only code, never in production code; never add test-only constructors/fields to production types.
+- Large expected objects get a builder too, following the same rule: the test passes only the values that make it different. One or two values asserted inline is fine.
 - When changing a builder default breaks tests, those tests were secretly relying on it — fix them, don't restore the default.
 
 ## Expectations
