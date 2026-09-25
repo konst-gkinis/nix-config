@@ -9,7 +9,7 @@
   "caffeine"
   "alt-tab"
   "linearmouse"
-  "disk-inventory-x"
+  "daisydisk"
   "betterdisplay"
   "tailscale-app"
 ]
