@@ -429,6 +429,13 @@
             nix-shell '<nixpkgs>' -A "$1"
         }
 
+        # Apply the config, then replace this shell with a fresh one so it
+        # picks up the new .zshrc. A function, not an alias: build-switch runs
+        # in a child process and cannot exec the shell that started it.
+        nbs() {
+          nix run .#build-switch -- "$@" && exec zsh
+        }
+
         # Update flake inputs, commit if flake.lock changed, then build-switch.
         # Idempotent: no-ops if flake.lock is already up to date.
         nup() {
@@ -437,7 +444,7 @@
           git -C "$nixos_dir" diff --quiet flake.lock && return 0
           git -C "$nixos_dir" add flake.lock && \
           git -C "$nixos_dir" commit -m "chore: update flake inputs" && \
-          (cd "$nixos_dir" && nix run .#build-switch)
+          (cd "$nixos_dir" && nix run .#build-switch) && exec zsh
         }
 
         # Temporary shell with extra packages, keeping zsh + p10k visible.
@@ -518,7 +525,6 @@
         tree = "lsd --tree --git";
         cat = "bat";
         g = "lazygit";
-        nbs = "nix run .#build-switch";
         # Syntax-aware diffing. Belongs here rather than as a raw `alias` line
         # in initContent so halp can discover it.
         diff = "difft";
@@ -928,7 +934,7 @@
     cdi = "zi — interactive zoxide directory picker";
     gstl = "git stash list (readable format)";
     gstam = "git stash push -m <msg>";
-    nbs = "nix run .#build-switch — apply nix config";
+    nbs = "nix run .#build-switch, then exec zsh — apply nix config";
     shell = "nix-shell into a nixpkgs package: shell <pkg>";
     ns = "temp zsh with extra packages, keeps prompt: ns <pkg> [pkg …]";
     rg = "ripgrep, rendered by delta (plain rg when piped)";

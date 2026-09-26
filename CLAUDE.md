@@ -123,10 +123,11 @@ command does not require touching it:
   otherwise the path to type (`./foo`, `bin/foo`).
 
 ## Gotchas
-- `nix run .#build-switch` quits iTerm2 when `TERM_PROGRAM=iTerm.app`
-  (`apps/aarch64-darwin/build-switch:66`), which kills any agent session running inside
-  it mid-switch. Run it as `env TERM_PROGRAM=other nix run .#build-switch` to skip the
-  restart.
+- `nbs` and `nup` end with `exec zsh` so the shell loads the new `.zshrc`. Other open
+  tabs keep their old functions and aliases until they run `exec zsh` themselves.
+  Dynamic profiles (`darwin/iterm2/DynamicProfiles/`) reload live; the global
+  `defaults write com.googlecode.iterm2` keys in `darwin/home.nix` only take effect
+  after quitting and reopening iTerm2.
 - `programs.git.includes` must be used for the `workGitDir` override, not a hand-rolled
   `settings.includeIf`. home-manager emits `includes` with `mkAfter` so they land after
   the global `user.*`; sections in `settings` are sorted alphabetically, which would put
