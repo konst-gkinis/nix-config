@@ -94,6 +94,11 @@ The server side (bare repos on the Proxmox host, created automatically on first 
 documented in `git-backup.md` in the homelab repo. Your key must be in the pve `git`
 user's `authorized_keys`: KG-air and RED are.
 
+`git backup-clone [--full] [git-clone args...]` (`scripts/git-backup-clone.sh`, packaged the
+same way) lists the backup's repos with `ssh pvegit list`, picks one with fzf and clones it
+with `--depth=1` (`--full` drops that). Extra args go to `git clone`, e.g. a target dir.
+`list` is a git-shell command on the server, since the `git` user has no normal shell.
+
 ## halp
 `shared/halp.nix` generates the `halp` cheat sheet. It is self-maintaining — adding a
 command does not require touching it:

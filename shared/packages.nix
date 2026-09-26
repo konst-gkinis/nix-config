@@ -56,4 +56,6 @@ with pkgs;
 
   # `git backup-init`: second push target on the homelab box (see scripts/git-backup-init.sh)
   (writeShellScriptBin "git-backup-init" (builtins.readFile ../scripts/git-backup-init.sh))
+  # `git backup-clone`: fzf-pick a repo from that backup and shallow-clone it
+  (writeShellScriptBin "git-backup-clone" (builtins.readFile ../scripts/git-backup-clone.sh))
 ]
