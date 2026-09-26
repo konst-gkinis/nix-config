@@ -85,6 +85,15 @@ Consequences:
   machine-specific, written by `scripts/setup-signature-verification.sh` (which no
   longer writes the pointer).
 
+## Git backup to the homelab
+`git backup-init [name]` (`scripts/git-backup-init.sh`, packaged in `shared/packages.nix`, so
+git finds it on PATH as a subcommand; no alias needed) adds `pvegit:<name>.git` as a second
+push URL on `origin` next to GitHub and pushes everything. After that, a plain `git push`
+goes to both. The `pvegit` SSH host is in `programs.ssh.settings` in `shared/home.nix`.
+The server side (bare repos on the Proxmox host, created automatically on first push) is
+documented in `git-backup.md` in the homelab repo. Your key must be in the pve `git`
+user's `authorized_keys`: KG-air and RED are.
+
 ## halp
 `shared/halp.nix` generates the `halp` cheat sheet. It is self-maintaining — adding a
 command does not require touching it:

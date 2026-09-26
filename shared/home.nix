@@ -815,6 +815,15 @@
           ];
           HashKnownHosts = true;
         };
+        # Bare git repos on the homelab Proxmox host; `git backup-init` pushes here.
+        # The LAN IP also works away from home through pve's Tailscale subnet route
+        # (needs accepted routes: default on macOS, `tailscale up --accept-routes` on Linux).
+        pvegit = {
+          HostName = "10.0.0.200";
+          User = "git";
+          IdentityFile = "~/.ssh/id_ed25519";
+          IdentitiesOnly = true;
+        };
       };
     };
 

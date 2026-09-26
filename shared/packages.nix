@@ -53,4 +53,7 @@ with pkgs;
   dotnetCorePackages.sdk_8_0
   python3
   uv
+
+  # `git backup-init`: second push target on the homelab box (see scripts/git-backup-init.sh)
+  (writeShellScriptBin "git-backup-init" (builtins.readFile ../scripts/git-backup-init.sh))
 ]
