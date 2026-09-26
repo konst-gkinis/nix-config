@@ -824,6 +824,13 @@
           IdentityFile = "~/.ssh/id_ed25519";
           IdentitiesOnly = true;
         };
+        # Homelab CT 109: the arr media stack (root-by-key only; see access.md in the homelab repo).
+        arr = {
+          HostName = "10.0.0.209";
+          User = "root";
+          IdentityFile = "~/.ssh/id_ed25519";
+          IdentitiesOnly = true;
+        };
       };
     };
 
