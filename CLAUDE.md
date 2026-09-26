@@ -114,6 +114,9 @@ command does not require touching it:
   (an `attrsOf str` keyed by command name, held in `shared/home.nix`). A command with
   no entry is still listed — an alias shows its expansion instead, a function shows a
   blank.
+- **Global commands** are the scripts in `scripts/*.sh` whose first ten lines contain
+  `# halp: <description>`, read at build time. Opt-in, since not every script there is
+  packaged; one named `git-foo.sh` is shown as `git foo`.
 - **Project commands** get a "This directory" section: executables in `./` and `./bin/`
   whose first ten lines contain `# halp: <description>`. Opt-in, so unmarked
   executables are not listed. One on PATH (e.g. `bin/` via direnv) shows its bare name,
