@@ -1,3 +1,4 @@
+# halp: [name] — push this repo to GitHub and pvegit:<name>.git
 # Make `git push` in the current repo go to GitHub and pvegit:<name>.git, then push everything.
 # The repo on pve is created on first push by a forced-command wrapper; see git-backup.md in
 # the homelab repo. Packaged in shared/packages.nix, so it runs as `git backup-init [name]`.

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# halp: [--full] [dir] — fzf-pick a repo from the pvegit backup and shallow-clone it
 # Pick a repo from the homelab git backup with fzf and clone it (shallow by default).
 # The list comes from `ssh pvegit list`, a git-shell command on pve; see git-backup.md in the
 # homelab repo. Packaged in shared/packages.nix, so it runs as `git backup-clone`.

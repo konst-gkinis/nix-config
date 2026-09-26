@@ -7,6 +7,9 @@
 #   * Functions are discovered at run time from zsh's `functions_source`, which
 #     maps a function name to the file that defined it. Everything defined in
 #     the generated .zshrc is ours; plugin and completion functions are not.
+#   * Global commands are the scripts in ../scripts whose first ten lines hold
+#     a `# halp: <description>` comment, read at build time. The marker is
+#     opt-in because not every script there is packaged as a command.
 #   * Project commands are discovered at run time too: executables in ./ and
 #     ./bin/ whose first ten lines hold a `# halp: <description>` comment get
 #     their own section, so a repo documents its scripts in the scripts.
@@ -47,6 +50,28 @@ let
       lib.escapeShellArg (descriptions.${name} or (prettyCommand aliases.${name}))
     }";
 
+  # Global commands: scripts/<name>.sh with a `# halp: ` line in its first ten
+  # lines. `git-foo` is shown as `git foo`, the way git runs it as a subcommand.
+  marker = "# halp: ";
+  scriptDir = ../scripts;
+  scriptCommands = lib.concatMap (
+    file:
+    let
+      top = lib.take 10 (lib.splitString "\n" (builtins.readFile (scriptDir + "/${file}")));
+      marked = lib.filter (lib.hasPrefix marker) top;
+      bin = lib.removeSuffix ".sh" file;
+    in
+    lib.optional (marked != [ ]) {
+      name = if lib.hasPrefix "git-" bin then "git ${lib.removePrefix "git-" bin}" else bin;
+      description = lib.removePrefix marker (lib.head marked);
+    }
+  ) (lib.filter (lib.hasSuffix ".sh") (lib.attrNames (builtins.readDir scriptDir)));
+  commandWidth = lib.foldl' (acc: c: lib.max acc (lib.stringLength c.name)) 0 scriptCommands;
+  commandLine =
+    c:
+    "printf '  \\033[1m%-${toString commandWidth}s\\033[0m  %s\\n' "
+    + "${lib.escapeShellArg c.name} ${lib.escapeShellArg c.description}";
+
   descPairs = lib.concatStringsSep " " (
     lib.mapAttrsToList (n: d: "${lib.escapeShellArg n} ${lib.escapeShellArg d}") descriptions
   );
@@ -73,6 +98,10 @@ in
       printf '\033[1;33mAliases\033[0m\n'
       ${lib.concatStringsSep "\n  " (map aliasLine (lib.sort (a: b: a < b) names))}
 
+      ${lib.optionalString (scriptCommands != [ ]) ''
+        printf '\n\033[1;33mCommands\033[0m\n'
+        ${lib.concatStringsSep "\n  " (map commandLine scriptCommands)}
+      ''}
       printf '\n\033[1;33mFunctions\033[0m\n'
       # $zshrc is a symlink into the store and functions_source records the
       # resolved path, so match on both spellings. Names starting with _ are
