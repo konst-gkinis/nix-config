@@ -114,6 +114,10 @@ command does not require touching it:
   (an `attrsOf str` keyed by command name, held in `shared/home.nix`). A command with
   no entry is still listed — an alias shows its expansion instead, a function shows a
   blank.
+- **Project commands** get a "This directory" section: executables in `./` and `./bin/`
+  whose first ten lines contain `# halp: <description>`. Opt-in, so unmarked
+  executables are not listed. One on PATH (e.g. `bin/` via direnv) shows its bare name,
+  otherwise the path to type (`./foo`, `bin/foo`).
 
 ## Gotchas
 - `nix run .#build-switch` quits iTerm2 when `TERM_PROGRAM=iTerm.app`

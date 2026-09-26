@@ -7,6 +7,9 @@
 #   * Functions are discovered at run time from zsh's `functions_source`, which
 #     maps a function name to the file that defined it. Everything defined in
 #     the generated .zshrc is ours; plugin and completion functions are not.
+#   * Project commands are discovered at run time too: executables in ./ and
+#     ./bin/ whose first ten lines hold a `# halp: <description>` comment get
+#     their own section, so a repo documents its scripts in the scripts.
 #
 # The only thing worth keeping by hand is the prose, in `halp.descriptions`
 # below — and a command with no entry there still gets listed, an alias with
@@ -85,6 +88,32 @@ in
       done
       for f in $found; do
         printf '  \033[1m%-*s\033[0m  %s\n' $w $f "''${_halp_desc[$f]:-}"
+      done
+
+      # Project commands: executables in ./ and ./bin/ that describe themselves
+      # with a `# halp: <description>` line near the top. The marker is opt-in
+      # so build scripts and binaries that merely happen to be executable stay
+      # out. A command reachable on PATH (e.g. bin/ added by direnv) is shown by
+      # its bare name, anything else by the path you would type.
+      local p line name i
+      local -a pnames pdescs
+      w=0
+      for p in ./*(N.*) ./bin/*(N.*); do
+        for line in ''${(f)"$(head -n 10 -- $p 2>/dev/null)"}; do
+          [[ $line == '# halp: '* ]] || continue
+          name=''${p#./}
+          [[ $name == */* ]] || name=./$name
+          [[ ''${commands[''${p:t}]:A} == ''${p:A} ]] && name=''${p:t}
+          pnames+=$name
+          pdescs+=''${line#'# halp: '}
+          (( ''${#name} > w )) && w=''${#name}
+          break
+        done
+      done
+      (( $#pnames )) || return 0
+      printf '\n\033[1;33mThis directory\033[0m \033[2m(%s)\033[0m\n' "''${PWD/#$HOME/~}"
+      for i in {1..$#pnames}; do
+        printf '  \033[1m%-*s\033[0m  %s\n' $w "$pnames[i]" "$pdescs[i]"
       done
     }
   '';
