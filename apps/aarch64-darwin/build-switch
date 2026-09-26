@@ -62,3 +62,17 @@ printf "%bSwitch to new generation complete!%b\n" "$GREEN" "$NC"
 
 echo "✨ Switch successful!"
 
+
+# darwin/home.nix drops this flag when the global iTerm2 prefs change, which
+# iTerm2 only reads at launch.
+FLAG="$HOME/.local/state/nixos-config/iterm-restart-needed"
+if [ -e "$FLAG" ]; then
+  rm -f "$FLAG"
+  if [ "$TERM_PROGRAM" = "iTerm.app" ]; then
+    echo "🔄 iTerm2 settings changed. Restarting iTerm2..."
+    ( nohup sh -c 'while pgrep -x iTerm2 > /dev/null 2>&1; do sleep 0.5; done; sleep 1; open -a iTerm' > /dev/null 2>&1 & )
+    osascript -e 'tell application "iTerm" to quit'
+  else
+    echo "👉 iTerm2 settings changed. Quit and reopen iTerm2 to apply them."
+  fi
+fi
