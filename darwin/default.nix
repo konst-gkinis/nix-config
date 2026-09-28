@@ -7,6 +7,7 @@
   fullName,
   email,
   workGitDir ? null,
+  flakeDir,
   isPersonal ? false,
   ...
 }:
@@ -53,7 +54,7 @@ in
     '';
   };
 
-  environment.variables.NH_FLAKE = "/Users/${user}/nixos-config";
+  environment.variables.NH_FLAKE = flakeDir;
 
   environment.systemPackages = (import ../shared/packages.nix { inherit pkgs; }) ++ [
     pkgs.pinentry_mac

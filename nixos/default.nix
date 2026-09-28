@@ -6,6 +6,7 @@
   fullName,
   email,
   workGitDir ? null,
+  flakeDir,
   hostName,
   timeZone,
   sshKeys,
@@ -263,6 +264,8 @@
     noto-fonts
     noto-fonts-color-emoji
   ];
+
+  environment.variables.NH_FLAKE = flakeDir;
 
   environment.systemPackages = with pkgs; [
     gitFull

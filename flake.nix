@@ -78,10 +78,17 @@
             # managed here — for repos under it.
             # null disables the conditional include.
             workGitDir = "~/workspace/portchain";
+            # Where this repo is checked out. A build only sees the store copy,
+            # so anything that must act on the working tree (nh, nup, cleanup)
+            # reads this instead. A leading "~/" is expanded per platform.
+            flakeDir = "~/repos/nix-config";
           };
         in
         defaults // (if builtins.pathExists ./host.nix then import ./host.nix else { });
       user = settings.user;
+      expandHome =
+        home: path:
+        if nixpkgs.lib.hasPrefix "~/" path then home + nixpkgs.lib.removePrefix "~" path else path;
       linuxSystems = [
         "x86_64-linux"
         "aarch64-linux"
@@ -161,6 +168,7 @@
               diskDevice
               workGitDir
               ;
+            flakeDir = expandHome "/Users/${user}" settings.flakeDir;
           };
           modules = [
             home-manager.darwinModules.home-manager
@@ -201,6 +209,7 @@
                 diskDevice
                 workGitDir
                 ;
+              flakeDir = expandHome "/home/${user}" settings.flakeDir;
             };
             modules = [
               disko.nixosModules.disko
@@ -225,6 +234,7 @@
                 diskDevice
                 workGitDir
                 ;
+              flakeDir = expandHome "/home/${user}" settings.flakeDir;
             };
             modules = [
               nixos-wsl.nixosModules.wsl

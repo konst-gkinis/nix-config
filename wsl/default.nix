@@ -6,6 +6,7 @@
   fullName,
   email,
   workGitDir ? null,
+  flakeDir,
   hostName,
   timeZone,
   sshKeys,
@@ -73,6 +74,8 @@
       ];
     };
   };
+
+  environment.variables.NH_FLAKE = flakeDir;
 
   environment.systemPackages = with pkgs; [
     gitFull
