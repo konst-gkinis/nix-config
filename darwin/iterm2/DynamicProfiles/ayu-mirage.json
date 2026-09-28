@@ -2,7 +2,7 @@
   "Profiles": [
     {
       "ASCII Anti Aliased": true,
-      "ASCII Ligatures": false,
+      "ASCII Ligatures": true,
       "Ambiguous Double Width": false,
       "Ansi 0 Color": {
         "Alpha Component": 1.0,
@@ -124,7 +124,7 @@
         "Green Component": 0.1412,
         "Red Component": 0.1216
       },
-      "Background Image Mode": 3,
+      "Background Image Mode": 2,
       "Badge Color": {
         "Alpha Component": 0.5,
         "Blue Component": 0.11610633134841919,
@@ -132,7 +132,7 @@
         "Green Component": 0.11610633134841919,
         "Red Component": 0.7461385726928711
       },
-      "Blend": 0.5,
+      "Blend": 1.0,
       "Blinking Cursor": false,
       "Blur": false,
       "Bold Color": {
@@ -236,10 +236,10 @@
       },
       "Mouse Reporting": true,
       "Name": "Ayu Mirage",
-      "Non ASCII Font": "MesloLGS-NF-Regular 14",
+      "Non ASCII Font": "MesloLGS-NF-Regular 15",
       "Non Ascii Font": "Monaco 12",
       "Non-ASCII Anti Aliased": true,
-      "Normal Font": "MesloLGS-NF-Regular 14",
+      "Normal Font": "MesloLGS-NF-Regular 15",
       "Option Key Sends": 0,
       "Prompt Before Closing 2": false,
       "Right Option Key Sends": 0,
