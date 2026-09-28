@@ -439,7 +439,7 @@
         # Update flake inputs, commit if flake.lock changed, then build-switch.
         # Idempotent: no-ops if flake.lock is already up to date.
         nup() {
-          local nixos_dir="$HOME/nixos-config"
+          local nixos_dir="$NH_FLAKE"
           (cd "$nixos_dir" && nix flake update || return 1)
           git -C "$nixos_dir" diff --quiet flake.lock && return 0
           git -C "$nixos_dir" add flake.lock && \
@@ -490,7 +490,7 @@
 
         # Reclaim disk space: nix GC, optimise store, brew cleanup.
         cleanup() {
-          local nixos_dir="$HOME/nixos-config"
+          local nixos_dir="$NH_FLAKE"
           printf '\033[1;33m→ nix store GC\033[0m\n'
           (cd "$nixos_dir" && nix run .#clean) || return 1
           printf '\033[1;33m→ nix store optimise\033[0m\n'
