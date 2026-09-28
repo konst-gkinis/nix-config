@@ -54,6 +54,9 @@ with pkgs;
   python3
   uv
 
+  # telegram client
+  nchat
+
   # `git backup-init`: second push target on the homelab box (see scripts/git-backup-init.sh)
   (writeShellScriptBin "git-backup-init" (builtins.readFile ../scripts/git-backup-init.sh))
   # `git backup-clone`: fzf-pick a repo from that backup and shallow-clone it
