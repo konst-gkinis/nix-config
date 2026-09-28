@@ -33,10 +33,12 @@ let
     fi
   '';
 
-  bgImage = builtins.path {
-    path = ./iterm2/iterm_background.jpg;
-    name = "iterm_background.jpg";
-  };
+  # Blurred so fine detail doesn't compete with the glyphs drawn over it. The
+  # darkening is the profile's "Blend" (0 = only the background colour), which
+  # stays tunable in iTerm2's UI without a rebuild.
+  bgImage = pkgs.runCommand "iterm_background.jpg" { nativeBuildInputs = [ pkgs.imagemagick ]; } ''
+    magick ${./iterm2/iterm_background.jpg} -blur 0x3 -quality 92 $out
+  '';
   profileJson = builtins.fromJSON (builtins.readFile ./iterm2/DynamicProfiles/ayu-mirage.json);
   profileWithBg = profileJson // {
     Profiles = map (p: p // { "Background Image Location" = toString bgImage; }) profileJson.Profiles;

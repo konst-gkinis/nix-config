@@ -60,6 +60,10 @@ in
     pkgs.terminal-notifier
   ];
 
+  # Installed into /Library/Fonts/Nix Fonts. Font packages in systemPackages
+  # never reach macOS's font list, so iTerm2 couldn't select them.
+  fonts.packages = [ pkgs.nerd-fonts.jetbrains-mono ];
+
   users.users.${user} = {
     name = "${user}";
     home = "/Users/${user}";

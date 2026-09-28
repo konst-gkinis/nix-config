@@ -104,10 +104,10 @@
       },
       "Ansi 8 Color": {
         "Alpha Component": 1.0,
-        "Blue Component": 0.4078,
+        "Blue Component": 0.6039,
         "Color Space": "sRGB",
-        "Green Component": 0.4078,
-        "Red Component": 0.4078
+        "Green Component": 0.5686,
+        "Red Component": 0.5412
       },
       "Ansi 9 Color": {
         "Alpha Component": 1.0,
@@ -132,7 +132,7 @@
         "Green Component": 0.11610633134841919,
         "Red Component": 0.7461385726928711
       },
-      "Blend": 1.0,
+      "Blend": 0.28,
       "Blinking Cursor": false,
       "Blur": false,
       "Bold Color": {
@@ -226,7 +226,6 @@
           "Text": "d"
         }
       },
-      "Load Shell Integration Automatically": true,
       "Link Color": {
         "Alpha Component": 1.0,
         "Blue Component": 0.9337158203125,
@@ -234,12 +233,14 @@
         "Green Component": 0.5578983426094055,
         "Red Component": 0.1980242282152176
       },
+      "Load Shell Integration Automatically": true,
+      "Minimum Contrast": 0.3,
       "Mouse Reporting": true,
       "Name": "Ayu Mirage",
-      "Non ASCII Font": "MesloLGS-NF-Regular 15",
+      "Non ASCII Font": "JetBrainsMonoNF-Regular 14",
       "Non Ascii Font": "Monaco 12",
       "Non-ASCII Anti Aliased": true,
-      "Normal Font": "MesloLGS-NF-Regular 15",
+      "Normal Font": "JetBrainsMonoNF-Regular 14",
       "Option Key Sends": 0,
       "Prompt Before Closing 2": false,
       "Right Option Key Sends": 0,
@@ -270,6 +271,7 @@
         "Dynamic"
       ],
       "Terminal Type": "xterm-256color",
+      "Thin Strokes": 0,
       "Title Components": 2,
       "Transparency": 0.0,
       "Triggers": [
