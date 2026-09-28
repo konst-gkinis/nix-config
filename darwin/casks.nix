@@ -8,6 +8,7 @@
   "maccy"
   "caffeine"
   "alt-tab"
+  "hiddenbar"
   "linearmouse"
   "daisydisk"
   "betterdisplay"
