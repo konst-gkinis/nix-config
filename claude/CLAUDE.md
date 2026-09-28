@@ -12,10 +12,10 @@ For one-off tool use, prefer ephemeral installs that don't persist:
 Do NOT use global installs that persist outside Nix:
 - No `npm install -g`, `pip install`, `uv tool install`, `cargo install`
 
-To add a tool **permanently**, edit the Nix config at `~/nixos-config`:
-- CLI tools → `~/nixos-config/shared/packages.nix` (nixpkgs)
-- macOS GUI apps → `~/nixos-config/darwin/casks.nix` (Homebrew cask)
-- Then apply with `nix run .#build-switch` from `~/nixos-config`
+To add a tool **permanently**, edit the Nix config at `~/repos/nix-config`:
+- CLI tools → `~/repos/nix-config/shared/packages.nix` (nixpkgs)
+- macOS GUI apps → `~/repos/nix-config/darwin/casks.nix` (Homebrew cask)
+- Then apply with `nix run .#build-switch` from `~/repos/nix-config`
 
 # Working preferences
 

@@ -15,7 +15,7 @@ RED='\033[1;31m'
 NC='\033[0m'
 
 REPO_URL="https://github.com/konst-gkinis/nix-config"
-REPO_DIR="${HOME}/.config/nix-config"
+REPO_DIR="${HOME}/repos/nix-config"
 
 # Helper: prompt with a default value
 # Usage: result=$(ask "Prompt text" "default value")
@@ -256,6 +256,7 @@ ESC_HOSTNAME="$(nix_escape "$CFG_HOSTNAME")"
 ESC_TIMEZONE="$(nix_escape "$CFG_TIMEZONE")"
 ESC_SSH_KEY="$(nix_escape "$CFG_SSH_KEY")"
 ESC_DISK="$(nix_escape "$CFG_DISK")"
+ESC_REPO_DIR="$(nix_escape "$REPO_DIR")"
 
 cat > host.nix << HOSTNIX
 {
@@ -267,6 +268,7 @@ cat > host.nix << HOSTNIX
   timeZone = "${ESC_TIMEZONE}";
   sshKeys = [ "${ESC_SSH_KEY}" ];
   diskDevice = "${ESC_DISK}";
+  flakeDir = "${ESC_REPO_DIR}";
 }
 HOSTNIX
 

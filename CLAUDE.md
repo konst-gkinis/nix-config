@@ -1,4 +1,4 @@
-# nixos-config
+# nix-config
 
 nix-darwin config for macOS, user `kg`, home `/Users/kg`.
 
@@ -37,15 +37,17 @@ To install NixOS-WSL on a Windows machine:
 - Nix GC: weekly, deletes >30 days
 - Experimental features: nix-command, flakes
 - home-manager stateVersion: 23.11
+- Checkout path: `flakeDir` in the `flake.nix` defaults (`~/repos/nix-config`, overridable in
+  `host.nix`). It feeds `NH_FLAKE`, which `nup`/`cleanup` use — never hardcode the path.
 
 ## Bootstrapping a new machine
 Run this single command on a fresh macOS or NixOS machine:
 ```
 sh <(curl -L https://raw.githubusercontent.com/konst-gkinis/nix-config/main/bootstrap.sh)
 ```
-The script installs Nix (if missing), clones the repo to `~/.config/nix-config`, prompts for
+The script installs Nix (if missing), clones the repo to `~/repos/nix-config`, prompts for
 machine-specific values (user, name, email, hostname, timezone, etc.), writes a `host.nix` in
-the repo root, then runs `nix run ".#build-switch"`. The `host.nix` file is generated per-machine
+the repo root (including `flakeDir`, the checkout path), then runs `nix run ".#build-switch"`. The `host.nix` file is generated per-machine
 and is gitignored — it must not be committed.
 
 ## Second git identity
