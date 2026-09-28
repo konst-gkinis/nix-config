@@ -1,17 +1,16 @@
 {
   lib,
   pkgs,
-  user,
   ...
 }:
 
 let
-  flakeDir = "/Users/${user}/nixos-config";
-
   pkgUpdateCheck = pkgs.writeShellScript "nix-pkg-update-check" ''
     export PATH="/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:$PATH"
 
-    PINNED_REV=$(${pkgs.jq}/bin/jq -r '.nodes.nixpkgs.locked.rev' "${flakeDir}/flake.lock")
+    # The lock this generation was built from, so the check compares against
+    # what is installed rather than whatever the working tree holds.
+    PINNED_REV=$(${pkgs.jq}/bin/jq -r '.nodes.nixpkgs.locked.rev' ${../flake.lock})
 
     PACKAGES=(claude-code)
     UPDATES=()
