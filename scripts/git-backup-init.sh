@@ -1,18 +1,15 @@
-# halp: [name] — push this repo to GitHub and pvegit:<name>.git
-# Make `git push` in the current repo go to GitHub and pvegit:<name>.git, then push everything.
-# The repo on pve is created on first push by a forced-command wrapper; see git-backup.md in
-# the homelab repo. Packaged in shared/packages.nix, so it runs as `git backup-init [name]`.
+# halp: [name] — add a "home" remote at pvegit:<name>.git and push everything there
+# Add a remote named `home` pointing at pvegit:<name>.git, then push all branches and tags to it.
+# `origin` is left untouched; back up later with `git push home`. The repo on pve is created on
+# first push by a forced-command wrapper; see git-backup.md in the homelab repo. Packaged in
+# shared/packages.nix, so it runs as `git backup-init [name]`.
 set -euo pipefail
-url=$(git remote get-url origin)
-name=${1:-$(basename "$url" .git)}
-pushurls=$(git config --get-all remote.origin.pushurl || true)
+name=${1:-$(basename "$(git remote get-url origin)" .git)}
 
-case "$pushurls" in
-  *pvegit:*) echo "origin already pushes to pvegit:"; git remote -v; exit 0 ;;
-esac
-# The first push URL replaces the fetch URL for pushes, so keep GitHub explicitly.
-[ -n "$pushurls" ] || git remote set-url --add --push origin "$url"
-git remote set-url --add --push origin "pvegit:$name.git"
-git push --all "pvegit:$name.git"
-git push --tags "pvegit:$name.git"
+if git remote get-url home >/dev/null 2>&1; then
+  echo "remote 'home' already exists:"; git remote -v; exit 0
+fi
+git remote add home "pvegit:$name.git"
+git push --all home
+git push --tags home
 git remote -v
