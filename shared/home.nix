@@ -562,6 +562,15 @@
       };
     };
 
+    # Syntax-aware merge driver: resolves conflicts that are only textual
+    # (adjacent imports, list entries, functions) during merge/rebase/cherry-pick,
+    # so lazygit never shows them. The module adds the driver and a
+    # `* merge=mergiraf` attribute; unsupported file types fall back to git's merge.
+    mergiraf = {
+      enable = true;
+      enableGitIntegration = true;
+    };
+
     git = {
       enable = true;
       ignores = [
@@ -608,7 +617,18 @@
         # output to parse it, and git only emits them with grep.lineNumber.
         pager.grep = "delta";
         grep.lineNumber = true;
-        merge.conflictStyle = "zdiff3";
+        # mergiraf's module sets diff3; zdiff3 is diff3 with the common
+        # prefix/suffix lines pulled out of the hunk, which mergiraf also parses.
+        merge.conflictStyle = lib.mkForce "zdiff3";
+        # Conflicts mergiraf can't solve: VS Code's 3-way merge editor, which
+        # lazygit opens with `M`. --wait blocks until the tab is closed.
+        merge.tool = "code";
+        mergetool.code.cmd = ''code --wait --merge "$REMOTE" "$LOCAL" "$BASE" "$MERGED"'';
+        mergetool.keepBackup = false;
+        # Record conflict resolutions and replay them (and stage the result)
+        # when the same conflict comes back, e.g. on a repeated rebase.
+        rerere.enabled = true;
+        rerere.autoUpdate = true;
         init.defaultBranch = "main";
         core = {
           editor = "vim";
