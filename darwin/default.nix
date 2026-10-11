@@ -56,10 +56,8 @@ in
 
   environment.variables.NH_FLAKE = flakeDir;
 
-  environment.systemPackages = (import ../shared/packages.nix { inherit pkgs; }) ++ [
-    pkgs.pinentry_mac
-    pkgs.terminal-notifier
-  ];
+  environment.systemPackages =
+    (import ../shared/packages.nix { inherit pkgs; }) ++ (import ./packages.nix { inherit pkgs; });
 
   # Installed into /Library/Fonts/Nix Fonts. Font packages in systemPackages
   # never reach macOS's font list, so iTerm2 couldn't select them.
@@ -85,7 +83,14 @@ in
   home-manager = {
     backupFileExtension = "backup";
     useGlobalPkgs = true;
-    extraSpecialArgs = { inherit user fullName email workGitDir; };
+    extraSpecialArgs = {
+      inherit
+        user
+        fullName
+        email
+        workGitDir
+        ;
+    };
     users.${user} =
       {
         pkgs,
