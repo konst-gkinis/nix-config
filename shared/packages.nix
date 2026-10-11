@@ -56,6 +56,11 @@ with pkgs;
 
   # telegram client
   nchat
+  pvetui
+  wtfutil
+  navi
+  act3
+  spotify-player
 
   # `git backup-init`: `home` remote on the homelab box (see scripts/git-backup-init.sh)
   (writeShellScriptBin "git-backup-init" (builtins.readFile ../scripts/git-backup-init.sh))
