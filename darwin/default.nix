@@ -76,6 +76,8 @@ in
     brews = [
       "python3"
       "uv"
+      # tw93/mole: homebrew-core formula, not a cask; nixpkgs `mole` is an unrelated SSH-tunnel tool
+      "mole"
     ];
     # onActivation.cleanup = "uninstall";
   };

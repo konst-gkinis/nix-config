@@ -13,5 +13,4 @@
   "daisydisk"
   "betterdisplay"
   "tailscale-app"
-  "mole"
 ]
