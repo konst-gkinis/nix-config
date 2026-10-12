@@ -89,6 +89,22 @@
       expandHome =
         home: path:
         if nixpkgs.lib.hasPrefix "~/" path then home + nixpkgs.lib.removePrefix "~" path else path;
+      # Module arguments shared by every system. `home` is what a leading "~/"
+      # in flakeDir expands to.
+      mkSpecialArgs = home: {
+        inherit inputs user;
+        fullName = settings.name;
+        inherit (settings)
+          email
+          isPersonal
+          hostName
+          timeZone
+          sshKeys
+          diskDevice
+          workGitDir
+          ;
+        flakeDir = expandHome home settings.flakeDir;
+      };
       linuxSystems = [
         "x86_64-linux"
         "aarch64-linux"
@@ -138,21 +154,7 @@
         system:
         darwin.lib.darwinSystem {
           inherit system;
-          specialArgs = inputs // {
-            inherit inputs;
-            inherit user;
-            fullName = settings.name;
-            inherit (settings)
-              email
-              isPersonal
-              hostName
-              timeZone
-              sshKeys
-              diskDevice
-              workGitDir
-              ;
-            flakeDir = expandHome "/Users/${user}" settings.flakeDir;
-          };
+          specialArgs = mkSpecialArgs "/Users/${user}";
           modules = [
             home-manager.darwinModules.home-manager
             nix-homebrew.darwinModules.nix-homebrew
@@ -179,21 +181,7 @@
           system:
           nixpkgs.lib.nixosSystem {
             inherit system;
-            specialArgs = inputs // {
-              inherit inputs;
-              inherit user;
-              fullName = settings.name;
-              inherit (settings)
-                email
-                isPersonal
-                hostName
-                timeZone
-                sshKeys
-                diskDevice
-                workGitDir
-                ;
-              flakeDir = expandHome "/home/${user}" settings.flakeDir;
-            };
+            specialArgs = mkSpecialArgs "/home/${user}";
             modules = [
               disko.nixosModules.disko
               home-manager.nixosModules.home-manager
@@ -204,21 +192,7 @@
         // {
           wsl = nixpkgs.lib.nixosSystem {
             system = "x86_64-linux";
-            specialArgs = inputs // {
-              inherit inputs;
-              inherit user;
-              fullName = settings.name;
-              inherit (settings)
-                email
-                isPersonal
-                hostName
-                timeZone
-                sshKeys
-                diskDevice
-                workGitDir
-                ;
-              flakeDir = expandHome "/home/${user}" settings.flakeDir;
-            };
+            specialArgs = mkSpecialArgs "/home/${user}";
             modules = [
               nixos-wsl.nixosModules.wsl
               home-manager.nixosModules.home-manager

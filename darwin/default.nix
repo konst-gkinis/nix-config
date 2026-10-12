@@ -2,7 +2,6 @@
   config,
   pkgs,
   lib,
-  home-manager,
   user,
   fullName,
   email,
