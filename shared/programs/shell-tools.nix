@@ -1,0 +1,73 @@
+{
+  pkgs,
+  ...
+}:
+
+{
+  programs = {
+    zoxide = {
+      enable = true;
+      enableBashIntegration = false;
+    };
+
+    direnv = {
+      enable = true;
+      nix-direnv.enable = true;
+      # Keep the "direnv: loading ..." notice but hide the full env-var
+      # diff dump on each load.
+      config.global.hide_env_diff = true;
+    };
+
+    # Resource monitor. Bundled Ayu theme, 1s refresh, braille graphs.
+    btop = {
+      enable = true;
+      settings = {
+        color_theme = "ayu";
+        update_ms = 1000;
+        graph_symbol = "braille";
+        vim_keys = false;
+      };
+    };
+
+    # Written to a config file referenced via RIPGREP_CONFIG_PATH. Smart
+    # case, search dotfiles but skip VCS/build dirs, truncate long lines,
+    # Ayu-orange match highlight.
+    ripgrep = {
+      enable = true;
+      arguments = [
+        "--smart-case"
+        "--hidden"
+        "--glob=!.git/*"
+        "--glob=!node_modules/*"
+        "--glob=!.direnv/*"
+        "--max-columns=150"
+        "--max-columns-preview"
+        "--colors=match:fg:255,180,84"
+        "--colors=match:style:bold"
+      ];
+    };
+
+    tealdeer = {
+      enable = true;
+      enableAutoUpdates = true;
+    };
+
+    yazi = {
+      enable = true;
+      shellWrapperName = "y";
+      flavors = {
+        ayu-dark = pkgs.fetchFromGitHub {
+          owner = "kmlupreti";
+          repo = "ayu-dark.yazi";
+          rev = "00804daeffe723719a404f72d1c3350751468c61";
+          hash = "sha256-uN+ZmczfpYrs1N5oIg/oIjVJJnT29IQE2ALyp6f5pD4=";
+        };
+      };
+      theme = {
+        flavor = {
+          dark = "ayu-dark";
+        };
+      };
+    };
+  };
+}
