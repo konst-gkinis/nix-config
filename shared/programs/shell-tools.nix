@@ -1,8 +1,12 @@
 {
+  lib,
   pkgs,
   ...
 }:
 
+let
+  palette = import ../palette.nix { inherit lib; };
+in
 {
   programs = {
     zoxide = {
@@ -42,7 +46,7 @@
         "--glob=!.direnv/*"
         "--max-columns=150"
         "--max-columns-preview"
-        "--colors=match:fg:255,180,84"
+        "--colors=match:fg:${lib.concatMapStringsSep "," toString (palette.rgb palette.orange)}"
         "--colors=match:style:bold"
       ];
     };

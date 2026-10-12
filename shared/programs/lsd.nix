@@ -1,7 +1,12 @@
 {
+  lib,
   ...
 }:
 
+let
+  palette = import ../palette.nix { inherit lib; };
+  inherit (palette) rgb;
+in
 {
   programs = {
     # Provides ls/ll/la/lt/lla/llt aliases via zsh integration. The custom
@@ -21,129 +26,41 @@
           "dir-grouping" = "first";
         };
       };
-      # Ayu Dark palette (RGB triples) for the metadata columns. Setting
+      # Ayu Dark palette for the metadata columns. Setting
       # `colors` makes the module switch color.theme to "custom".
       colors = {
-        user = [
-          255
-          180
-          84
-        ];
-        group = [
-          230
-          180
-          80
-        ];
+        user = rgb palette.orange;
+        group = rgb palette.yellow;
         permission = {
-          read = [
-            170
-            217
-            76
-          ];
-          write = [
-            230
-            180
-            80
-          ];
-          exec = [
-            240
-            113
-            120
-          ];
-          "exec-sticky" = [
-            210
-            166
-            255
-          ];
-          "no-access" = [
-            108
-            115
-            128
-          ];
-          octal = [
-            57
-            186
-            230
-          ];
-          acl = [
-            89
-            194
-            255
-          ];
-          context = [
-            108
-            115
-            128
-          ];
+          read = rgb palette.green;
+          write = rgb palette.yellow;
+          exec = rgb palette.red;
+          "exec-sticky" = rgb palette.purple;
+          "no-access" = rgb palette.gray;
+          octal = rgb palette.cyan;
+          acl = rgb palette.blue;
+          context = rgb palette.gray;
         };
         date = {
-          "hour-old" = [
-            170
-            217
-            76
-          ];
-          "day-old" = [
-            230
-            180
-            80
-          ];
-          older = [
-            108
-            115
-            128
-          ];
+          "hour-old" = rgb palette.green;
+          "day-old" = rgb palette.yellow;
+          older = rgb palette.gray;
         };
         size = {
-          none = [
-            108
-            115
-            128
-          ];
-          small = [
-            170
-            217
-            76
-          ];
-          medium = [
-            230
-            180
-            80
-          ];
-          large = [
-            255
-            180
-            84
-          ];
+          none = rgb palette.gray;
+          small = rgb palette.green;
+          medium = rgb palette.yellow;
+          large = rgb palette.orange;
         };
         inode = {
-          valid = [
-            191
-            189
-            182
-          ];
-          invalid = [
-            108
-            115
-            128
-          ];
+          valid = rgb palette.fg;
+          invalid = rgb palette.gray;
         };
         links = {
-          valid = [
-            89
-            194
-            255
-          ];
-          invalid = [
-            108
-            115
-            128
-          ];
+          valid = rgb palette.blue;
+          invalid = rgb palette.gray;
         };
-        "tree-edge" = [
-          108
-          115
-          128
-        ];
+        "tree-edge" = rgb palette.gray;
       };
     };
   };

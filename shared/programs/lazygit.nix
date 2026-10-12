@@ -1,7 +1,11 @@
 {
+  lib,
   ...
 }:
 
+let
+  palette = import ../palette.nix { inherit lib; };
+in
 {
   programs = {
     # `g` alias (see shellAliases). Nerd-font icons, file tree, command
@@ -30,16 +34,16 @@
           showCommandLog = false;
           theme = {
             activeBorderColor = [
-              "#ffb454"
+              palette.orange
               "bold"
             ];
-            inactiveBorderColor = [ "#565b66" ];
-            optionsTextColor = [ "#59c2ff" ];
-            selectedLineBgColor = [ "#2d3640" ];
-            cherryPickedCommitBgColor = [ "#2d3640" ];
-            cherryPickedCommitFgColor = [ "#ffb454" ];
-            unstagedChangesColor = [ "#f07178" ];
-            defaultFgColor = [ "#bfbdb6" ];
+            inactiveBorderColor = [ palette.gutter ];
+            optionsTextColor = [ palette.blue ];
+            selectedLineBgColor = [ palette.selection ];
+            cherryPickedCommitBgColor = [ palette.selection ];
+            cherryPickedCommitFgColor = [ palette.orange ];
+            unstagedChangesColor = [ palette.red ];
+            defaultFgColor = [ palette.fg ];
           };
         };
       };

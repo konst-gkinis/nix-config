@@ -7,6 +7,9 @@
   ...
 }:
 
+let
+  palette = import ../palette.nix { inherit lib; };
+in
 {
   programs = {
     # Pager for git diff/log/show/blame and for interactive staging. Ayu
@@ -20,15 +23,15 @@
         line-numbers = true;
         side-by-side = true;
         # Styling for delta's grep view (git grep / the rg wrapper below).
-        grep-file-style = "bold #ffb454";
-        grep-line-number-style = "#59c2ff";
+        grep-file-style = "bold ${palette.orange}";
+        grep-line-number-style = palette.blue;
         syntax-theme = "ayu-dark";
-        file-style = "bold #ffb454";
-        file-decoration-style = "#565b66 ul";
-        hunk-header-decoration-style = "#565b66 box";
-        line-numbers-minus-style = "#f07178";
-        line-numbers-plus-style = "#aad976";
-        line-numbers-zero-style = "#565b66";
+        file-style = "bold ${palette.orange}";
+        file-decoration-style = "${palette.gutter} ul";
+        hunk-header-decoration-style = "${palette.gutter} box";
+        line-numbers-minus-style = palette.red;
+        line-numbers-plus-style = palette.greenLight;
+        line-numbers-zero-style = palette.gutter;
       };
     };
 
