@@ -68,7 +68,7 @@
             email = "konst.gkinis@gmail.com";
             isPersonal = true;
             hostName = "nixos";
-            timeZone = "America/New_York";
+            timeZone = "Europe/Berlin";
             sshKeys = [
               "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICz8fpWR17uro4SHsoQJHwAJvERwaiKvSwddpj4jCD8A konst.gkinis@gmail.com (KG-air)"
             ];
