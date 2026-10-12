@@ -5,6 +5,7 @@
   fullName,
   email,
   workGitDir ? null,
+  flakeDir,
   ...
 }:
 
@@ -17,6 +18,7 @@
         fullName
         email
         workGitDir
+        flakeDir
         ;
     };
     users.${user} = {
