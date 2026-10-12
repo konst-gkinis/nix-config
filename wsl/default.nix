@@ -1,5 +1,4 @@
 {
-  inputs,
   pkgs,
   user,
   flakeDir,
@@ -10,7 +9,6 @@
 }:
 {
   imports = [
-    inputs.nixos-wsl.nixosModules.wsl
     ../shared/nixpkgs.nix
     ../shared/nix-settings.nix
     ../shared/home-manager.nix
