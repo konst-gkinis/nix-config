@@ -1,5 +1,5 @@
 {
-  description = "Starter Configuration for MacOS and NixOS";
+  description = "nix-darwin, NixOS and NixOS-WSL configuration for kg";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
