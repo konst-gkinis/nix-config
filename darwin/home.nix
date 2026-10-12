@@ -11,17 +11,4 @@
 
   home.stateVersion = "23.11";
   home.packages = [ pkgs.dockutil ];
-
-  # programs.zed-editor = {
-  #   enable = true;
-  #   extensions = [
-  #     "nix"
-  #     "terraform"
-  #     "catppuccin"
-  #     "catppuccin-icons"
-  #     "codebook"
-  #     "monokai-og"
-  #     "ayu-darker"
-  #   ];
-  # };
 }
