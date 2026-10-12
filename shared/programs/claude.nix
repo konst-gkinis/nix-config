@@ -46,5 +46,16 @@ in
     fi
     # Claude Code must be able to write this file itself.
     $DRY_RUN_CMD chmod u+w "$target"
+
+    # Sessions started with CLAUDE_CONFIG_DIR=~/.claude-home (set by their
+    # launcher, not by this repo) never read ~/.claude, so the managed keys go
+    # there too. Only into an existing file: the launcher owns that directory.
+    alt="$HOME/.claude-home/settings.json"
+    if [ -f "$alt" ]; then
+      tmp=$(mktemp)
+      ${pkgs.jq}/bin/jq -s '.[0] * .[1]' "$alt" "${managedSettings}" > "$tmp"
+      $DRY_RUN_CMD mv -f "$tmp" "$alt"
+      $DRY_RUN_CMD chmod u+w "$alt"
+    fi
   '';
 }
