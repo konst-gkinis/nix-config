@@ -20,6 +20,7 @@ in
   imports = [
     ./dock
     ../shared/nixpkgs.nix
+    ../shared/nix-settings.nix
   ];
 
   security.pam.services.sudo_local.touchIdAuth = true;
@@ -29,14 +30,6 @@ in
       trusted-users = [
         "@admin"
         "${user}"
-      ];
-      substituters = [
-        "https://nix-community.cachix.org"
-        "https://cache.nixos.org"
-      ];
-      trusted-public-keys = [
-        "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-        "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
       ];
     };
     gc = {
@@ -48,9 +41,6 @@ in
       };
       options = "--delete-older-than 1d";
     };
-    extraOptions = ''
-      experimental-features = nix-command flakes
-    '';
   };
 
   environment.variables.NH_FLAKE = flakeDir;
