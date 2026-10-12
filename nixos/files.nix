@@ -1,10 +1,9 @@
 { user, ... }:
 
 let
-  home = builtins.getEnv "HOME";
-  xdg_configHome = "${home}/.config";
-  xdg_dataHome = "${home}/.local/share";
-  xdg_stateHome = "${home}/.local/state";
+  # Not builtins.getEnv "HOME": flake evaluation is pure, so that returns ""
+  # (or, with --impure, the home of whoever runs the build).
+  xdg_configHome = "/home/${user}/.config";
 in
 {
 
