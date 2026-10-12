@@ -44,7 +44,7 @@ The script:
 | `shared/nix-settings.nix` | Substituters and experimental features common to all targets. |
 | `shared/packages.nix` | Cross-platform system packages (CLI tools). |
 | `shared/nixpkgs.nix` | `nixpkgs.config` (unfree, etc.) and overlays. |
-| `apps/<system>/` | Flake apps: `build-switch`, `apply`, `clean`, etc. |
+| `apps/<system>/` | Flake apps: `build-switch`, `clean`; plus `build`, `rollback` on macOS. |
 | `overlays/` | nixpkgs overlays (custom fonts, etc.). |
 | `config/` | Static config files (p10k, polybar themes, login wallpaper). |
 | `claude/` | Claude Code static config (`settings.json`, `statusline-command.sh`), symlinked into `~/.claude/`. |
