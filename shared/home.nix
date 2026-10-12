@@ -684,7 +684,6 @@
 
         " Relative line numbers for easy movement
         set relativenumber
-        set rnu
 
         "" Whitespace rules
         set tabstop=8
@@ -697,8 +696,6 @@
         set gdefault
 
         "" Statusbar
-        set nocompatible " Disable vi-compatibility
-        set laststatus=2 " Always show the statusline
         let g:airline_theme='bubblegum'
         let g:airline_powerline_fonts = 1
 
@@ -755,9 +752,6 @@
           \ '~/Projects',
           \ '~/Documents',
           \ ]
-
-        let g:airline_theme='bubblegum'
-        let g:airline_powerline_fonts = 1
       '';
     };
 
