@@ -1,7 +1,8 @@
-{
-  ...
-}:
+{ lib, ... }:
 
+let
+  palette = import ../palette.nix { inherit lib; };
+in
 {
   programs = {
     fzf = {
@@ -22,22 +23,22 @@
         "--multi"
       ];
 
-      # Colors mapped from the Alacritty Ocean/base16 palette below so
-      # fzf blends with the terminal theme.
+      # Ayu Dark, like the other tools. bg "-1" keeps the terminal's own
+      # background, so the pane doesn't show as a box in another theme.
       colors = {
-        bg = "#1f2528";
-        "bg+" = "#343d46";
-        fg = "#c0c5ce";
-        "fg+" = "#d8dee9";
-        hl = "#6699cc";
-        "hl+" = "#5fb3b3";
-        info = "#fac863";
-        prompt = "#99c794";
-        pointer = "#ec5f67";
-        marker = "#c594c5";
-        spinner = "#c594c5";
-        header = "#65737e";
-        border = "#65737e";
+        bg = "-1";
+        "bg+" = palette.selection;
+        fg = palette.fg;
+        "fg+" = palette.white;
+        hl = palette.orange;
+        "hl+" = palette.orange;
+        info = palette.gray;
+        prompt = palette.blue;
+        pointer = palette.orange;
+        marker = palette.green;
+        spinner = palette.yellow;
+        header = palette.gray;
+        border = palette.gutter;
       };
 
       # CTRL-T: insert a file path. Smart preview — directory listing for

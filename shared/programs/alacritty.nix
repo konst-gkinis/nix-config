@@ -4,6 +4,9 @@
   ...
 }:
 
+let
+  palette = import ../palette.nix { inherit lib; };
+in
 {
   programs = {
     alacritty = {
@@ -40,32 +43,34 @@
           ];
         };
 
+        # Ayu Dark. Bright variants repeat the normal ones except black and
+        # white, as in Ayu's own terminal themes.
         colors = {
           primary = {
-            background = "0x1f2528";
-            foreground = "0xc0c5ce";
+            background = palette.bg;
+            foreground = palette.fg;
           };
 
           normal = {
-            black = "0x1f2528";
-            red = "0xec5f67";
-            green = "0x99c794";
-            yellow = "0xfac863";
-            blue = "0x6699cc";
-            magenta = "0xc594c5";
-            cyan = "0x5fb3b3";
-            white = "0xc0c5ce";
+            black = palette.bg;
+            red = palette.red;
+            green = palette.green;
+            yellow = palette.yellow;
+            blue = palette.blue;
+            magenta = palette.purple;
+            cyan = palette.teal;
+            white = palette.fg;
           };
 
           bright = {
-            black = "0x65737e";
-            red = "0xec5f67";
-            green = "0x99c794";
-            yellow = "0xfac863";
-            blue = "0x6699cc";
-            magenta = "0xc594c5";
-            cyan = "0x5fb3b3";
-            white = "0xd8dee9";
+            black = palette.gray;
+            red = palette.red;
+            green = palette.green;
+            yellow = palette.orange;
+            blue = palette.blue;
+            magenta = palette.purple;
+            cyan = palette.teal;
+            white = palette.white;
           };
         };
       };
