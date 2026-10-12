@@ -1,0 +1,1 @@
+{ "name": "collapse-steps", "version": "0.1.0", "description": "Collapse each finished turn's tool calls and narration into one line; /steps toggles them", "types": "./types/index.d.ts" }
