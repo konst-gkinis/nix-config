@@ -28,7 +28,7 @@ The script:
 | `flake.nix` | Inputs, outputs, and the `settings` defaults that `host.nix` overrides. |
 | `bootstrap.sh` | The curl-able installer described above. |
 | `host.nix` *(generated)* | Per-machine overrides. Gitignored. |
-| `darwin/default.nix` | nix-darwin system config: Nix daemon, Homebrew, macOS defaults, home-manager wiring. |
+| `darwin/default.nix` | nix-darwin system config: Nix daemon, Homebrew, macOS defaults. |
 | `darwin/casks.nix` | Homebrew casks installed on every Mac. |
 | `darwin/casks-personal.nix` | Extra casks installed only when `isPersonal = true`. |
 | `darwin/home.nix` | macOS-only home-manager bits (iTerm2 dynamic profile). |
@@ -37,9 +37,13 @@ The script:
 | `nixos/disk-config.nix` | disko partition layout (uses `diskDevice` from `host.nix`). |
 | `nixos/home.nix` | NixOS-only home-manager bits (polybar, dunst, gtk theme). |
 | `nixos/packages.nix` | NixOS-only system packages. |
-| `shared/home.nix` | Cross-platform home-manager config: shell, git, vim, alacritty, tmux, ssh. |
+| `shared/home.nix` | Imports the cross-platform home-manager modules. |
+| `shared/programs/` | One module per program: shell, git, vim, alacritty, tmux, ssh, … |
+| `shared/palette.nix` | Ayu colours shared by the terminal tools. |
+| `shared/home-manager.nix` | home-manager wiring common to all targets. |
+| `shared/nix-settings.nix` | Substituters and experimental features common to all targets. |
 | `shared/packages.nix` | Cross-platform system packages (CLI tools). |
-| `shared/nixpkgs.nix` | `nixpkgs.config` (unfree, etc.). |
+| `shared/nixpkgs.nix` | `nixpkgs.config` (unfree, etc.) and overlays. |
 | `apps/<system>/` | Flake apps: `build-switch`, `apply`, `clean`, etc. |
 | `overlays/` | nixpkgs overlays (custom fonts, etc.). |
 | `config/` | Static config files (p10k, polybar themes, login wallpaper). |
@@ -67,7 +71,7 @@ Any key omitted falls back to the default defined in `flake.nix`.
 - **CLI tools / cross-platform** → `shared/packages.nix` (nixpkgs).
 - **GUI macOS apps** → `darwin/casks.nix` (Homebrew cask). Use `darwin/casks-personal.nix` for apps you only want on personal machines.
 - **NixOS-only packages** → `nixos/packages.nix`.
-- **User-level programs with config** (e.g. shell plugins, editor settings) → `shared/home.nix` or the per-OS `home.nix`.
+- **User-level programs with config** (e.g. shell plugins, editor settings) → a module in `shared/programs/` (add it to `shared/home.nix`'s imports) or the per-OS `home.nix`.
 
 Apply after editing:
 

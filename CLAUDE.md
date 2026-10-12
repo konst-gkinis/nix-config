@@ -3,14 +3,20 @@
 nix-darwin config for macOS, user `kg`, home `/Users/kg`.
 
 ## Structure
-- `darwin/default.nix` — system config, Homebrew, home-manager wiring
+- `darwin/default.nix` — system config, Homebrew
 - `darwin/casks.nix` — Homebrew casks list
 - `darwin/dock/` — dock config
 - `nixos/default.nix` — bare-metal NixOS config (X11, disko, bootloader)
 - `wsl/default.nix` — NixOS-WSL config (no bootloader/X11/disko)
 - `wsl/home.nix`, `wsl/packages.nix` — WSL-specific home-manager config and packages
 - `shared/packages.nix` — nixpkgs packages shared across all targets
-- `shared/home.nix` — home-manager programs shared across all targets
+- `shared/home.nix` — import list of the shared home-manager modules
+- `shared/programs/<name>.nix` — one module per program (git, zsh, tmux, vim, …);
+  long plain-text config sits next to it (`zsh/init.zsh`, `vim/vimrc`, `tmux/tmux.conf`)
+- `shared/palette.nix` — Ayu colours used by lazygit, delta, ripgrep and lsd
+- `shared/home-manager.nix`, `shared/nix-settings.nix`, `shared/nixpkgs.nix` — wiring,
+  Nix daemon settings and nixpkgs config common to all targets
+- `<target>/packages.nix` — that target's extras only; the shared list is added next to the import
 - `flake.nix` — flake inputs/outputs
 
 ## Adding software
@@ -53,7 +59,7 @@ and is gitignored — it must not be committed.
 ## Second git identity
 `workGitDir` in the `flake.nix` defaults scopes a second GitHub account to a directory
 (currently `~/workspace/portchain`; `null` emits nothing). A trailing slash is optional —
-`shared/home.nix` normalises it, which matters because git treats `gitdir:~/foo` as
+`shared/programs/git.nix` normalises it, which matters because git treats `gitdir:~/foo` as
 "a repo at exactly that path" and only `gitdir:~/foo/` as "everything beneath it".
 
 It adds a conditional include at the end of `~/.config/git/config`, so repos under that
@@ -67,12 +73,12 @@ for one), so the pointer has to be global — that part cannot live outside home
 
 GitHub refuses the same public key on two accounts, so the second account also needs
 its own keypair plus a `Host` alias in `~/.ssh/config_external` (included from
-`shared/home.nix`) with `IdentitiesOnly yes`. For local verification of work-signed
+`shared/programs/ssh.nix`) with `IdentitiesOnly yes`. For local verification of work-signed
 commits, `~/.config/git/allowed_signers` needs a second line mapping the work email to
 the work pubkey.
 
 ## Git config ownership
-All global git config is home-manager's (`shared/home.nix` → `~/.config/git/config`,
+All global git config is home-manager's (`shared/programs/git.nix` → `~/.config/git/config`,
 a nix store symlink). There is deliberately **no `~/.gitconfig`**; one existed
 pre-Nix and silently overrode the generated `user.*`, since git reads both and
 `~/.gitconfig` last. Don't recreate it.
@@ -80,7 +86,7 @@ pre-Nix and silently overrode the generated `user.*`, since git reads both and
 Consequences:
 - `git config --global ...` now fails with `could not lock config file` — with
   `~/.gitconfig` absent, git targets the store symlink. That's intended: global
-  config changes belong in `shared/home.nix`. Use `--local` for per-repo settings.
+  config changes belong in `shared/programs/git.nix`. Use `--local` for per-repo settings.
 - Global ignores live in `programs.git.ignores` → `~/.config/git/ignore`. Don't set
   `core.excludesFile`; it would make git ignore that file entirely.
 - `gpg.ssh.allowedSignersFile` is set declaratively; only the file's *contents* are
@@ -92,7 +98,7 @@ Consequences:
 git finds it on PATH as a subcommand; no alias needed) adds a remote named `home` at
 `pvegit:<name>.git` and pushes all branches and tags to it. `origin` is untouched, so a plain
 `git push` still goes only to GitHub; back up with `git push home`. The `pvegit` SSH host is
-in `programs.ssh.settings` in `shared/home.nix`.
+in `programs.ssh.settings` in `shared/programs/ssh.nix`.
 The server side (bare repos on the Proxmox host, created automatically on first push) is
 documented in `git-backup.md` in the homelab repo. Your key must be in the pve `git`
 user's `authorized_keys`: KG-air and RED are.
@@ -108,13 +114,13 @@ command does not require touching it:
 - **Aliases** come from the final merged `programs.zsh.shellAliases` at build time, so an
   alias added in any module (or by a home-manager module, like lsd's `ls`/`ll`) is listed
   on its own. This is why aliases belong in `shellAliases` and not a raw `alias` line in
-  `initContent` — a raw line is invisible to halp.
+  `initContent` or `shared/programs/zsh/init.zsh` — a raw line is invisible to halp.
 - **Functions** are discovered at run time from zsh's `functions_source`, which maps a
   function name to the file that defined it; anything defined in the generated `.zshrc`
   is ours, so plugin and completion functions are excluded. Names starting with `_` are
   skipped (zoxide's `__zoxide_*`, direnv's `_direnv_hook`).
 - **Descriptions** are the only hand-written part, in the `halp.descriptions` option
-  (an `attrsOf str` keyed by command name, held in `shared/home.nix`). A command with
+  (an `attrsOf str` keyed by command name, held in `shared/programs/zsh.nix`). A command with
   no entry is still listed — an alias shows its expansion instead, a function shows a
   blank.
 - **Global commands** are the scripts in `scripts/*.sh` whose first ten lines contain
