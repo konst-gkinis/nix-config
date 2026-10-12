@@ -7,7 +7,8 @@
   home = {
     username = user;
     homeDirectory = "/home/${user}";
-    packages = import ./packages.nix { inherit pkgs; };
+    packages =
+      (import ../shared/packages.nix { inherit pkgs; }) ++ (import ./packages.nix { inherit pkgs; });
     stateVersion = "25.11";
   };
 }

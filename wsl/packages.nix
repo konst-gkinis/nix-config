@@ -1,11 +1,8 @@
 { pkgs }:
 
+# Extras on top of shared/packages.nix, which home.nix adds.
 with pkgs;
-let
-  shared-packages = import ../shared/packages.nix { inherit pkgs; };
-in
-shared-packages
-++ [
+[
   # Auth
   pinentry-curses
 

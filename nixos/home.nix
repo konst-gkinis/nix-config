@@ -32,7 +32,8 @@ in
   home = {
     username = user;
     homeDirectory = "/home/${user}";
-    packages = import ./packages.nix { inherit pkgs; };
+    packages =
+      (import ../shared/packages.nix { inherit pkgs; }) ++ (import ./packages.nix { inherit pkgs; });
     file = import ./files.nix { inherit user; };
     stateVersion = "25.11";
   };
