@@ -3,8 +3,13 @@
 nix-darwin config for macOS, user `kg`, home `/Users/kg`.
 
 ## Structure
-- `darwin/default.nix` — system config, Homebrew
-- `darwin/casks.nix` — Homebrew casks list
+- `darwin/default.nix` — system config: user, packages, fonts; imports the modules below
+- `darwin/nix.nix`, `darwin/homebrew.nix`, `darwin/macos-defaults.nix`, `darwin/app-aliases.nix` —
+  one nix-darwin module per concern (Nix daemon, Homebrew, `system.defaults`, Spotlight aliases)
+- `darwin/casks.nix` — Homebrew casks list (read by `darwin/homebrew.nix`)
+- `darwin/home.nix` — import list of the macOS-only home-manager modules
+- `darwin/programs/<name>.nix` — one module per macOS-only program (iterm2, vscode,
+  pkg-update-check); data files sit next to it (`programs/iterm2/`)
 - `darwin/dock/` — dock config
 - `nixos/default.nix` — bare-metal NixOS config (X11, disko, bootloader)
 - `wsl/default.nix` — NixOS-WSL config (no bootloader/X11/disko)
@@ -134,8 +139,8 @@ command does not require touching it:
 ## Gotchas
 - `nbs` and `nup` end with `exec zsh` so the shell loads the new `.zshrc`. Other open
   tabs keep their old functions and aliases until they run `exec zsh` themselves.
-  Dynamic profiles (`darwin/iterm2/DynamicProfiles/`) reload live. The global
-  `defaults write com.googlecode.iterm2` keys in `darwin/home.nix` are read at launch
+  Dynamic profiles (`darwin/programs/iterm2/DynamicProfiles/`) reload live. The global
+  `defaults write com.googlecode.iterm2` keys in `darwin/programs/iterm2.nix` are read at launch
   only, so when they change the activation drops
   `~/.local/state/nixos-config/iterm-restart-needed` and build-switch quits and reopens
   iTerm2. That kills an agent session running inside it mid-switch; run it as

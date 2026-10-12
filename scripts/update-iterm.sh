@@ -9,7 +9,7 @@ if [[ -z "$EXPORT" ]]; then
 fi
 
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
-ITERM_DIR="$REPO/darwin/iterm2"
+ITERM_DIR="$REPO/darwin/programs/iterm2"
 TMPDIR="$(mktemp -d)"
 trap 'rm -rf "$TMPDIR"' EXIT
 

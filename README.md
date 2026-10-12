@@ -28,10 +28,15 @@ The script:
 | `flake.nix` | Inputs, outputs, and the `settings` defaults that `host.nix` overrides. |
 | `bootstrap.sh` | The curl-able installer described above. |
 | `host.nix` *(generated)* | Per-machine overrides. Gitignored. |
-| `darwin/default.nix` | nix-darwin system config: Nix daemon, Homebrew, macOS defaults. |
+| `darwin/default.nix` | nix-darwin system config: user, packages, fonts; imports the modules below. |
+| `darwin/nix.nix` | Nix daemon: Lix, trusted users, weekly GC. |
+| `darwin/homebrew.nix` | Homebrew casks (from the two lists below) and brews. |
+| `darwin/macos-defaults.nix` | macOS preferences (`system.defaults`). |
+| `darwin/app-aliases.nix` | Spotlight-indexable aliases for Home Manager apps. |
 | `darwin/casks.nix` | Homebrew casks installed on every Mac. |
 | `darwin/casks-personal.nix` | Extra casks installed only when `isPersonal = true`. |
-| `darwin/home.nix` | macOS-only home-manager bits (iTerm2 dynamic profile). |
+| `darwin/home.nix` | Imports the macOS-only home-manager modules. |
+| `darwin/programs/<name>.nix` | One macOS-only home-manager module per program (iTerm2, VS Code, the package-update check); data files sit next to it (`programs/iterm2/`). |
 | `darwin/dock/` | macOS Dock layout module. |
 | `nixos/default.nix` | NixOS system config: boot, networking, X11/bspwm, services. |
 | `nixos/disk-config.nix` | disko partition layout (uses `diskDevice` from `host.nix`). |
