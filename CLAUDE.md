@@ -34,7 +34,7 @@ To install NixOS-WSL on a Windows machine:
 ## Key facts
 - Shell: zsh with powerlevel10k
 - Homebrew casks currently: iterm2, visual-studio-code
-- Nix GC: weekly, deletes >30 days
+- Nix GC (macOS only): weekly, Sunday 02:00, deletes >1 day old
 - Experimental features: nix-command, flakes
 - home-manager stateVersion: 23.11
 - Checkout path: `flakeDir` in the `flake.nix` defaults (`~/repos/nix-config`, overridable in
