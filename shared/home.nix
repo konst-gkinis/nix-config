@@ -3,8 +3,8 @@
   pkgs,
   lib,
   user,
-  fullName ? "Konstantinos Gkinis",
-  email ? "konst.gkinis@gmail.com",
+  fullName,
+  email,
   workGitDir ? null,
   ...
 }:
