@@ -30,7 +30,6 @@ let
 in
 {
   home = {
-    enableNixpkgsReleaseCheck = false;
     username = user;
     homeDirectory = "/home/${user}";
     packages = import ./packages.nix { inherit pkgs; };

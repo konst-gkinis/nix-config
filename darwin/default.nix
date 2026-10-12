@@ -1,11 +1,7 @@
 {
-  config,
   pkgs,
   lib,
   user,
-  fullName,
-  email,
-  workGitDir ? null,
   flakeDir,
   isPersonal ? false,
   ...
@@ -21,6 +17,7 @@ in
     ./dock
     ../shared/nixpkgs.nix
     ../shared/nix-settings.nix
+    ../shared/home-manager.nix
   ];
 
   security.pam.services.sudo_local.touchIdAuth = true;
@@ -73,33 +70,7 @@ in
 
   home-manager = {
     backupFileExtension = "backup";
-    useGlobalPkgs = true;
-    extraSpecialArgs = {
-      inherit
-        user
-        fullName
-        email
-        workGitDir
-        ;
-    };
-    users.${user} =
-      {
-        pkgs,
-        config,
-        lib,
-        ...
-      }:
-      {
-        imports = [
-          ../shared/home.nix
-          ./home.nix
-        ];
-        home = {
-          enableNixpkgsReleaseCheck = false;
-          packages = [ pkgs.dockutil ];
-          stateVersion = "23.11";
-        };
-      };
+    users.${user}.imports = [ ./home.nix ];
   };
 
   system = {

@@ -1,16 +1,11 @@
 {
   config,
-  inputs,
   pkgs,
   user,
-  fullName,
-  email,
-  workGitDir ? null,
   flakeDir,
   hostName,
   timeZone,
   sshKeys,
-  diskDevice,
   ...
 }:
 {
@@ -18,25 +13,12 @@
     ./disk-config.nix
     ../shared/nixpkgs.nix
     ../shared/nix-settings.nix
+    ../shared/home-manager.nix
   ];
 
   home-manager = {
-    useGlobalPkgs = true;
     useUserPackages = true;
-    extraSpecialArgs = {
-      inherit
-        user
-        fullName
-        email
-        workGitDir
-        ;
-    };
-    users.${user} = {
-      imports = [
-        ../shared/home.nix
-        ./home.nix
-      ];
-    };
+    users.${user}.imports = [ ./home.nix ];
   };
 
   boot = {

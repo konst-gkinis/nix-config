@@ -1,11 +1,7 @@
 {
-  config,
   inputs,
   pkgs,
   user,
-  fullName,
-  email,
-  workGitDir ? null,
   flakeDir,
   hostName,
   timeZone,
@@ -17,6 +13,7 @@
     inputs.nixos-wsl.nixosModules.wsl
     ../shared/nixpkgs.nix
     ../shared/nix-settings.nix
+    ../shared/home-manager.nix
   ];
 
   wsl = {
@@ -54,22 +51,8 @@
   };
 
   home-manager = {
-    useGlobalPkgs = true;
     useUserPackages = true;
-    extraSpecialArgs = {
-      inherit
-        user
-        fullName
-        email
-        workGitDir
-        ;
-    };
-    users.${user} = {
-      imports = [
-        ../shared/home.nix
-        ./home.nix
-      ];
-    };
+    users.${user}.imports = [ ./home.nix ];
   };
 
   environment.variables.NH_FLAKE = flakeDir;

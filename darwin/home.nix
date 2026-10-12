@@ -44,6 +44,9 @@ let
   };
 in
 {
+  home.stateVersion = "23.11";
+  home.packages = [ pkgs.dockutil ];
+
   home.file = {
     "Library/Application Support/iTerm2/DynamicProfiles/ayu-mirage.json".text =
       builtins.toJSON profileWithBg;
