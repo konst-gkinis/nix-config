@@ -13,6 +13,7 @@
     ./disk-config.nix
     ../shared/nixpkgs.nix
     ../shared/nix-settings.nix
+    ../shared/pki.nix
     ../shared/home-manager.nix
   ];
 
