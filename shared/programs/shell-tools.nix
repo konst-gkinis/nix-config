@@ -60,7 +60,45 @@ in
       enable = true;
       shellWrapperName = "y";
       # Soft-wrap long lines in text previews instead of cutting them off.
-      settings.preview.wrap = "yes";
+      settings = {
+        preview.wrap = "yes";
+        # Enter opens text in bat; $EDITOR stays second in the `O` menu.
+        # --paging=always skips less's quit-if-one-screen, which would
+        # bounce straight back to yazi on short files.
+        opener.view = [
+          {
+            run = "bat --paging=always %s";
+            desc = "bat";
+            block = true;
+            for = "unix";
+          }
+        ];
+        open.prepend_rules = [
+          {
+            mime = "text/*";
+            use = [
+              "view"
+              "edit"
+              "reveal"
+            ];
+          }
+          {
+            mime = "application/{json,ndjson,javascript,wine-extension-ini}";
+            use = [
+              "view"
+              "edit"
+              "reveal"
+            ];
+          }
+        ];
+      };
+      keymap.mgr.prepend_keymap = [
+        {
+          on = "e";
+          run = "shell --block -- \${EDITOR:-vi} %s";
+          desc = "Edit selected files in $EDITOR";
+        }
+      ];
       flavors = {
         ayu-dark = pkgs.fetchFromGitHub {
           owner = "kmlupreti";
