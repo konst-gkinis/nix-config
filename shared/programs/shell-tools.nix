@@ -59,6 +59,8 @@ in
     yazi = {
       enable = true;
       shellWrapperName = "y";
+      # Soft-wrap long lines in text previews instead of cutting them off.
+      settings.preview.wrap = "yes";
       flavors = {
         ayu-dark = pkgs.fetchFromGitHub {
           owner = "kmlupreti";
