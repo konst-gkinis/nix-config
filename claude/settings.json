@@ -47,19 +47,6 @@
     "type": "command",
     "command": "bash ~/.claude/statusline-command.sh"
   },
-  "mcpServers": {
-    "nixos": {
-      "command": "nix",
-      "args": ["run", "github:utensils/mcp-nixos", "--"]
-    },
-    "godot": {
-      "command": "npx",
-      "args": ["@coding-solo/godot-mcp"]
-    },
-    "UnityMCP": {
-      "url": "http://127.0.0.1:8090/mcp"
-    }
-  },
   "effortLevel": "high",
   "theme": "custom:ayu-dark",
   "agentPushNotifEnabled": true
