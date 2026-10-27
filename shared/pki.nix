@@ -7,10 +7,9 @@
 
 {
   # eMudhra (emSign) — CA compromised, distrusted pending vendor patches.
+  # The cacert build fails on a name that is no longer in certdata.txt, so drop
+  # entries once Mozilla removes them (G3, C1, C3 went in NSS 3.131).
   security.pki.caCertificateBlacklist = [
     "emSign Root CA - G1"
-    "emSign ECC Root CA - G3"
-    "emSign Root CA - C1"
-    "emSign ECC Root CA - C3"
   ];
 }
