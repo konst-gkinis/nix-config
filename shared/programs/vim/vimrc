@@ -16,7 +16,10 @@ set nowrap
 set ruler
 set backspace=indent,eol,start
 set laststatus=2
-set clipboard=autoselect
+" autoselect is X11-only; the terminal-only darwin build would error (E474).
+if has('X11')
+  set clipboard=autoselect
+endif
 
 " Dir stuff
 set nobackup
