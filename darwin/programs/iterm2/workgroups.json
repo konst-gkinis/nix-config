@@ -25,14 +25,14 @@
         "urlString": ""
       },
       {
-        "command": "git difftool -y -x vimdiff \\(gitBase)",
+        "command": "git diff \\(gitBase)",
         "displayName": "Diff",
         "kind": {
           "kind": "peer"
         },
         "mode": "diff",
         "parentID": "builtin.claudeCode.main",
-        "perFileCommand": "git difftool -y -x vimdiff \\(gitBase) -- \\(file)",
+        "perFileCommand": "git diff \\(gitBase) -- \\(file)",
         "toolbarItems": [
           {
             "kind": "modeSwitcher"
