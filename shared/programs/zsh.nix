@@ -101,6 +101,7 @@
     ns = "temp zsh with extra packages, keeps prompt: ns <pkg> [pkg …]";
     rg = "ripgrep, rendered by delta (plain rg when piped)";
     nup = "update flake inputs, commit lock, build-switch";
+    ncheck = "list packages nup would update (eval only, no build)";
     cleanup = "nix GC + store optimise + brew cleanup";
     halp = "show this help";
     y = "yazi file manager; cd's to the directory it exits in";

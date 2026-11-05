@@ -39,6 +39,45 @@ nup() {
   (cd "$nixos_dir" && nix run .#build-switch) && exec zsh
 }
 
+# Show which packages `nup` would update, without building or touching
+# flake.lock. nh can't do this: its diff needs both closures built. Instead
+# evaluate the package list twice — pinned lock vs. latest inputs
+# (--recreate-lock-file --no-write-lock-file) — and diff the names, which
+# carry the versions. Covers systemPackages + home.packages only; tools
+# pulled in by a home-manager `programs.<x>.enable` module aren't listed.
+ncheck() {
+  emulate -L zsh
+  local arch=${$(uname -m)/arm64/aarch64} cfg
+  if [[ $OSTYPE == darwin* ]]; then
+    cfg="darwinConfigurations.$arch-darwin"
+  elif grep -qi microsoft /proc/sys/kernel/osrelease 2>/dev/null; then
+    cfg="nixosConfigurations.wsl"
+  else
+    cfg="nixosConfigurations.$arch-linux"
+  fi
+  local expr='c: map (p: p.name or "")
+    (c.environment.systemPackages
+     ++ builtins.concatMap (u: u.home.packages) (builtins.attrValues c.home-manager.users))'
+  local -a list=(nix eval --json "$NH_FLAKE#$cfg.config" --apply "$expr")
+  # Nix's stderr (dirty-tree, deprecation, "not writing lock file" warnings)
+  # is shown only when an eval fails.
+  setopt pipefail
+  local err=$(mktemp) old new
+  if ! old=$(NIXPKGS_ALLOW_UNFREE=1 "${list[@]}" 2>$err | jq -r '.[]' | sort -u) ||
+     ! new=$(NIXPKGS_ALLOW_UNFREE=1 "${list[@]}" --recreate-lock-file --no-write-lock-file \
+       2>$err | jq -r '.[]' | sort -u); then
+    cat $err >&2; rm -f $err; return 1
+  fi
+  rm -f $err
+  local changes
+  changes=$(command diff <(print -r -- "$old") <(print -r -- "$new") | grep '^[<>]')
+  if [[ -z $changes ]]; then
+    print "No package updates."
+    return 0
+  fi
+  print -r -- "$changes" | sed -e 's/^< /  - /' -e 's/^> /  + /'
+}
+
 # Temporary shell with extra packages, keeping zsh + p10k visible.
 # The flakes `nix shell` doesn't set $IN_NIX_SHELL, so the p10k
 # nix_shell segment never lights up (classic `nix-shell -p` does set
