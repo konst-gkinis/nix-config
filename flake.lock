@@ -163,6 +163,22 @@
         "type": "github"
       }
     },
+    "homebrew-msga": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1791292489,
+        "narHash": "sha256-SQEPoKsxPnyaqx4LSgxYUHQvr252IpM5I7O02Gffng4=",
+        "owner": "punarinta",
+        "repo": "homebrew-msga",
+        "rev": "97833e6ab80bb90da64d837dd1315b0076dc5fe1",
+        "type": "github"
+      },
+      "original": {
+        "owner": "punarinta",
+        "repo": "homebrew-msga",
+        "type": "github"
+      }
+    },
     "nh": {
       "inputs": {
         "nixpkgs": [
@@ -247,6 +263,7 @@
         "homebrew-bundle": "homebrew-bundle",
         "homebrew-cask": "homebrew-cask",
         "homebrew-core": "homebrew-core",
+        "homebrew-msga": "homebrew-msga",
         "nh": "nh",
         "nix-homebrew": "nix-homebrew",
         "nixos-wsl": "nixos-wsl",
