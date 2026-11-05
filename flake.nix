@@ -26,10 +26,6 @@
       url = "github:homebrew/homebrew-cask";
       flake = false;
     };
-    homebrew-msga = {
-      url = "github:punarinta/homebrew-msga";
-      flake = false;
-    };
     disko = {
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -56,7 +52,6 @@
       homebrew-bundle,
       homebrew-core,
       homebrew-cask,
-      homebrew-msga,
       home-manager,
       nixpkgs,
       disko,
@@ -171,8 +166,6 @@
                   "homebrew/homebrew-core" = homebrew-core;
                   "homebrew/homebrew-cask" = homebrew-cask;
                   "homebrew/homebrew-bundle" = homebrew-bundle;
-                  # Tap only; the msga cask itself is installed per-project.
-                  "punarinta/homebrew-msga" = homebrew-msga;
                 };
                 mutableTaps = false;
                 autoMigrate = true;
