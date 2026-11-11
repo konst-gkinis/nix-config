@@ -49,7 +49,6 @@ with pkgs;
   # delta, lazygit: installed via home-manager (programs.delta / programs.lazygit)
   nh
   nixfmt
-  dotnetCorePackages.sdk_8_0
   python3
   uv
 
