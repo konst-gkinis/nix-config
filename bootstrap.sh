@@ -87,10 +87,12 @@ if [ "$OS" = "Darwin" ]; then
     exit 0
   fi
 
-  # Ensure Nix
+  # Ensure Nix. Lix, to match nix.package in darwin/nix.nix. Not the
+  # Determinate Systems installer: it now installs Determinate Nix, whose own
+  # daemon makes nix-darwin abort activation.
   if ! command -v nix > /dev/null 2>&1; then
-    printf "%bNix not found. Installing via Determinate Systems installer...%b\n" "$YELLOW" "$NC"
-    curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix \
+    printf "%bNix not found. Installing Lix...%b\n" "$YELLOW" "$NC"
+    curl --proto '=https' --tlsv1.2 -sSf -L https://install.lix.systems/lix \
       | sh -s -- install --no-confirm
     # Source nix into current shell session
     # shellcheck source=/dev/null
