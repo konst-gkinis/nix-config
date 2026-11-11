@@ -236,16 +236,8 @@ printf "    https://github.com/settings/ssh/new?type=signing\n"
 printf "%bPress Enter when added (or to skip)...%b" "$YELLOW" "$NC"
 read -r _ack
 
-printf "\n%bProceed with build-switch? [y/N]: %b" "$YELLOW" "$NC"
+printf "\n%bProceed with build-switch? [Y/n]: %b" "$YELLOW" "$NC"
 read -r _confirm
-case "$_confirm" in
-  y|Y) : ;;
-  *)
-    printf "%bhost.nix written but build skipped. Run manually:%b\n" "$YELLOW" "$NC"
-    printf "  nix --extra-experimental-features 'nix-command flakes' run '.#build-switch'\n"
-    # Still write host.nix before exiting so user can inspect / run manually
-    ;;
-esac
 
 # ── Write host.nix ───────────────────────────────────────────────────────────
 
@@ -274,10 +266,13 @@ HOSTNIX
 
 printf "%bhost.nix written to %s/host.nix%b\n" "$GREEN" "$REPO_DIR" "$NC"
 
-# Exit early if user did not confirm
+# Exit early if user declined; host.nix is kept so it can be inspected first.
 case "$_confirm" in
-  y|Y) : ;;
-  *)
+  n|N|no|NO|No)
+    printf "%bBuild skipped. Run manually:%b\n" "$YELLOW" "$NC"
+    printf "  cd %s\n" "$REPO_DIR"
+    printf "  nix --extra-experimental-features 'nix-command flakes' run '.#build-switch'\n"
+    printf "  sh scripts/setup-signature-verification.sh '%s'\n" "$CFG_EMAIL"
     exit 0
     ;;
 esac
