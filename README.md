@@ -84,7 +84,7 @@ Apply after editing:
 nix run .#build-switch
 ```
 
-(Or `darwin-rebuild switch --flake .` / `sudo nixos-rebuild switch --flake .` directly.)
+(Or `darwin-rebuild switch --flake path:.` / `sudo nixos-rebuild switch --flake path:.` directly. Plain `.` would ignore the gitignored `host.nix`.)
 
 ## Commit signing
 

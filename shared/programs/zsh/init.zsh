@@ -58,7 +58,7 @@ ncheck() {
   local expr='c: map (p: p.name or "")
     (c.environment.systemPackages
      ++ builtins.concatMap (u: u.home.packages) (builtins.attrValues c.home-manager.users))'
-  local -a list=(nix eval --json "$NH_FLAKE#$cfg.config" --apply "$expr")
+  local -a list=(nix eval --json "path:$NH_FLAKE#$cfg.config" --apply "$expr")
   # Nix's stderr (dirty-tree, deprecation, "not writing lock file" warnings)
   # is shown only when an eval fails.
   setopt pipefail

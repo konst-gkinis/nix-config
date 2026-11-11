@@ -42,6 +42,6 @@ else
 fi
 
 printf "%bSwitching to new generation (%s)...%b\n" "$YELLOW" "$FLAKE_TARGET" "$NC"
-sudo env SSH_AUTH_SOCK="$SSH_AUTH_SOCK" nh os switch . --hostname "$FLAKE_TARGET" -- $OTHER_ARGS
+sudo env SSH_AUTH_SOCK="$SSH_AUTH_SOCK" nh os switch path:. --hostname "$FLAKE_TARGET" -- $OTHER_ARGS
 
 printf "%bSwitch to new generation complete!%b\n" "$GREEN" "$NC"

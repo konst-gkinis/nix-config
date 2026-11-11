@@ -28,8 +28,8 @@ nix-darwin config for macOS, user `kg`, home `/Users/kg`.
 - **GUI macOS apps** → `darwin/casks.nix` (Homebrew cask)
 - **CLI tools / cross-platform** → `shared/packages.nix` (nixpkgs)
 - **WSL-only packages** → `wsl/packages.nix`
-- Apply on macOS: `darwin-rebuild switch --flake .`
-- Apply on WSL: `sudo nixos-rebuild switch --flake .#wsl`
+- Apply on macOS: `nix run .#build-switch` (uses `path:.`, see Gotchas)
+- Apply on WSL: `nix run .#build-switch`
 
 ## NixOS-WSL setup
 The `nixosConfigurations.wsl` flake target is for NixOS running under WSL2.
@@ -149,9 +149,13 @@ command does not require touching it:
   `settings.includeIf`. home-manager emits `includes` with `mkAfter` so they land after
   the global `user.*`; sections in `settings` are sorted alphabetically, which would put
   `includeIf` *before* `user` and let the global identity win.
-- `host.nix` is gitignored, and flake evaluation only sees git-tracked files — so
-  `nix eval`/`build-switch` on a dirty tree silently ignores it until it is at least
-  `git add -N`'d.
+- `host.nix` is gitignored, and a git flake ref (`.`, `/path/to/repo`) only sees
+  tracked files, so it silently ignores `host.nix` and falls back to the `flake.nix`
+  defaults. That's why the `build`/`build-switch` apps and `ncheck` use `path:.`
+  (which copies the whole directory, `.git` included, ~6 MB). Anything run by hand
+  needs the same: `nix eval path:.#…`, `nh darwin switch path:.`. A bare
+  `nh darwin switch` (reading `NH_FLAKE`, a plain directory) or
+  `darwin-rebuild --flake .` still ignores `host.nix`.
 - `specialArg` for the git full name is called `fullName`, not `name`. Don't rename it
   back — home-manager's module system reserves `name` for the user key, and overriding
   it silently breaks `config.home.homeDirectory`.
