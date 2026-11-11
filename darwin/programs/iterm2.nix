@@ -22,16 +22,17 @@ in
   home.file = {
     "Library/Application Support/iTerm2/DynamicProfiles/ayu-mirage.json".text =
       builtins.toJSON profileWithBg;
-    ".iterm2_shell_integration.zsh".source = pkgs.fetchurl {
-      url = "https://iterm2.com/shell_integration/zsh";
-      sha256 = "sha256-kQJ8bVIh7nEjYJ6OWqiEDqIY+YWD5RbD1CXV+KKyDno=";
-    };
   };
 
+  # iTerm2 shell integration — enables Claude Code terminal awareness (OSC 1337).
+  # Sourced from the app bundle rather than fetched: iterm2.com/shell_integration/zsh
+  # is unversioned and changes in place, so a pinned hash breaks on every iTerm2
+  # release. The bundled copy always matches the installed app.
+  # VS Code integration is automatic via TERM_PROGRAM=vscode set by VS Code itself.
   programs.zsh.initContent = ''
-    # iTerm2 shell integration — enables Claude Code terminal awareness (OSC 1337).
-    # VS Code integration is automatic via TERM_PROGRAM=vscode set by VS Code itself.
-    test -e ~/.iterm2_shell_integration.zsh && source ~/.iterm2_shell_integration.zsh
+    _iterm_si=/Applications/iTerm.app/Contents/Resources/iterm2_shell_integration.zsh
+    [[ -r $_iterm_si ]] && source $_iterm_si
+    unset _iterm_si
   '';
 
   # iTerm2 reads these global prefs at launch only (the dynamic profile, by
