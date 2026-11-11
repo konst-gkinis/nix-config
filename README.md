@@ -11,7 +11,7 @@ sh <(curl -L https://raw.githubusercontent.com/konst-gkinis/nix-config/main/boot
 The script:
 
 1. Detects OS and architecture.
-2. Installs Xcode CLT and Nix (Determinate installer) on a fresh macOS; assumes Nix is already present on Linux.
+2. Installs Xcode CLT and Nix (Lix installer) on a fresh macOS; assumes Nix is already present on Linux.
 3. Clones this repo to `~/repos/nix-config`.
 4. Generates `~/.ssh/id_ed25519` if missing (used for SSH auth + git commit signing).
 5. Prompts for machine settings (user, full name, email, hostname, timezone, personal-machine flag, and on Linux also the authorized SSH key and disk device).
