@@ -7,6 +7,7 @@
     ./programs/iterm2.nix
     ./programs/vscode.nix
     ./programs/pkg-update-check.nix
+    ./programs/ssh-keychain.nix
   ];
 
   home.stateVersion = "23.11";
