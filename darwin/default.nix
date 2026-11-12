@@ -49,8 +49,16 @@
     stateVersion = 5;
   };
 
+  # Finder is pinned by macOS and isn't a removable Dock entry, so it isn't listed.
   local.dock = {
-    enable = false;
+    enable = true;
     username = user;
+    entries = [
+      { path = "/Applications/Brave Browser.app"; }
+      { path = "/Applications/iTerm.app"; }
+      { path = "/System/Applications/Messages.app"; }
+      { path = "/System/Applications/Calendar.app"; }
+      { path = "/System/Applications/Mail.app"; }
+    ];
   };
 }
