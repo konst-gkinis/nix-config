@@ -5,7 +5,6 @@
   "visual-studio-code"
   "brave-browser"
   "discord"
-  "spotify"
   {
     name = "fluor";
     loginItem = "Fluor";
