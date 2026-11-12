@@ -33,4 +33,5 @@
   }
   "tailscale-app"
   "crmne/tap/spotifast"
+  "windows-app"
 ]
