@@ -221,8 +221,9 @@ if [ "$explicit_tap" = 0 ] && [ "$only" != nix ] && ! grep -q '^cask' <<<"$match
   if [ -n "$taps" ]; then
     matches=$(printf '%s\n%s\n' "$matches" "$taps" | grep -v '^$' | awk '!seen[$0]++')
   else
-    command -v gh >/dev/null && gh auth status >/dev/null 2>&1 ||
+    if ! { command -v gh >/dev/null && gh auth status >/dev/null 2>&1; }; then
       say "(searching taps by name needs gh, logged in)"
+    fi
     say "None found; a tap cask can also be given as <owner>/<tap>/<name>."
   fi
 fi
