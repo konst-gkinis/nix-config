@@ -29,5 +29,14 @@
     trackpad = {
       Clicking = true;
     };
+
+    # No typed nix-darwin option for these.
+    CustomUserPreferences = {
+      NSGlobalDomain = {
+        # Untick "Close windows when quitting an application": apps reopen their
+        # windows after cmd-Q (iTerm2 then reattaches its still-running jobs).
+        NSQuitAlwaysKeepsWindows = true;
+      };
+    };
   };
 }
