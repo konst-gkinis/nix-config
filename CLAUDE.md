@@ -36,7 +36,8 @@ nix-darwin config for macOS, user `kg`, home `/Users/kg`.
   before the closing `]` of `shared/packages.nix` or `darwin/casks.nix`, and offers fuzzy
   suggestions (fzf) when nothing matches exactly. A GitHub link matches by homepage/source
   URL, falling back to the repo name. Flags: `--nix`/`--cask` force a source, `--login` adds
-  a cask as a login item, `--switch` runs build-switch. Lists are cached in `~/.cache/nadd`.
+  a cask as a login item, `--switch` runs build-switch, `-v`/`--verbose` also prints the diff,
+  the apply hint and Nix's own warnings. Lists are cached in `~/.cache/nadd`.
 - Apply on macOS: `nix run .#build-switch` (uses `path:.`, see Gotchas)
 - Apply on WSL: `nix run .#build-switch`
 

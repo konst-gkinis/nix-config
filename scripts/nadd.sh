@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# halp: [--cask|--nix] [--login] [--switch] <name|github-url> — add a nixpkgs package or Homebrew cask to this config
+# halp: [--cask|--nix] [--login] [--switch] [-v] <name|github-url> — add a nixpkgs package or Homebrew cask to this config
 # Resolve a name or GitHub link to a nixpkgs attribute (shared/packages.nix) or a Homebrew
 # cask (darwin/casks.nix) and append it there. Packaged in shared/packages.nix as `nadd`.
 #
@@ -8,6 +8,7 @@
 #   nadd https://github.com/owner/repo   matched by the package's homepage / source / download URL
 #   nadd ripgerp                         no exact match: pick from fuzzy suggestions (fzf)
 #
+# --verbose (-v) also prints Nix's own warnings, the diff of the edited file and the apply hint.
 # nixpkgs is the revision locked in flake.lock, so whatever is picked builds with this config.
 # Both lists are cached in ~/.cache/nadd (nixpkgs per revision, casks for a day).
 # A name that is both a package and a cask asks which one; --nix / --cask skip the question.
@@ -15,17 +16,18 @@ set -euo pipefail
 
 usage() {
   sed -n 's/^# halp: /nadd /p' "$0" 2>/dev/null || true
-  echo "usage: nadd [--cask|--nix] [--login] [--switch] <name|github-url>" >&2
+  echo "usage: nadd [--cask|--nix] [--login] [--switch] [-v|--verbose] <name|github-url>" >&2
   exit 2
 }
 
-only="" login=0 switch=0 query=""
+only="" login=0 switch=0 verbose=0 query=""
 while [ $# -gt 0 ]; do
   case "$1" in
     --cask) only=cask ;;
     --nix) only=nix ;;
     --login) login=1 ;;
     --switch) switch=1 ;;
+    -v | --verbose) verbose=1 ;;
     -h | --help) usage ;;
     -*) echo "nadd: unknown option $1" >&2; usage ;;
     *) [ -z "$query" ] || usage; query=$1 ;;
@@ -44,12 +46,24 @@ mkdir -p "$cache"
 [ "$login" = 0 ] || [ "$only" != nix ] || { echo "nadd: --login only applies to casks" >&2; exit 1; }
 
 say() { printf '%s\n' "$*" >&2; }
+# Nix's own stderr (e.g. "Nix search path entry … does not exist") only with --verbose.
+nix_err=/dev/null
+[ "$verbose" = 0 ] || nix_err=/dev/stderr
+
+# Emphasis only on a terminal, and not with NO_COLOR set.
+if [ -t 2 ] && [ -z "${NO_COLOR:-}" ]; then em=$'\e[1;36m' off=$'\e[0m'; else em="" off=""; fi
+# Wrap to the terminal width, indenting continuation lines by two spaces.
+wrap() {
+  local w
+  w=$(tput cols 2>/dev/null </dev/tty || echo 80)
+  fold -s -w "$((w > 20 ? w - 2 : 78))" | sed -e 's/ *$//' -e '1!s/^/  /'
+}
 
 # --- data sources -------------------------------------------------------------------------
 
 rev=$(jq -r '.nodes.nixpkgs.locked.rev' "$flake/flake.lock")
 nixpkgs="github:nixos/nixpkgs/$rev"
-system=$(nix eval --impure --raw --expr builtins.currentSystem)
+system=$(nix eval --impure --raw --expr builtins.currentSystem 2>"$nix_err")
 
 # TSV: attr \t version \t description
 nix_list() {
@@ -185,7 +199,8 @@ else
 fi
 [ -n "$chosen" ] || exit 1
 IFS=$'\t' read -r kind id version desc <<<"$chosen"
-say "→ $kind $id $version — $desc"
+line=$(printf '%s %s %s — %s\n' "$kind" "$id" "$version" "$desc" | wrap)
+printf '%s\n' "${line/#"$kind $id"/"$kind $em$id$off"}" >&2
 
 # --- editing ------------------------------------------------------------------------------
 
@@ -229,7 +244,7 @@ if [ "$kind" = nix ]; then
     say "$id is already installed through home-manager (programs.$id in ${hm#"$flake"/})"; exit 0
   fi
   insert_before_close "$pkgs_file" <<<"  $ref"
-  file=shared/packages.nix
+  file=shared/packages.nix added="Added to ${em}nix shared${off} packages"
 else
   if grep -Fq "\"$id\"" "$casks_file"; then
     say "$id is already in darwin/casks.nix"; exit 0
@@ -246,14 +261,17 @@ EOF
   else
     insert_before_close "$casks_file" <<<"  \"$id\""
   fi
-  file=darwin/casks.nix
+  file=darwin/casks.nix added="Added to ${em}casks${off}"
+  [ "$login" = 0 ] || added+=" (starts at login)"
 fi
 
-say "Added $id to $file:"
-git -C "$flake" --no-pager diff --color=auto -U1 -- "$file" >&2 || true
+say "$added"
+if [ "$verbose" = 1 ]; then
+  git -C "$flake" --no-pager diff --color=auto -U1 -- "$file" >&2 || true
+fi
 
 if [ "$switch" = 1 ]; then
   cd "$flake" && nix run .#build-switch
-else
+elif [ "$verbose" = 1 ]; then
   say "Apply with: (cd \"$flake\" && nix run .#build-switch)   — or rerun with --switch"
 fi
