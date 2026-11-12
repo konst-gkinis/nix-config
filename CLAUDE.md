@@ -25,7 +25,10 @@ nix-darwin config for macOS, user `kg`, home `/Users/kg`.
 - `flake.nix` — flake inputs/outputs
 
 ## Adding software
-- **GUI macOS apps** → `darwin/casks.nix` (Homebrew cask)
+- **GUI macOS apps** → `darwin/casks.nix` (Homebrew cask). To also start one at login, write
+  it as `{ name = "<cask>"; loginItem = "<Bundle Name>"; }` (the `.app` name under
+  `/Applications`); `darwin/homebrew.nix` turns that into a `launchd.user.agents.login-item-<cask>`
+  agent, so removing the entry removes both. The apps' own "launch at login" toggles stay off.
 - **CLI tools / cross-platform** → `shared/packages.nix` (nixpkgs)
 - **WSL-only packages** → `wsl/packages.nix`
 - Apply on macOS: `nix run .#build-switch` (uses `path:.`, see Gotchas)
