@@ -58,6 +58,7 @@
       nixos-wsl,
       claude-code,
       nh,
+      ...
     }@inputs:
     let
       settings =
@@ -145,6 +146,22 @@
       # One app per script in apps/<system>/, so the list can't drift from what exists.
       mkApps =
         system: nixpkgs.lib.mapAttrs (name: _: mkApp name system) (builtins.readDir ./apps/${system});
+      # Third-party Homebrew taps: every `tap-*` input (flake = false), keyed by the GitHub
+      # repo flake.lock records for it, e.g. tap-crmne-tap -> "crmne/homebrew-tap". `nadd`
+      # adds these when it picks a cask from a tap; taps are immutable, so this is the only way.
+      homebrewTaps =
+        let
+          lib = nixpkgs.lib;
+          lock = builtins.fromJSON (builtins.readFile ./flake.lock);
+          tapInputs = lib.filterAttrs (n: _: lib.hasPrefix "tap-" n) lock.nodes.root.inputs;
+        in
+        lib.mapAttrs' (
+          input: node:
+          let
+            src = lock.nodes.${node}.original;
+          in
+          lib.nameValuePair (lib.toLower "${src.owner}/${src.repo}") inputs.${input}
+        ) tapInputs;
     in
     {
       devShells = forAllSystems devShell;
@@ -166,7 +183,8 @@
                   "homebrew/homebrew-core" = homebrew-core;
                   "homebrew/homebrew-cask" = homebrew-cask;
                   "homebrew/homebrew-bundle" = homebrew-bundle;
-                };
+                }
+                // homebrewTaps;
                 mutableTaps = false;
                 autoMigrate = true;
               };
