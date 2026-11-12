@@ -80,10 +80,16 @@ Git has no directory-inherited config of its own (it never walks up the tree loo
 for one), so the pointer has to be global — that part cannot live outside home-manager.
 
 GitHub refuses the same public key on two accounts, so the second account also needs
-its own keypair plus a `Host` alias in `~/.ssh/config_external` (included from
-`shared/programs/ssh.nix`) with `IdentitiesOnly yes`. For local verification of work-signed
-commits, `~/.config/git/allowed_signers` needs a second line mapping the work email to
-the work pubkey.
+its own keypair. Simplest is `core.sshCommand = ssh -i <key> -o IdentitiesOnly=yes` in
+`<dir>/.gitconfig`, so plain `git@github.com:` remotes work unchanged; the alternative is a
+`Host` alias in `~/.ssh/config_external` (included from `shared/programs/ssh.nix`) with
+`IdentitiesOnly yes`. For local verification of second-identity-signed commits,
+`~/.config/git/allowed_signers` needs a second line mapping that email to that pubkey.
+
+The directory is per machine: where the global identity is already work (`host.nix` email),
+`host.nix` sets `workGitDir` to the *personal* directory instead (e.g. `~/repos`). `gh`
+has no per-directory config, so a `<dir>/.envrc` exporting `GH_CONFIG_DIR` switches it
+(repos with their own `.envrc` need `source_up`).
 
 ## Git config ownership
 All global git config is home-manager's (`shared/programs/git.nix` → `~/.config/git/config`,
