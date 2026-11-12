@@ -38,6 +38,13 @@ nix-darwin config for macOS, user `kg`, home `/Users/kg`.
   URL, falling back to the repo name. Flags: `--nix`/`--cask` force a source, `--login` adds
   a cask as a login item, `--switch` runs build-switch, `-v`/`--verbose` also prints the diff,
   the apply hint and Nix's own warnings. Lists are cached in `~/.cache/nadd`.
+- **Casks from third-party taps** are written fully qualified (`"crmne/tap/spotifast"`). The tap
+  itself must be a flake input, because nix-homebrew runs with `mutableTaps = false`: every input
+  named `tap-*` (`flake = false`) becomes a nix-homebrew tap, named after the GitHub repo that
+  `flake.lock` records for it (`tap-crmne-tap` → `crmne/homebrew-tap`). `nadd` does all of it: when
+  a cask isn't in the official list it looks in `<owner>/homebrew-tap` for a GitHub link, or runs
+  a GitHub code search (needs `gh`, logged in) for a bare name, and `<owner>/<tap>/<name>` names one
+  directly. Picking one adds the input and runs `nix flake lock`.
 - Apply on macOS: `nix run .#build-switch` (uses `path:.`, see Gotchas)
 - Apply on WSL: `nix run .#build-switch`
 
