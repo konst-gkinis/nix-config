@@ -97,7 +97,6 @@
     gstl = "git stash list (readable format)";
     gstam = "git stash push -m <msg>";
     nbs = "nix run .#build-switch, then exec zsh — apply nix config";
-    shell = "nix-shell into a nixpkgs package: shell <pkg>";
     ns = "temp zsh with extra packages, keeps prompt: ns <pkg> [pkg …]";
     rg = "ripgrep, rendered by delta (plain rg when piped)";
     nup = "update flake inputs, commit lock, build-switch";

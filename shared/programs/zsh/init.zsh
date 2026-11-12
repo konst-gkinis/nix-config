@@ -16,11 +16,6 @@ export PATH=$HOME/.local/share/bin:$PATH
 # Remove history data we don't want to see
 export HISTIGNORE="pwd:ls:cd"
 
-# nix shortcuts
-shell() {
-    nix-shell '<nixpkgs>' -A "$1"
-}
-
 # Apply the config, then replace this shell with a fresh one so it
 # picks up the new .zshrc. A function, not an alias: build-switch runs
 # in a child process and cannot exec the shell that started it.
