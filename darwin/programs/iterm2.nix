@@ -69,6 +69,10 @@ in
         # relaunches and reattaches. Both are Prefs > Advanced settings.
         run /usr/bin/defaults write com.googlecode.iterm2 RunJobsInServers -bool true
         run /usr/bin/defaults write com.googlecode.iterm2 KillJobsInServersOnQuit -bool false
+        # The jobs only come back if the windows do. iTerm2 follows macOS window
+        # restoration, and the system default ("Close windows when quitting an
+        # application", on) discards them on cmd-Q. Opt iTerm2 out of that alone.
+        run /usr/bin/defaults write com.googlecode.iterm2 NSQuitAlwaysKeepsWindows -bool true
         # Claude Code workgroup (Chat / Diff / Code Review panes). iTerm2 stores this
         # as an opaque base64 blob, so the readable source of truth is the JSON in the
         # repo, hex-encoded here for `defaults write -data`. The profile-level triggers
