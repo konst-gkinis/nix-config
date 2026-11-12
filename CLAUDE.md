@@ -31,6 +31,12 @@ nix-darwin config for macOS, user `kg`, home `/Users/kg`.
   agent, so removing the entry removes both. The apps' own "launch at login" toggles stay off.
 - **CLI tools / cross-platform** → `shared/packages.nix` (nixpkgs)
 - **WSL-only packages** → `wsl/packages.nix`
+- `nadd <name|github-url>` (`scripts/nadd.sh`) does the first two for you: it resolves the
+  argument against the nixpkgs rev in `flake.lock` and the Homebrew cask API, appends it
+  before the closing `]` of `shared/packages.nix` or `darwin/casks.nix`, and offers fuzzy
+  suggestions (fzf) when nothing matches exactly. A GitHub link matches by homepage/source
+  URL, falling back to the repo name. Flags: `--nix`/`--cask` force a source, `--login` adds
+  a cask as a login item, `--switch` runs build-switch. Lists are cached in `~/.cache/nadd`.
 - Apply on macOS: `nix run .#build-switch` (uses `path:.`, see Gotchas)
 - Apply on WSL: `nix run .#build-switch`
 

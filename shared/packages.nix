@@ -63,4 +63,15 @@ with pkgs;
   (writeShellScriptBin "git-backup-init" (builtins.readFile ../scripts/git-backup-init.sh))
   # `git backup-clone`: fzf-pick a repo from that backup and shallow-clone it
   (writeShellScriptBin "git-backup-clone" (builtins.readFile ../scripts/git-backup-clone.sh))
+  # `nadd <name|github-url>`: add a nixpkgs package or Homebrew cask to this config
+  (writeShellApplication {
+    name = "nadd";
+    runtimeInputs = [
+      curl
+      fzf
+      jq
+      python3
+    ];
+    text = builtins.readFile ../scripts/nadd.sh;
+  })
 ]
