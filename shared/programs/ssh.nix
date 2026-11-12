@@ -23,6 +23,15 @@
           IdentityFile = "~/.ssh/id_ed25519";
           IdentitiesOnly = true;
         };
+        # Homelab Proxmox host, root-by-key (see access.md in the homelab repo). Uses Tailscale
+        # MagicDNS rather than 10.0.0.200 so it works whether or not the subnet route is up.
+        pve = {
+          HostName = "pve";
+          User = "root";
+          # Root's authorized_keys holds the personal key, not the work key in id_ed25519.
+          IdentityFile = "~/.ssh/id_ed25519_personal";
+          IdentitiesOnly = true;
+        };
         # Homelab CT 109: the arr media stack (root-by-key only; see access.md in the homelab repo).
         # Jumps via pve: CT 109's PVE firewall drops tailnet traffic routed through the subnet
         # route (hardening.md "arr isolation"), but accepts pve itself.
