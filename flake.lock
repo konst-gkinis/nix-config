@@ -250,7 +250,8 @@
         "nh": "nh",
         "nix-homebrew": "nix-homebrew",
         "nixos-wsl": "nixos-wsl",
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": "nixpkgs",
+        "tap-crmne-tap": "tap-crmne-tap"
       }
     },
     "systems": {
@@ -265,6 +266,22 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
+        "type": "github"
+      }
+    },
+    "tap-crmne-tap": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1794271430,
+        "narHash": "sha256-ggRFqMwHqjaEWhpIHe8t3hyW9PqKXrLJn/10FnGwcjo=",
+        "owner": "crmne",
+        "repo": "homebrew-tap",
+        "rev": "8f439f2d65cac977a5ca96dff099f01320b1141a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "crmne",
+        "repo": "homebrew-tap",
         "type": "github"
       }
     }

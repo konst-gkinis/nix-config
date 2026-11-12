@@ -33,4 +33,5 @@
     loginItem = "BetterDisplay";
   }
   "tailscale-app"
+  "crmne/tap/spotifast"
 ]

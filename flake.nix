@@ -42,6 +42,10 @@
       url = "github:nix-community/nh";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    tap-crmne-tap = {
+      url = "github:crmne/homebrew-tap";
+      flake = false;
+    };
   };
 
   outputs =
