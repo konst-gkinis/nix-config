@@ -50,7 +50,12 @@ let
   '';
 in
 {
-  home.packages = [ cli ];
+  home.packages = [
+    cli
+    (pkgs.writeTextDir "share/zsh/site-functions/_meeting-daemon" (
+      builtins.readFile ./meeting-daemon/_meeting-daemon
+    ))
+  ];
   xdg.dataFile."meeting-daemon/meeting-daemond".source = "${daemon}/bin/meeting-daemond";
 
   programs.zsh.shellAliases = {

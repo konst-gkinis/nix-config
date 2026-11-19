@@ -39,7 +39,12 @@ let
   '';
 in
 {
-  home.packages = [ cli ];
+  home.packages = [
+    cli
+    (pkgs.writeTextDir "share/zsh/site-functions/_slack-daemon" (
+      builtins.readFile ./slack-daemon/_slack-daemon
+    ))
+  ];
   xdg.dataFile."slack-daemon/slack-daemond".source = daemonWrapped;
 
   # Unread messages matching any of these (case-insensitive, whole words) get

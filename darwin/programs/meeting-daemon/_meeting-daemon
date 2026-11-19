@@ -1,0 +1,23 @@
+#compdef meeting-daemon
+# meeting-daemon (alias md). The commands and their descriptions are read from
+# its own `help`, so one added to usage() in meeting-daemon.sh completes without
+# touching this file; only a command that takes an argument needs a case below.
+
+local -a cmds
+local line
+for line in ${(f)"$(meeting-daemon help 2>/dev/null)"}; do
+  # "  name [arg]   description   (alias)"; continuation lines are skipped,
+  # and so is the comma that leads into one.
+  [[ $line =~ '^  ([a-z][a-z-]*)( [[<][^]>]*[]>])? +(.*[^ ])' ]] || continue
+  cmds+=("$match[1]:${${match[3]%%  ##\(*\)}%,}")
+done
+
+if (( CURRENT == 2 )); then
+  _describe -t commands 'meeting-daemon command' cmds
+elif (( CURRENT == 3 )); then
+  case $words[2] in
+    upcoming) _message 'hours ahead (default 12)' ;;
+    join | meet-status) _message 'Google Meet link' ;;
+    google-auth) _files -g '*.json(-.)' ;;
+  esac
+fi
