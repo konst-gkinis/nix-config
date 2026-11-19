@@ -20,6 +20,8 @@ let
   managedSettings = pkgs.writeText "claude-managed-settings.json" (
     builtins.toJSON {
       env.CLAUDE_CODE_PLUGIN_DIRS = "${flakeDir}/claude/mods/collapse-steps";
+      # No Co-Authored-By trailer on commits Claude makes.
+      attribution.commit = "";
     }
   );
 in
