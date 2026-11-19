@@ -99,7 +99,7 @@
     nbs = "nix run .#build-switch, then exec zsh — apply nix config";
     ns = "temp zsh with extra packages, keeps prompt: ns <pkg> [pkg …]";
     rg = "ripgrep, rendered by delta (plain rg when piped)";
-    nup = "update flake inputs, commit lock, build-switch";
+    nup = "update flake inputs (--pins: also marked GitHub pins), commit, build-switch";
     ncheck = "list packages nup would update (eval only, no build)";
     cleanup = "nix GC + store optimise + brew cleanup";
     halp = "show this help";

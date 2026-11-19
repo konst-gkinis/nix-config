@@ -82,6 +82,11 @@ To install NixOS-WSL on a Windows machine:
 - Nix GC (macOS only): weekly, Sunday 02:00, deletes >1 day old
 - Experimental features: nix-command, flakes
 - home-manager stateVersion: 23.11
+- Updating: `nup` runs `nix flake update`; `nup --pins` also bumps every `fetchFromGitHub` pin
+  marked `# nup --pins: follow main` (branch head) or `follow tags` (highest version tag) on the
+  line above it, via `scripts/update-pins.sh` (`--check` for a dry run). Unmarked pins and
+  installed Homebrew casks are never updated by either. The bat ayu theme stays unmarked: upstream
+  main has no `.tmTheme`.
 - Checkout path: `flakeDir` in the `flake.nix` defaults (`~/repos/nix-config`, overridable in
   `host.nix`). It feeds `NH_FLAKE`, which `nup`/`cleanup` use — never hardcode the path.
 

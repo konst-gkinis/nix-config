@@ -23,15 +23,31 @@ nbs() {
   nix run .#build-switch -- "$@" && exec zsh
 }
 
-# Update flake inputs, commit if flake.lock changed, then build-switch.
-# Idempotent: no-ops if flake.lock is already up to date.
+# Update flake inputs, commit if anything changed, then build-switch.
+# --pins (-p) also bumps the fetchFromGitHub pins marked
+# "# nup --pins: follow ..." (scripts/update-pins.sh). Commits only the
+# files it changed. Idempotent: no-ops if nothing changed.
 nup() {
-  local nixos_dir="$NH_FLAKE"
-  (cd "$nixos_dir" && nix flake update || return 1)
-  git -C "$nixos_dir" diff --quiet flake.lock && return 0
-  git -C "$nixos_dir" add flake.lock && \
-  git -C "$nixos_dir" commit -m "chore: update flake inputs" && \
-  (cd "$nixos_dir" && nix run .#build-switch) && exec zsh
+  emulate -L zsh
+  local nixos_dir="$NH_FLAKE" pins=false out
+  local msg="chore: update flake inputs"
+  case ${1-} in
+    --pins | -p) pins=true; msg="chore: update flake inputs and pinned sources" ;;
+    "") ;;
+    *) print -u2 "usage: nup [--pins]"; return 2 ;;
+  esac
+  local -a files=(flake.lock)
+  if $pins; then
+    # Before the flake update: the script refuses dirty files, and a
+    # refusal should leave flake.lock untouched too.
+    out=$("$nixos_dir/scripts/update-pins.sh" "$nixos_dir") || return 1
+    files+=(${(f)out})
+  fi
+  (cd "$nixos_dir" && nix flake update) || return 1
+  git -C "$nixos_dir" diff --quiet -- $files && return 0
+  git -C "$nixos_dir" add -- $files &&
+    git -C "$nixos_dir" commit -m "$msg" -- $files &&
+    (cd "$nixos_dir" && nix run .#build-switch) && exec zsh
 }
 
 # Show which packages `nup` would update, without building or touching

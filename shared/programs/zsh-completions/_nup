@@ -1,0 +1,4 @@
+#compdef nup
+# nup (shared/programs/zsh/init.zsh): update flake inputs, commit, build-switch.
+
+_arguments '(-p --pins)'{-p,--pins}'[also bump fetchFromGitHub pins marked "# nup --pins: follow ..."]'
