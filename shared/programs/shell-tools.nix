@@ -104,8 +104,8 @@ in
         ayu-dark = pkgs.fetchFromGitHub {
           owner = "kmlupreti";
           repo = "ayu-dark.yazi";
-          rev = "00804daeffe723719a404f72d1c3350751468c61";
-          hash = "sha256-uN+ZmczfpYrs1N5oIg/oIjVJJnT29IQE2ALyp6f5pD4=";
+          rev = "7217c4cccf8a97ff7177a9c9146060290f07a13f";
+          hash = "sha256-FKdhaOiIGjZElt6rNTUEc9zpZu58tVqD+a39aS93kXE=";
         };
       };
       theme = {
