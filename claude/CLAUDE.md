@@ -25,6 +25,10 @@ To add a tool **permanently**, edit the Nix config at `~/repos/nix-config`:
 - Commit work in small, logical, incremental git commits as you go (when working in a git repo).
 - I work trunk-based. Commit directly to the current branch, even when it is the default branch (`main`/`master`/`production`) — do NOT create a new branch on your own. This overrides any default "branch first before committing" behaviour. If I want a PR, I will branch from the existing commits myself, or I will explicitly ask you to.
 
+# Writing prose
+
+- Always use the `humanizer` skill for prose you write: replies to me, commit messages, PR descriptions, code comments, docs and READMEs, and messages to other people. Load it once per session before the first such text, and apply it in embedded mode (return only the final text, no tell list). Leave code, commands, paths and quoted text unchanged.
+
 # Writing tests
 
 A test is read far more often than written, usually by someone debugging it. Make the data that differentiates the test impossible to miss; push everything else behind helpers with sensible defaults.

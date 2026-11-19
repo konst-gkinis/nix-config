@@ -6,6 +6,15 @@
 }:
 
 let
+  # Writing-style skill, pinned. Bump rev and hash together:
+  #   nix flake prefetch --json github:blader/humanizer/<rev>
+  humanizer = pkgs.fetchFromGitHub {
+    owner = "blader";
+    repo = "humanizer";
+    rev = "a48c60c2a3f7a0f6ecc8f9b8d2b1ef71c7927155";
+    hash = "sha256-ql6zyupIPJaGtzHrVwGe7iqZKfdg/4YItv3FaDeYVe4=";
+  };
+
   # Mods load from the working tree, not the store: Claude Code watches the
   # folder (an edit reloads it) and writes its type files beside the mod.
   managedSettings = pkgs.writeText "claude-managed-settings.json" (
@@ -22,6 +31,7 @@ in
       executable = true;
     };
     ".claude/themes/ayu-dark.json".source = ../../claude/themes/ayu-dark.json;
+    ".claude/skills/humanizer/SKILL.md".source = "${humanizer}/SKILL.md";
   };
 
   # Keep ~/.claude/settings.json a plain, writeable file (Claude Code writes to it
