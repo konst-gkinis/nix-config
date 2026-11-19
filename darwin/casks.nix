@@ -35,4 +35,8 @@
   "crmne/tap/spotifast"
   "windows-app"
   "anthropics/tap/ant"
+  {
+    name = "kde-connect";
+    loginItem = "KDE Connect";
+  }
 ]
