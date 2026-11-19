@@ -37,7 +37,7 @@ def test_does_not_notify_when_haiku_says_no_reaction_is_needed():
 
 
 def test_sends_each_message_to_haiku_only_once_even_when_fetched_again():
-    slack = build_world(build_conversation(id="C_REFETCHED_FOR_PENDING_EYES"), text="full name", ts=ts_ago(10))
+    slack = build_world(build_conversation(id="C_REFETCHED_FOR_PENDING_REACTION"), text="full name", ts=ts_ago(10))
     triage = FakeTriage()
     daemon = build_daemon(slack, triage)
 
@@ -69,16 +69,36 @@ def test_ignores_your_own_messages():
     assert (triage.seen, slack.reactions) == ([], [])
 
 
-def test_adds_eyes_to_an_addressed_message_unread_for_two_minutes():
+def test_reacts_to_an_addressed_message_unread_for_two_minutes():
     slack = build_world(ts=ts_ago(120), text="full name, can you check?")
     daemon = build_daemon(slack)
 
     daemon.tick(NOW)
 
-    assert [name for _, name in slack.reactions] == ["eyes"]
+    assert len(slack.reactions) == 1
 
 
-def test_does_not_add_eyes_before_two_minutes():
+def test_reacts_with_a_randomly_chosen_acknowledgement():
+    slack = build_world(ts=ts_ago(120), text="full name, can you check?")
+    offered = []
+    daemon = build_daemon(slack, choose_reaction=lambda options: offered.append(options) or "ok_hand")
+
+    daemon.tick(NOW)
+
+    assert offered == [("eyes", "+1", "ok_hand", "white_check_mark", "eye")]
+    assert [name for _, name in slack.reactions] == ["ok_hand"]
+
+
+def test_does_not_react_when_you_already_acknowledged_the_message():
+    slack = build_world(ts=ts_ago(120), text="full name, can you check?", acked_by_me=True)
+    daemon = build_daemon(slack)
+
+    daemon.tick(NOW)
+
+    assert slack.reactions == []
+
+
+def test_does_not_react_before_two_minutes():
     slack = build_world(ts=ts_ago(119), text="full name, can you check?")
     daemon = build_daemon(slack)
 
@@ -87,17 +107,17 @@ def test_does_not_add_eyes_before_two_minutes():
     assert slack.reactions == []
 
 
-def test_adds_eyes_on_a_later_tick_once_two_minutes_have_passed():
+def test_reacts_on_a_later_tick_once_two_minutes_have_passed():
     slack = build_world(ts=ts_ago(60), text="full name, can you check?")
     daemon = build_daemon(slack)
 
     daemon.tick(NOW)
     daemon.tick(NOW + 60)
 
-    assert [name for _, name in slack.reactions] == ["eyes"]
+    assert len(slack.reactions) == 1
 
 
-def test_does_not_add_eyes_once_the_message_was_read():
+def test_does_not_react_once_the_message_was_read():
     conversation = build_conversation()
     slack = build_world(conversation, ts=ts_ago(60), text="full name, can you check?")
     daemon = build_daemon(slack)
@@ -109,7 +129,7 @@ def test_does_not_add_eyes_once_the_message_was_read():
     assert slack.reactions == []
 
 
-def test_adds_eyes_in_a_muted_channel_with_a_mention():
+def test_reacts_in_a_muted_channel_with_a_mention():
     conversation = build_conversation(id="C_MUTED", mention_count=1)
     slack = build_world(conversation, ts=ts_ago(120), text=f"<@{MY_USER_ID}> help")
     slack.notification_prefs = build_prefs(muted=frozenset({"C_MUTED"}))
@@ -117,7 +137,7 @@ def test_adds_eyes_in_a_muted_channel_with_a_mention():
 
     daemon.tick(NOW)
 
-    assert [name for _, name in slack.reactions] == ["eyes"]
+    assert len(slack.reactions) == 1
 
 
 def test_does_not_fetch_a_conversation_again_when_nothing_changed():

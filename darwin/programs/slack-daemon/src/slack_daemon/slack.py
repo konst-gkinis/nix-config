@@ -15,7 +15,7 @@ import urllib.request
 from dataclasses import asdict, dataclass
 
 from . import keychain
-from .core import Conversation, Message, NotificationPrefs, parse_counts, parse_prefs
+from .core import Conversation, Message, NotificationPrefs, acked_by, parse_counts, parse_prefs
 from .daemon import SlackAuthError
 
 log = logging.getLogger("slack-daemon")
@@ -109,14 +109,13 @@ class SlackClient:
         for raw in payload.get("messages", []):
             if raw.get("subtype") not in SPOKEN_SUBTYPES:
                 continue
-            eyes = any(r.get("name") == "eyes" and self.user_id in r.get("users", []) for r in raw.get("reactions", []))
             messages.append(
                 Message(
                     channel_id=conversation.id,
                     ts=raw["ts"],
                     user_id=raw.get("user") or raw.get("bot_id") or "",
                     text=_text(raw),
-                    eyes_by_me=eyes,
+                    acked_by_me=acked_by(raw.get("reactions", []), self.user_id),
                     thread_ts=raw.get("thread_ts"),
                 )
             )

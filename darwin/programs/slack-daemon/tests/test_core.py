@@ -7,6 +7,7 @@ from slack_daemon.core import (
     CREDITS_PROBLEM,
     KEY_PROBLEM,
     AddressMatcher,
+    acked_by,
     anthropic_problem,
     latest_haiku,
     parse_counts,
@@ -120,3 +121,18 @@ def test_anthropic_problem(status, error_type, message, error_code, expected):
 
     assert problem == expected
 
+
+
+@pytest.mark.parametrize(
+    "reactions, expected",
+    [
+        pytest.param([{"name": "eye", "users": [MY_USER_ID]}], True, id="one of the acknowledgements"),
+        pytest.param([{"name": "+1::skin-tone-3", "users": [MY_USER_ID]}], True, id="skin tone variant"),
+        pytest.param([{"name": "eyes", "users": ["U_SOMEONE_ELSE"]}], False, id="added by someone else"),
+        pytest.param([{"name": "heart", "users": [MY_USER_ID]}], False, id="not an acknowledgement"),
+    ],
+)
+def test_acked_by(reactions, expected):
+    acked = acked_by(reactions, MY_USER_ID)
+
+    assert acked is expected

@@ -9,6 +9,9 @@ import re
 from dataclasses import dataclass, field
 
 DIRECT_KINDS = ("im", "mpim")
+# Reactions that acknowledge a message: 👀 👍 👌 ✅ 👁️ (Slack names). One is
+# picked at random for each message addressed to you.
+ACK_REACTIONS = ("eyes", "+1", "ok_hand", "white_check_mark", "eye")
 
 
 @dataclass(frozen=True)
@@ -37,7 +40,7 @@ class Message:
     ts: str
     user_id: str
     text: str
-    eyes_by_me: bool = False
+    acked_by_me: bool = False
     thread_ts: str | None = None
 
     @property
@@ -130,7 +133,14 @@ def group_handles(phrases: list[str]) -> set[str]:
     return {p.strip()[1:].lower() for p in phrases if p.strip().startswith("@")}
 
 
-def eyes_due(message: Message, now: float, after_seconds: float) -> bool:
+def acked_by(reactions: list[dict], user_id: str) -> bool:
+    """Whether user_id already added one of ACK_REACTIONS (any skin tone)."""
+    return any(
+        r.get("name", "").split("::")[0] in ACK_REACTIONS and user_id in r.get("users", []) for r in reactions
+    )
+
+
+def ack_due(message: Message, now: float, after_seconds: float) -> bool:
     return now - ts_value(message.ts) >= after_seconds
 
 

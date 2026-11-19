@@ -26,7 +26,7 @@ LOGIN_RETRY_SECONDS = 1800
 
 
 def load_config() -> dict:
-    config = {"address_terms": [], "poll_seconds": 60, "eyes_after_seconds": 120}
+    config = {"address_terms": [], "poll_seconds": 60, "ack_after_seconds": 120}
     if CONFIG_FILE.exists():
         config.update(json.loads(CONFIG_FILE.read_text()))
     return config
@@ -73,7 +73,7 @@ class Runner:
             teams=[t for t in terms if t.startswith("@")],
             model_cache=self.data["model"],
         )
-        settings = Settings(address_terms=terms, eyes_after_seconds=self.config["eyes_after_seconds"])
+        settings = Settings(address_terms=terms, ack_after_seconds=self.config["ack_after_seconds"])
         state = State.from_dict(self.data.get("daemon", {}))
         log.info("watching Slack as %s (%s)", name, session.url)
         return Daemon(slack, triage, self.notifier, settings, state, self.save)
@@ -161,9 +161,9 @@ def channels() -> int:
         if not conversation.has_unreads:
             continue
         if watches_all_posts(conversation, prefs):
-            verdict = "triaged + 👀"
+            verdict = "triaged + reactions"
         elif conversation.mention_count:
-            verdict = "👀 only (muted or just mentions, has mentions)"
+            verdict = "reactions only (muted or just mentions, has mentions)"
         else:
             verdict = "ignored (muted or just mentions)"
         print(f"{slack.conversation_label(conversation):40} {verdict}")

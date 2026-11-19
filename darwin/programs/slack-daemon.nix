@@ -1,7 +1,7 @@
 # slack-daemon: every minute, reads your unread Slack messages (DMs and
 # channels set to "All new messages", not muted), asks the newest Claude Haiku
 # whether you need to react, and sends a 🔴 notification if so. Unread
-# messages addressed to you get a 👀 reaction after 2 minutes. Signs in with
+# messages addressed to you get a random 👀 👍 👌 ✅ 👁️ reaction after 2 minutes. Signs in with
 # your own Slack web session (no admin-approved app); the Anthropic API key
 # and the session live in the login Keychain, never in the Nix store.
 # Opt-in at runtime: `slackd install` / `slackd start`.
@@ -40,7 +40,7 @@ in
   xdg.dataFile."slack-daemon/slack-daemond".source = daemonWrapped;
 
   # Unread messages matching any of these (case-insensitive, whole words) get
-  # 👀 after `eyes_after_seconds`. '@handle' entries are also resolved to the
+  # a reaction after `ack_after_seconds`. '@handle' entries are also resolved to the
   # user group, so its encoded mentions match too.
   xdg.configFile."slack-daemon/config.json".text = builtins.toJSON {
     address_terms = [
@@ -51,7 +51,7 @@ in
       "@engineers"
     ];
     poll_seconds = 60;
-    eyes_after_seconds = 120;
+    ack_after_seconds = 120;
   };
 
   programs.zsh.shellAliases = {

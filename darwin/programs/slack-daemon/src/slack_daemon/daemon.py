@@ -4,18 +4,19 @@ notifications and persistence are passed in, so the tick is tested with fakes.""
 from __future__ import annotations
 
 import logging
-import time
+import random
 from dataclasses import dataclass, field
-from typing import Callable, Protocol
+from typing import Callable, Protocol, Sequence
 
 from .core import (
+    ACK_REACTIONS,
     CREDITS_PROBLEM,
     KEY_PROBLEM,
     AddressMatcher,
     Conversation,
     Message,
     NotificationPrefs,
-    eyes_due,
+    ack_due,
     group_handles,
     watches_all_posts,
 )
@@ -83,7 +84,7 @@ class Notifier(Protocol):
 @dataclass
 class State:
     evaluated: dict[str, float] = field(default_factory=dict)  # message key → when sent to Haiku
-    reacted: dict[str, float] = field(default_factory=dict)  # message key → when 👀 was added
+    reacted: dict[str, float] = field(default_factory=dict)  # message key → when we reacted
     fetched_latest: dict[str, str] = field(default_factory=dict)  # conversation → `latest` last fetched
     pending: list[str] = field(default_factory=list)  # conversations with work left over
     haiku_problem: str | None = None
@@ -105,21 +106,21 @@ class State:
 @dataclass(frozen=True)
 class Settings:
     address_terms: list[str]
-    eyes_after_seconds: float = 120
+    ack_after_seconds: float = 120
 
 
 HAIKU_PROBLEM_TEXT = {
     KEY_PROBLEM: (
         "Anthropic API key rejected",
-        "It has expired or been revoked. Run `slackd set-key` with a new one. Until then messages aren't triaged (👀 still works).",
+        "It has expired or been revoked. Run `slackd set-key` with a new one. Until then messages aren't triaged (reactions still work).",
     ),
     CREDITS_PROBLEM: (
         "Anthropic API out of credits",
-        "The credit balance or spend limit is used up. Top up in the Claude Console. Until then messages aren't triaged (👀 still works).",
+        "The credit balance or spend limit is used up. Top up in the Claude Console. Until then messages aren't triaged (reactions still work).",
     ),
     NO_KEY_PROBLEM: (
         "No Anthropic API key",
-        "Run `slackd set-key` to store one in the Keychain. Until then messages aren't triaged (👀 still works).",
+        "Run `slackd set-key` to store one in the Keychain. Until then messages aren't triaged (reactions still work).",
     ),
 }
 
@@ -133,6 +134,7 @@ class Daemon:
         settings: Settings,
         state: State | None = None,
         save: Callable[[State], None] = lambda state: None,
+        choose_reaction: Callable[[Sequence[str]], str] = random.choice,
     ):
         self.slack = slack
         self.triage = triage
@@ -140,6 +142,7 @@ class Daemon:
         self.settings = settings
         self.state = state or State()
         self.save = save
+        self.choose_reaction = choose_reaction
         self._prefs: tuple[float, NotificationPrefs] | None = None
         self._matcher: tuple[float, AddressMatcher] | None = None
 
@@ -153,16 +156,16 @@ class Daemon:
 
         for conversation in conversations:
             watched = watches_all_posts(conversation, prefs)
-            # 👀 also covers channels muted or on "just mentions" when they hold a mention.
-            eyes_scope = watched or conversation.mention_count > 0
-            if not eyes_scope:
+            # Reactions also cover channels muted or on "just mentions" when they hold a mention.
+            ack_scope = watched or conversation.mention_count > 0
+            if not ack_scope:
                 continue
             if self.state.fetched_latest.get(conversation.id) == conversation.latest and conversation.id not in pending:
                 continue
             for message in self.slack.unread_messages(conversation):
                 if message.user_id == self.slack.user_id:
                     continue
-                if self._eyes_waiting(message, matcher, now):
+                if self._ack_waiting(message, matcher, now):
                     still_pending.add(conversation.id)
                 if watched and message.key not in self.state.evaluated:
                     to_triage.append((conversation, message))
@@ -178,16 +181,18 @@ class Daemon:
         self.state.prune(now)
         self.save(self.state)
 
-    def _eyes_waiting(self, message: Message, matcher: AddressMatcher, now: float) -> bool:
-        """Adds 👀 to an addressed message unread for long enough. True while
+    def _ack_waiting(self, message: Message, matcher: AddressMatcher, now: float) -> bool:
+        """Reacts to an addressed message unread for long enough, with one of
+        ACK_REACTIONS picked at random. True while
         one still has to wait, so its conversation is fetched again."""
-        if message.eyes_by_me or message.key in self.state.reacted or not matcher.is_addressed(message.text):
+        if message.acked_by_me or message.key in self.state.reacted or not matcher.is_addressed(message.text):
             return False
-        if not eyes_due(message, now, self.settings.eyes_after_seconds):
+        if not ack_due(message, now, self.settings.ack_after_seconds):
             return True
-        self.slack.react(message, "eyes")
+        reaction = self.choose_reaction(ACK_REACTIONS)
+        self.slack.react(message, reaction)
         self.state.reacted[message.key] = now
-        log.info("added 👀 to %s", message.key)
+        log.info("reacted :%s: to %s", reaction, message.key)
         return False
 
     def _triage(self, batch: list[tuple[Conversation, Message]], matcher: AddressMatcher, now: float) -> bool:

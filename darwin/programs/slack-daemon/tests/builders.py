@@ -47,7 +47,7 @@ def build_message(conversation: Conversation, **overrides) -> Message:
 
 
 def build_settings(**overrides) -> Settings:
-    defaults = dict(address_terms=["full name", "@my-group"], eyes_after_seconds=120)
+    defaults = dict(address_terms=["full name", "@my-group"], ack_after_seconds=120)
     return Settings(**(defaults | overrides))
 
 
@@ -115,8 +115,15 @@ class RecordingNotifier:
         self.sent.append((title, message, open_url))
 
 
-def build_daemon(slack: FakeSlack, triage: FakeTriage | None = None, notifier: RecordingNotifier | None = None):
-    return Daemon(slack, triage or FakeTriage(), notifier or RecordingNotifier(), build_settings())
+def build_daemon(
+    slack: FakeSlack,
+    triage: FakeTriage | None = None,
+    notifier: RecordingNotifier | None = None,
+    choose_reaction=lambda options: options[0],
+):
+    return Daemon(
+        slack, triage or FakeTriage(), notifier or RecordingNotifier(), build_settings(), choose_reaction=choose_reaction
+    )
 
 
 def build_world(conversation: Conversation | None = None, **message_overrides) -> FakeSlack:
