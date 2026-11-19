@@ -11,6 +11,10 @@ nix-darwin config for macOS, user `kg`, home `/Users/kg`.
 - `darwin/programs/<name>.nix` — one module per macOS-only program (iterm2, vscode,
   pkg-update-check); data files sit next to it (`programs/iterm2/`)
 - `darwin/dock/` — dock config
+- `darwin/programs/meeting-daemon.nix` + `meeting-daemon/` — Swift meeting alarm / Meet auto-join
+  daemon (`md`, `md-install`, …). Core logic tests run in the package's checkPhase (a plain test
+  executable: nixpkgs' Swift has no xctest runner or swift-testing plugin). Every rebuild of the
+  binary changes its ad-hoc signature, so macOS re-asks for Calendar/Automation access.
 - `nixos/default.nix` — bare-metal NixOS config (X11, disko, bootloader)
 - `wsl/default.nix` — NixOS-WSL config (no bootloader/X11/disko)
 - `wsl/home.nix`, `wsl/packages.nix` — WSL-specific home-manager config and packages
