@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "slack-daemon"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = ["anthropic", "pydantic", "websocket-client"]
+
+[project.scripts]
+slack-daemond = "slack_daemon.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "tests"]
+testpaths = ["tests"]
