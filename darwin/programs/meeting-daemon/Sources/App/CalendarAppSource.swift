@@ -31,6 +31,9 @@ final class CalendarAppSource: MeetingSource {
         return granted
     }
 
+    /// Calendar names it can read; empty when access isn't really there.
+    var calendarNames: [String] { store.calendars(for: .event).map(\.title) }
+
     func meetings(from: Date, to: Date) throws -> [Meeting] {
         guard EKEventStore.authorizationStatus(for: .event) == .fullAccess else {
             throw SourceError(description: "no Calendar access (System Settings → Privacy & Security → Calendars)")

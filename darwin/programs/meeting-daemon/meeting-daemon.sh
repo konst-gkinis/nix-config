@@ -94,8 +94,8 @@ status() {
   if [ -f "$AGENT_PLIST" ]; then echo "installed:  yes (runs at login)"; else echo "installed:  no"; fi
   if is_loaded; then
     local pid
-    pid=$(launchctl print "$SERVICE" | awk '/^\tpid =/ {print $3}')
-    echo "running:    ${pid:+yes, pid $pid}${pid:-loaded but not running}"
+    pid=$(launchctl print "$SERVICE" | awk '/^\tpid =/ {print $3; exit}')
+    if [ -n "$pid" ]; then echo "running:    yes, pid $pid"; else echo "running:    loaded but not running"; fi
   else
     echo "running:    no"
   fi

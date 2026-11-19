@@ -6,6 +6,7 @@ func makeSources() -> [MeetingSource] {
     let calendar = CalendarAppSource()
     if calendar.requestAccess() {
         sources.append(calendar)
+        log("Calendar.app: reading \(calendar.calendarNames.count) calendar(s): \(calendar.calendarNames.joined(separator: ", "))")
     } else {
         log("Calendar.app: access denied — allow meeting-daemond in System Settings → Privacy & Security → Calendars")
     }
@@ -46,6 +47,11 @@ final class Daemon {
         silenceSignal = DispatchSource.makeSignalSource(signal: SIGUSR1, queue: .main)
         silenceSignal?.setEventHandler { [weak self] in self?.alarms.silenceAll() }
         silenceSignal?.resume()
+
+        let today = collectMeetings(sources, from: Date(), to: Date() + 12 * 3600)
+        log("\(today.count) meeting(s) in the next 12 h" + today.map {
+            "\n    \(timeOfDay.string(from: $0.start))  \($0.title)\($0.meetURL == nil ? "" : "  (Meet)")"
+        }.joined())
 
         timer = Timer.scheduledTimer(withTimeInterval: 15, repeats: true) { [weak self] _ in self?.tick() }
         tick()
