@@ -27,7 +27,7 @@ To add a tool **permanently**, edit the Nix config at `~/repos/nix-config`:
 
 # Writing prose
 
-- Always use the `humanizer` skill for prose you write: replies to me, commit messages, PR descriptions, code comments, docs and READMEs, and messages to other people. Load it once per session before the first such text, and apply it in embedded mode (return only the final text, no tell list). Leave code, commands, paths and quoted text unchanged.
+- Use the `humanizer` skill only for text other people will read: commit messages, PR descriptions and comments, code comments, docs and READMEs, and messages to others (Slack, email, tickets). Load it only when you are about to write such text, not at session start, and not for replies to me. Apply it in embedded mode (return only the final text, no tell list). Leave code, commands, paths and quoted text unchanged.
 
 # Writing tests
 
