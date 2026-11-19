@@ -57,6 +57,18 @@ case "alert":
     guard args.count == 4 else { fail("usage: alert <heading> <detail> <0|1>") }
     showAlert(heading: args[1], detail: args[2], canOpen: args[3] == "1")
 
+case "google-check":
+    guard let credentials = GoogleCredentials.load() else {
+        fail("not authorised: no \(GoogleCredentials.fileURL.path)")
+    }
+    let now = Date()
+    do {
+        let meetings = try GoogleCalendarSource(credentials: credentials).meetings(from: now, to: now + 7 * 86400)
+        print("Google Calendar API works: \(meetings.count) timed event(s) in the next 7 days.")
+    } catch {
+        fail("Google Calendar API: \(error)")
+    }
+
 case "google-auth":
     guard let path = args.dropFirst().first else { fail("usage: google-auth <client_secret.json>") }
     do { try googleAuth(clientSecretPath: path) } catch { fail("\(error)") }

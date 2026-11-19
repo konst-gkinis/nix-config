@@ -29,8 +29,124 @@ usage: meeting-daemon <command>   (alias: md <command>)
   test-alarm                ring a test alarm
   join <meet link>          join now with mic/camera off (if not already in)
   meet-status <meet link>   what the daemon sees in that Meet tab
-  google-auth <client.json> authorise the Google Calendar API (optional)
+  google-auth [client.json] connect the Google Calendar API: a guided setup,
+                            or straight to sign-in with a client JSON you have
+  google-check              test the Google Calendar API connection
 EOF
+}
+
+CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/meeting-daemon"
+DOWNLOADS="${MEETING_DAEMON_DOWNLOADS:-$HOME/Downloads}"
+
+bold() { printf '\033[1m%s\033[0m\n' "$*"; }
+dim() { printf '\033[2m%s\033[0m\n' "$*"; }
+
+# Opens a Cloud Console page, shows what to do there, waits for Enter.
+console_step() {
+  local n=$1 title=$2 url=$3
+  shift 3
+  echo
+  bold "Step $n/5 — $title"
+  dim "  $url"
+  open "$url"
+  printf '  %s\n' "$@"
+  read -r -p "  Press Enter when done… " _
+}
+
+# Prints the path of a usable Desktop OAuth client JSON, from a path typed
+# (or dragged) into the terminal, or a client_secret*.json newly downloaded.
+wait_for_client_json() {
+  local marker=$1 line file
+  while true; do
+    if read -r -t 2 line; then
+      file=${line//\\ / }
+      file=${file//\'/}
+      file=${file/#\~/$HOME}
+      [ -n "$file" ] || continue
+    else
+      file=$(find "$DOWNLOADS" -maxdepth 1 -name 'client_secret*.json' -newer "$marker" 2>/dev/null | head -n 1)
+      [ -n "$file" ] || continue
+      sleep 1 # let the browser finish writing it
+    fi
+    if jq -e '.installed.client_id and .installed.client_secret' "$file" >/dev/null 2>&1; then
+      echo "$file"
+      return 0
+    elif jq -e '.web' "$file" >/dev/null 2>&1; then
+      echo "  $file is a 'Web application' client; create a 'Desktop app' one instead." >&2
+    else
+      echo "  $file isn't an OAuth client JSON." >&2
+    fi
+    touch "$marker"
+    echo "  Waiting for another file (or type a path)…" >&2
+  done
+}
+
+google_auth_wizard() {
+  local project marker client
+  bold "Connect meeting-daemon to the Google Calendar API"
+  cat <<EOF
+
+Reading a private calendar needs OAuth, not an API key, and Google only lets
+you create the OAuth client by hand in the Cloud Console: about 2 minutes,
+once. Each step opens the right page; sign in there with the Google account
+whose calendar you want.
+EOF
+  if [ -f "$CONFIG_DIR/google.json" ]; then
+    echo
+    read -r -p "Already authorised. Set it up again? [y/N] " again
+    [[ $again == [yY]* ]] || return 0
+  fi
+
+  console_step 1 "Create a Google Cloud project (or pick one you have)" \
+    "https://console.cloud.google.com/projectcreate" \
+    "Name it e.g. 'meeting-daemon' and click Create."
+  echo
+  read -r -p "  Project ID (shown under the name, e.g. meeting-daemon-123456): " project
+  local q=""
+  [ -n "$project" ] && q="?project=$project"
+
+  console_step 2 "Enable the Google Calendar API" \
+    "https://console.cloud.google.com/apis/library/calendar-json.googleapis.com$q" \
+    "Click Enable."
+
+  console_step 3 "Set up the OAuth consent screen" \
+    "https://console.cloud.google.com/auth/overview$q" \
+    "Click 'Get started' (skip if the screen is already configured): app name 'meeting-daemon'," \
+    "your email as support and contact address." \
+    "Audience: pick 'Internal' if offered (Workspace accounts)." \
+    "With 'External' instead, also add yourself as a test user under Audience, and click" \
+    "'Publish app' there, or Google expires the sign-in every 7 days."
+
+  marker=$(mktemp)
+  console_step 4 "Create the OAuth client" \
+    "https://console.cloud.google.com/auth/clients/create$q" \
+    "Application type: 'Desktop app', name 'meeting-daemon', click Create," \
+    "then 'Download JSON' in the dialog that appears."
+  echo "  Waiting for client_secret_*.json in $DOWNLOADS (or type/drag its path here)…"
+  client=$(wait_for_client_json "$marker")
+  rm -f "$marker"
+  mkdir -p "$CONFIG_DIR"
+  install -m 600 "$client" "$CONFIG_DIR/client_secret.json"
+  rm -f "$client"
+  echo "  Got it: moved to $CONFIG_DIR/client_secret.json"
+
+  echo
+  bold "Step 5/5 — Sign in and allow read-only calendar access"
+  "$DAEMON" google-auth "$CONFIG_DIR/client_secret.json"
+}
+
+google_auth() {
+  if [ $# -gt 0 ]; then
+    "$DAEMON" google-auth "$1"
+  else
+    google_auth_wizard
+  fi
+  [ -f "$CONFIG_DIR/google.json" ] || return 0
+  "$DAEMON" google-check
+  if is_loaded; then
+    unload
+    start
+  fi
 }
 
 is_loaded() { launchctl print "$SERVICE" >/dev/null 2>&1; }
@@ -136,14 +252,8 @@ case "${1:-help}" in
   status) status ;;
   logs) exec tail -n 50 -f "$LOG" ;;
   silence) launchctl kill SIGUSR1 "$SERVICE" ;;
-  google-auth)
-    "$DAEMON" "$@"
-    if is_loaded; then
-      unload
-      start
-    fi
-    ;;
-  upcoming | test-alarm | join | meet-status) exec "$DAEMON" "$@" ;;
+  google-auth) google_auth "${@:2}" ;;
+  upcoming | test-alarm | join | meet-status | google-check) exec "$DAEMON" "$@" ;;
   help | -h | --help) usage ;;
   *)
     usage >&2
