@@ -251,6 +251,7 @@
         "nix-homebrew": "nix-homebrew",
         "nixos-wsl": "nixos-wsl",
         "nixpkgs": "nixpkgs",
+        "tap-anthropics-tap": "tap-anthropics-tap",
         "tap-crmne-tap": "tap-crmne-tap"
       }
     },
@@ -266,6 +267,22 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
+        "type": "github"
+      }
+    },
+    "tap-anthropics-tap": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1794946145,
+        "narHash": "sha256-nRecSlf/WPMXZEAqctDNRv+ymHLlLbAxG3lBxoZNlPg=",
+        "owner": "anthropics",
+        "repo": "homebrew-tap",
+        "rev": "769539e7479c1120bdb1d98d961f3a3ea36b1b15",
+        "type": "github"
+      },
+      "original": {
+        "owner": "anthropics",
+        "repo": "homebrew-tap",
         "type": "github"
       }
     },

@@ -46,6 +46,10 @@
       url = "github:crmne/homebrew-tap";
       flake = false;
     };
+    tap-anthropics-tap = {
+      url = "github:anthropics/homebrew-tap";
+      flake = false;
+    };
   };
 
   outputs =
