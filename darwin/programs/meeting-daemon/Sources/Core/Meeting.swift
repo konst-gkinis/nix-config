@@ -17,21 +17,21 @@ struct Meeting: Equatable {
     var start: Date
     var meetURL: URL?
     var invitation: Invitation
-    /// Which source reported it ("Calendar.app", "Google Calendar API"); for logs only.
+    /// Which source reported it ("Calendar.app", "cli"); for logs only.
     var source: String
 
-    /// Identifies one occurrence across sources and polls. Title rather than
+    /// Identifies one occurrence across calendars and polls. Title rather than
     /// Meet code, because Calendar.app doesn't always expose the Meet link and
-    /// the two copies must still collapse into one.
+    /// the copies must still collapse into one.
     var key: String { "\(title.lowercased())|\(Int(start.timeIntervalSince1970))" }
 
     /// `abc-defg-hij` for a normalised Meet URL; what a browser tab's URL is matched on.
     var meetCode: String? { meetURL?.lastPathComponent }
 }
 
-/// Collapses the copies of one occurrence that Calendar.app (with the Google
-/// account synced into it) and the Google Calendar API both report. The first
-/// copy wins, but it borrows a Meet link and an `attending` from the others.
+/// Collapses the copies of one occurrence that several calendars report (your
+/// own and a colleague's shared one). The first copy wins, but it borrows a
+/// Meet link and an `attending` from the others.
 func mergeDuplicates(_ meetings: [Meeting]) -> [Meeting] {
     var byKey: [String: Meeting] = [:]
     var order: [String] = []

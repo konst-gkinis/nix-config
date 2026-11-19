@@ -1,6 +1,6 @@
 import Foundation
 
-/// Calendar.app always; Google's API too once `google-auth` has stored a token.
+/// Calendar.app, the only source.
 func makeSources() -> [MeetingSource] {
     var sources: [MeetingSource] = []
     let calendar = CalendarAppSource()
@@ -9,11 +9,6 @@ func makeSources() -> [MeetingSource] {
         log("Calendar.app: reading \(calendar.calendarNames.count) calendar(s): \(calendar.calendarNames.joined(separator: ", "))")
     } else {
         log("Calendar.app: access denied — allow meeting-daemond in System Settings → Privacy & Security → Calendars")
-    }
-    if let credentials = GoogleCredentials.load() {
-        sources.append(GoogleCalendarSource(credentials: credentials))
-    } else {
-        log("Google Calendar API: off (no \(GoogleCredentials.fileURL.path); see `meeting-daemon google-auth`)")
     }
     return sources
 }

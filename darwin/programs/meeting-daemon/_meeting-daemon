@@ -18,6 +18,5 @@ elif (( CURRENT == 3 )); then
   case $words[2] in
     upcoming) _message 'hours ahead (default 12)' ;;
     join | meet-status) _message 'Google Meet link' ;;
-    google-auth) _files -g '*.json(-.)' ;;
   esac
 fi

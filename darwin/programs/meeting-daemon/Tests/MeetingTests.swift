@@ -20,21 +20,21 @@ func runMeetLinkTests() {
 
 func runMergeTests() {
     test("merge borrows the Meet link from the copy that has it") {
-        let calendarCopy = buildMeeting(title: "MEETING_TITLE", meetURL: nil, source: "CALENDAR_APP")
-        let apiCopy = buildMeeting(title: "MEETING_TITLE", meetURL: meetURL, source: "GOOGLE_API")
+        let ownCalendarCopy = buildMeeting(title: "MEETING_TITLE", meetURL: nil, source: "OWN_CALENDAR")
+        let sharedCalendarCopy = buildMeeting(title: "MEETING_TITLE", meetURL: meetURL, source: "SHARED_CALENDAR")
 
-        let merged = mergeDuplicates([calendarCopy, apiCopy])
+        let merged = mergeDuplicates([ownCalendarCopy, sharedCalendarCopy])
 
-        expectEqual(merged, [buildMeeting(title: "MEETING_TITLE", meetURL: meetURL, source: "CALENDAR_APP")])
+        expectEqual(merged, [buildMeeting(title: "MEETING_TITLE", meetURL: meetURL, source: "OWN_CALENDAR")])
     }
 
     test("merge matches titles case-insensitively") {
-        let calendarCopy = buildMeeting(title: "Standup", source: "CALENDAR_APP")
-        let apiCopy = buildMeeting(title: "standup", source: "GOOGLE_API")
+        let ownCalendarCopy = buildMeeting(title: "Standup", source: "OWN_CALENDAR")
+        let sharedCalendarCopy = buildMeeting(title: "standup", source: "SHARED_CALENDAR")
 
-        let merged = mergeDuplicates([calendarCopy, apiCopy])
+        let merged = mergeDuplicates([ownCalendarCopy, sharedCalendarCopy])
 
-        expectEqual(merged.map(\.source), ["CALENDAR_APP"])
+        expectEqual(merged.map(\.source), ["OWN_CALENDAR"])
     }
 
     test("merge keeps occurrences at different times apart") {

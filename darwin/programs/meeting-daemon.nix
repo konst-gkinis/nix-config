@@ -1,5 +1,5 @@
 # meeting-daemon: rings an alarm 10 and 5 minutes before each meeting (from
-# Calendar.app, plus the Google Calendar API once authorised), opens the Meet
+# Calendar.app), opens the Meet
 # tab in Brave 2 minutes before, and 1 minute before joins with mic and camera
 # off unless you're already in. Opt-in at runtime: `md-install` / `md start`.
 {
