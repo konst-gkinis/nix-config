@@ -2,8 +2,9 @@
 # channels set to "All new messages", not muted), asks the newest Claude Haiku
 # whether you need to react, and sends a 🔴 notification if so. Unread
 # messages addressed to you get a random 👀 👍 👌 ✅ 👁️ reaction after 2 minutes. Signs in with
-# your own Slack web session (no admin-approved app); the Anthropic API key
-# and the session live in the login Keychain, never in the Nix store.
+# your own Slack web session (no admin-approved app), kept in the login
+# Keychain, never in the Nix store. Claude is called with the `ant` CLI's OAuth
+# login (`slackd ant-login`), not an API key.
 # Opt-in at runtime: `slackd install` / `slackd start`.
 {
   pkgs,
@@ -29,9 +30,11 @@ let
   };
 
   # The wrapper pins terminal-notifier, so notifications don't depend on PATH
-  # (launchd agents get a minimal one).
+  # (launchd agents get a minimal one). `ant` is a Homebrew cask
+  # (darwin/casks.nix), so its prefix goes on PATH (Apple silicon, then Intel).
   daemonWrapped = pkgs.writeShellScript "slack-daemond" ''
     export SLACK_DAEMON_NOTIFIER=${pkgs.terminal-notifier}/bin/terminal-notifier
+    export PATH="$PATH:/opt/homebrew/bin:/usr/local/bin"
     exec ${daemon}/bin/slack-daemond "$@"
   '';
 in
@@ -59,7 +62,7 @@ in
   };
 
   halp.descriptions = {
-    slack-daemon = "Slack triage daemon: Haiku picks what needs you (start/stop/install/auth/set-key/…)";
+    slack-daemon = "Slack triage daemon: Haiku picks what needs you (start/stop/install/auth/ant-login/…)";
     slackd = "slack-daemon (e.g. slackd start, slackd status, slackd auth)";
   };
 

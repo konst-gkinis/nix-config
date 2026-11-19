@@ -1,5 +1,5 @@
 """Message triage with the newest Claude Haiku (looked up daily through the
-Models API) and the API key from the macOS Keychain."""
+Models API), signed in with the `ant` CLI's OAuth access token."""
 
 from __future__ import annotations
 
@@ -12,7 +12,8 @@ import anthropic
 from pydantic import BaseModel
 
 from .core import anthropic_problem, latest_haiku
-from .daemon import NO_KEY_PROBLEM, HaikuUnavailable, TriageItem, Verdict
+from .ant import NotSignedIn
+from .daemon import NO_LOGIN_PROBLEM, HaikuUnavailable, TriageItem, Verdict
 
 log = logging.getLogger("slack-daemon")
 
@@ -50,22 +51,23 @@ class _Verdicts(BaseModel):
 class HaikuTriage:
     def __init__(
         self,
-        api_key: Callable[[], str | None],
+        access_token: Callable[[], str],
         user_name: str,
         teams: list[str],
         model_cache: dict,
         clock: Callable[[], float] = time.time,
     ):
-        self.api_key = api_key
+        self.access_token = access_token
         self.system = SYSTEM.format(name=user_name, teams=", ".join(teams) or "none")
         self.model_cache = model_cache  # persisted {"id": …, "checked_at": …}
         self.clock = clock
 
     def _client(self) -> anthropic.Anthropic:
-        key = self.api_key()
-        if not key:
-            raise HaikuUnavailable(NO_KEY_PROBLEM, "no Anthropic API key in the Keychain")
-        return anthropic.Anthropic(api_key=key, max_retries=2, timeout=120)
+        try:
+            token = self.access_token()
+        except NotSignedIn as error:
+            raise HaikuUnavailable(NO_LOGIN_PROBLEM, str(error)) from error
+        return anthropic.Anthropic(api_key=None, auth_token=token, max_retries=2, timeout=120)
 
     def model(self, client: anthropic.Anthropic, refresh: bool = False) -> str:
         cached = self.model_cache.get("id")
@@ -128,7 +130,7 @@ class HaikuTriage:
             raise HaikuUnavailable(None, f"network: {error}") from error
 
     def check(self) -> str:
-        """For `slackd check`: proves the key works and names the model in use."""
+        """For `slackd check`: proves the login works and names the model in use."""
         client = self._client()
         return self.model(client, refresh=True)
 

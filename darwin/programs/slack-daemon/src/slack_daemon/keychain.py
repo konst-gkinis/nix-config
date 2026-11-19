@@ -10,7 +10,6 @@ import getpass
 import subprocess
 
 SECURITY = "/usr/bin/security"
-ANTHROPIC_SERVICE = "slack-daemon.anthropic-api-key"
 SLACK_SERVICE = "slack-daemon.slack-session"
 
 
@@ -43,6 +42,3 @@ def delete(service: str) -> None:
         capture_output=True,
     )
 
-
-def anthropic_api_key() -> str | None:
-    return read(ANTHROPIC_SERVICE)

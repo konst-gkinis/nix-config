@@ -10,7 +10,7 @@ import sys
 import time
 from pathlib import Path
 
-from . import keychain
+from . import ant, keychain
 from .core import watches_all_posts
 from .daemon import WARN, Daemon, HaikuUnavailable, Settings, SlackAuthError, State
 from .haiku import HaikuTriage
@@ -68,7 +68,7 @@ class Runner:
         name = me.get("real_name") or me.get("profile", {}).get("real_name") or me.get("name", "the user")
         terms = self.config["address_terms"]
         triage = HaikuTriage(
-            keychain.anthropic_api_key,
+            ant.access_token,
             user_name=name,
             teams=[t for t in terms if t.startswith("@")],
             model_cache=self.data["model"],
@@ -139,9 +139,9 @@ def check() -> int:
         except (SlackError, SlackAuthError, OSError) as error:
             print(f"slack:    session not working: {error} (run `slackd auth`)")
             ok = False
-    triage = HaikuTriage(keychain.anthropic_api_key, "you", [], model_cache={})
+    triage = HaikuTriage(ant.access_token, "you", [], model_cache={})
     try:
-        print(f"haiku:    API key works; model {triage.check()}")
+        print(f"haiku:    ant login works; model {triage.check()}")
     except HaikuUnavailable as error:
         print(f"haiku:    {error.detail}")
         ok = False

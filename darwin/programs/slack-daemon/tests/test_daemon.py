@@ -164,7 +164,7 @@ def test_notifies_once_when_haiku_is_out_of_credits():
     assert "out of credits" in title
 
 
-def test_notifies_when_the_api_key_is_rejected():
+def test_notifies_when_the_anthropic_login_is_rejected():
     slack = build_world()
     triage = FakeTriage()
     triage.error = HaikuUnavailable(KEY_PROBLEM, "DETAIL")
@@ -174,7 +174,7 @@ def test_notifies_when_the_api_key_is_rejected():
     daemon.tick(NOW)
 
     [(title, _, _)] = notifier.sent
-    assert "API key rejected" in title
+    assert "Anthropic login rejected" in title
 
 
 def test_does_not_notify_about_transient_haiku_errors():

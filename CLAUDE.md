@@ -18,8 +18,9 @@ nix-darwin config for macOS, user `kg`, home `/Users/kg`.
 - `darwin/programs/slack-daemon.nix` + `slack-daemon/` — Python Slack triage daemon (`slackd`): unread
   messages → newest Claude Haiku → 🔴 notification; a random 👀 👍 👌 ✅ 👁️ on addressed messages
   unread for 2 min. Uses your own Slack web session (xoxc token + `d` cookie, read from a throwaway
-  browser profile over DevTools), not an approved app. The session and the Anthropic API key live
-  in the login Keychain, never in the store. Address terms are in the module; tests run in checkPhase.
+  browser profile over DevTools), not an approved app. The session lives in the login Keychain,
+  never in the store. Claude is called with the `ant` CLI's OAuth login (`slackd ant-login`, the
+  `anthropics/tap/ant` cask), not an API key. Address terms are in the module; tests run in checkPhase.
 - `nixos/default.nix` — bare-metal NixOS config (X11, disko, bootloader)
 - `wsl/default.nix` — NixOS-WSL config (no bootloader/X11/disko)
 - `wsl/home.nix`, `wsl/packages.nix` — WSL-specific home-manager config and packages

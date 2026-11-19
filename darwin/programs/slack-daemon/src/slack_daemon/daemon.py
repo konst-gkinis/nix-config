@@ -30,7 +30,7 @@ PREFS_TTL = 300
 USERGROUPS_TTL = 3600
 TRIAGE_BATCH = 40
 
-NO_KEY_PROBLEM = "no-key"
+NO_LOGIN_PROBLEM = "no-login"
 
 
 class SlackAuthError(Exception):
@@ -56,7 +56,7 @@ class TriageItem:
 class HaikuUnavailable(Exception):
     def __init__(self, problem: str | None, detail: str):
         super().__init__(detail)
-        self.problem = problem  # KEY_PROBLEM, CREDITS_PROBLEM, NO_KEY_PROBLEM or None (transient)
+        self.problem = problem  # KEY_PROBLEM, CREDITS_PROBLEM, NO_LOGIN_PROBLEM or None (transient)
         self.detail = detail
 
 
@@ -111,16 +111,16 @@ class Settings:
 
 HAIKU_PROBLEM_TEXT = {
     KEY_PROBLEM: (
-        "Anthropic API key rejected",
-        "It has expired or been revoked. Run `slackd set-key` with a new one. Until then messages aren't triaged (reactions still work).",
+        "Anthropic login rejected",
+        "The ant CLI's login has expired or been revoked. Run `slackd ant-login` to sign in again. Until then messages aren't triaged (reactions still work).",
     ),
     CREDITS_PROBLEM: (
         "Anthropic API out of credits",
         "The credit balance or spend limit is used up. Top up in the Claude Console. Until then messages aren't triaged (reactions still work).",
     ),
-    NO_KEY_PROBLEM: (
-        "No Anthropic API key",
-        "Run `slackd set-key` to store one in the Keychain. Until then messages aren't triaged (reactions still work).",
+    NO_LOGIN_PROBLEM: (
+        "Not signed in to Anthropic",
+        "Run `slackd ant-login` to sign in with the ant CLI. Until then messages aren't triaged (reactions still work).",
     ),
 }
 
@@ -229,7 +229,7 @@ class Daemon:
         return True
 
     # Notified once when Haiku stops working for a reason you have to fix
-    # (key, credits), and once when it works again; transient errors don't
+    # (login, credits), and once when it works again; transient errors don't
     # change the state. The flag is persisted, so restarts don't re-notify.
     def _haiku_broken(self, problem: str) -> None:
         if self.state.haiku_problem == problem:

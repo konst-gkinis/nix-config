@@ -10,7 +10,6 @@ AGENT_PLIST="$HOME/Library/LaunchAgents/$LABEL.plist"
 # directory at login, so the daemon runs until logout / `stop` only.
 SESSION_PLIST="${XDG_STATE_HOME:-$HOME/.local/state}/slack-daemon/$LABEL.plist"
 LOG="$HOME/Library/Logs/slack-daemon.log"
-KEY_SERVICE=slack-daemon.anthropic-api-key
 
 usage() {
   cat <<EOF
@@ -26,8 +25,8 @@ usage: slack-daemon <command>   (alias: slackd <command>)
 
   auth        sign in to Slack in a throwaway browser window
   logout      forget the Slack session
-  set-key     store the Anthropic API key in the Keychain
-  check       test the Slack session and the Anthropic API key
+  ant-login   sign in to Anthropic with the ant CLI (ant auth login)
+  check       test the Slack session and the ant login
   channels    conversations with unread messages, and how each is handled
   once        run one poll in the foreground
   test-notify show a sample notification
@@ -80,15 +79,11 @@ start() {
   echo "slack-daemon started (log: $LOG)"
 }
 
-set_key() {
-  echo "Paste the Anthropic API key (from https://platform.claude.com/settings/keys); it isn't echoed."
-  local key
-  read -r -s -p "API key: " key
-  echo
-  [ -n "$key" ] || { echo "No key given; nothing changed." >&2; return 1; }
-  # `security -i` reads the command on stdin, keeping the key out of `ps`.
-  printf 'add-generic-password -U -s %s -a %s -w "%s"\n' "$KEY_SERVICE" "$USER" "$key" | security -i >/dev/null
-  echo "Stored in the login Keychain ($KEY_SERVICE). The daemon reads it on every call: no restart needed."
+ant_login() {
+  # The daemon's wrapper (which `check` runs) finds ant in the Homebrew prefix.
+  command -v ant >/dev/null || { echo "ant not found; it's the anthropics/tap/ant cask in darwin/casks.nix" >&2; return 1; }
+  ant auth login
+  echo "The daemon asks ant for a fresh token on every call: no restart needed."
   "$DAEMON" check || true
 }
 
@@ -101,10 +96,12 @@ status() {
   else
     echo "running:    no"
   fi
-  if security find-generic-password -s "$KEY_SERVICE" -a "$USER" >/dev/null 2>&1; then
-    echo "api key:    in the Keychain"
+  if command -v ant >/dev/null && ant auth status 2>/dev/null | grep -q "not configured"; then
+    echo "anthropic:  not signed in (run \`slackd ant-login\`)"
+  elif command -v ant >/dev/null; then
+    echo "anthropic:  signed in with ant (\`slackd check\` tests it)"
   else
-    echo "api key:    missing (run \`slackd set-key\`)"
+    echo "anthropic:  ant not installed"
   fi
   if [ -f "$LOG" ]; then
     echo
@@ -136,7 +133,7 @@ case "${1:-help}" in
   status) status ;;
   logs) exec tail -n 50 -f "$LOG" ;;
   auth) exec "$DAEMON" login ;;
-  set-key) set_key ;;
+  ant-login) ant_login ;;
   logout | check | channels | once | test-notify) exec "$DAEMON" "$@" ;;
   help | -h | --help) usage ;;
   *)
