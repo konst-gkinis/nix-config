@@ -1,0 +1,117 @@
+import Foundation
+
+/// Calendar.app always; Google's API too once `google-auth` has stored a token.
+func makeSources() -> [MeetingSource] {
+    var sources: [MeetingSource] = []
+    let calendar = CalendarAppSource()
+    if calendar.requestAccess() {
+        sources.append(calendar)
+    } else {
+        log("Calendar.app: access denied — allow meeting-daemond in System Settings → Privacy & Security → Calendars")
+    }
+    if let credentials = GoogleCredentials.load() {
+        sources.append(GoogleCalendarSource(credentials: credentials))
+    } else {
+        log("Google Calendar API: off (no \(GoogleCredentials.fileURL.path); see `meeting-daemon google-auth`)")
+    }
+    return sources
+}
+
+/// Upcoming meetings from every source, merged and filtered.
+func collectMeetings(_ sources: [MeetingSource], from: Date, to: Date) -> [Meeting] {
+    var all: [Meeting] = []
+    for source in sources {
+        do { all += try source.meetings(from: from, to: to) } catch { log("\(source.name): \(error)") }
+    }
+    return mergeDuplicates(all).filter(isMeeting).sorted { $0.start < $1.start }
+}
+
+final class Daemon {
+    private let sources: [MeetingSource]
+    private var scheduler = Scheduler()
+    private let alarms = Alarms()
+    private let joiner = MeetJoiner(brave: Brave())
+    /// Browser work blocks for up to a minute; it mustn't hold up polling or alarms.
+    private let browserQueue = DispatchQueue(label: "browser")
+    private var timer: Timer?
+    private var silenceSignal: DispatchSourceSignal?
+
+    init(sources: [MeetingSource]) {
+        self.sources = sources
+    }
+
+    func run() -> Never {
+        log("meeting-daemon running (sources: \(sources.map(\.name).joined(separator: ", ")))")
+        signal(SIGUSR1, SIG_IGN)
+        silenceSignal = DispatchSource.makeSignalSource(signal: SIGUSR1, queue: .main)
+        silenceSignal?.setEventHandler { [weak self] in self?.alarms.silenceAll() }
+        silenceSignal?.resume()
+
+        timer = Timer.scheduledTimer(withTimeInterval: 15, repeats: true) { [weak self] _ in self?.tick() }
+        tick()
+        RunLoop.main.run()
+        exit(0)
+    }
+
+    private func tick() {
+        let now = Date()
+        let meetings = collectMeetings(
+            sources,
+            from: now - scheduler.leads.lateGrace - 60,
+            to: now + scheduler.leads.horizon + 60
+        )
+        for action in scheduler.actions(for: meetings, now: now) { perform(action) }
+    }
+
+    private func perform(_ action: Action) {
+        switch action {
+        case .alarm(let meeting, let minutesLeft):
+            ringAlarm(
+                for: meeting,
+                heading: "\(meeting.title) in \(minutesLeft) min",
+                detail: "Starts at \(timeOfDay.string(from: meeting.start))."
+            )
+
+        case .openTab(let meeting):
+            browserQueue.async { [joiner] in
+                do {
+                    let opened = try joiner.brave.focusOrOpen(meeting.meetURL!, focus: false)
+                    log("\(meeting.title): Meet tab \(opened ? "opened" : "already open")")
+                } catch {
+                    log("\(meeting.title): couldn't open the Meet tab: \(error)")
+                    notify("meeting-daemon", "Couldn't open the Meet tab: \(error)")
+                }
+            }
+
+        case .ensureJoined(let meeting):
+            browserQueue.async { [joiner] in
+                let outcome = joiner.ensureJoined(meeting)
+                DispatchQueue.main.async { self.report(outcome, for: meeting) }
+            }
+        }
+    }
+
+    private func report(_ outcome: JoinOutcome, for meeting: Meeting) {
+        switch outcome {
+        case .alreadyJoined:
+            log("\(meeting.title): already in the call, mic/camera untouched")
+        case .joined:
+            log("\(meeting.title): joined with mic and camera off")
+            notify(meeting.title, "Joined with mic and camera off.")
+        case .askedToJoin:
+            log("\(meeting.title): asked to join with mic and camera off")
+            notify(meeting.title, "Asked to join (mic and camera off); waiting to be let in.")
+        case .failed(let reason):
+            log("\(meeting.title): couldn't join: \(reason)")
+            ringAlarm(for: meeting, heading: "Join \(meeting.title) yourself", detail: "Couldn't join automatically: \(reason)")
+        }
+    }
+
+    private func ringAlarm(for meeting: Meeting, heading: String, detail: String) {
+        alarms.ring(key: meeting.key, heading: heading, detail: detail, canOpen: meeting.meetURL != nil) { [weak self] in
+            self?.browserQueue.async {
+                _ = try? self?.joiner.brave.focusOrOpen(meeting.meetURL!, focus: true)
+            }
+        }
+    }
+}

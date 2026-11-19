@@ -1,0 +1,81 @@
+# meeting-daemon: rings an alarm 10 and 5 minutes before each meeting (from
+# Calendar.app, plus the Google Calendar API once authorised), opens the Meet
+# tab in Brave 2 minutes before, and 1 minute before joins with mic and camera
+# off unless you're already in. Opt-in at runtime: `md-install` / `md start`.
+{
+  pkgs,
+  lib,
+  config,
+  ...
+}:
+
+let
+  daemon = pkgs.callPackage ./meeting-daemon/package.nix { };
+
+  # launchd runs this path, not the store path: it survives rebuilds and GC,
+  # and the activation below restarts the daemon when it changes.
+  daemonLink = "${config.xdg.dataHome}/meeting-daemon/meeting-daemond";
+  label = "org.nix-config.meeting-daemon";
+
+  cli = pkgs.writeShellApplication {
+    name = "meeting-daemon";
+    runtimeInputs = [ pkgs.jq ];
+    text = ''
+      DAEMON=${lib.escapeShellArg daemonLink}
+      ${builtins.readFile ./meeting-daemon/meeting-daemon.sh}
+    '';
+  };
+
+  # Brave's per-profile pref behind View → Developer → "Allow JavaScript from
+  # Apple Events" (needed to switch mic/camera off and click Join). Brave
+  # rewrites Preferences while running, so this only touches it when Brave is
+  # closed. Not one of the HMAC-protected prefs, so Brave accepts the edit.
+  allowBraveAppleEventsJs = pkgs.writeShellScript "brave-allow-applescript-js" ''
+    set -eu
+    dir="$HOME/Library/Application Support/BraveSoftware/Brave-Browser"
+    [ -d "$dir" ] || exit 0
+    for prefs in "$dir"/*/Preferences; do
+      [ -f "$prefs" ] || continue
+      case "$prefs" in */"System Profile"/* | */"Guest Profile"/*) continue ;; esac
+      [ "$(${pkgs.jq}/bin/jq '.browser.allow_javascript_apple_events // false' "$prefs")" = true ] && continue
+      if /usr/bin/pgrep -xq "Brave Browser"; then
+        echo "meeting-daemon: Brave is running, so 'Allow JavaScript from Apple Events' wasn't set." >&2
+        echo "  Quit Brave and re-run build-switch, or tick it under View → Developer." >&2
+        exit 0
+      fi
+      ${pkgs.jq}/bin/jq '.browser.allow_javascript_apple_events = true' "$prefs" >"$prefs.meeting-daemon.tmp"
+      mv "$prefs.meeting-daemon.tmp" "$prefs"
+      echo "meeting-daemon: allowed JavaScript from Apple Events in Brave (''${prefs#"$dir"/})"
+    done
+  '';
+in
+{
+  home.packages = [ cli ];
+  xdg.dataFile."meeting-daemon/meeting-daemond".source = "${daemon}/bin/meeting-daemond";
+
+  programs.zsh.shellAliases = {
+    md = "meeting-daemon";
+    md-stop = "meeting-daemon stop";
+    md-install = "meeting-daemon install";
+    md-uninstall = "meeting-daemon uninstall";
+  };
+
+  halp.descriptions = {
+    meeting-daemon = "meeting alarm + Meet auto-join daemon (start/stop/install/status/upcoming/…)";
+    md = "meeting-daemon (e.g. md start, md status, md silence)";
+    md-stop = "stop the meeting daemon (an installed one returns at login)";
+    md-install = "run the meeting daemon at every login, starting now";
+    md-uninstall = "stop the meeting daemon and remove it from login";
+  };
+
+  home.activation.braveAllowAppleEventsJs = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    run ${allowBraveAppleEventsJs}
+  '';
+
+  # A running daemon keeps the old binary until restarted.
+  home.activation.restartMeetingDaemon = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+    if /bin/launchctl print "gui/$(id -u)/${label}" >/dev/null 2>&1; then
+      run /bin/launchctl kickstart -k "gui/$(id -u)/${label}"
+    fi
+  '';
+}

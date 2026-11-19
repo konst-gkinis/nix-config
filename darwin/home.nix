@@ -8,6 +8,7 @@
     ./programs/vscode.nix
     ./programs/pkg-update-check.nix
     ./programs/ssh-keychain.nix
+    ./programs/meeting-daemon.nix
   ];
 
   home.stateVersion = "23.11";

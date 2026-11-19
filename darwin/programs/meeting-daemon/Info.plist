@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Embedded into meeting-daemond (__TEXT,__info_plist): macOS only shows the
+     Calendar / Automation permission prompts to a binary that explains itself. -->
+<plist version="1.0">
+<dict>
+  <key>CFBundleIdentifier</key>
+  <string>org.nix-config.meeting-daemon</string>
+  <key>CFBundleName</key>
+  <string>meeting-daemon</string>
+  <key>CFBundleVersion</key>
+  <string>1</string>
+  <key>NSCalendarsFullAccessUsageDescription</key>
+  <string>meeting-daemon reads upcoming meetings to ring an alarm and open the Google Meet link.</string>
+  <key>NSCalendarsUsageDescription</key>
+  <string>meeting-daemon reads upcoming meetings to ring an alarm and open the Google Meet link.</string>
+  <key>NSAppleEventsUsageDescription</key>
+  <string>meeting-daemon opens the Google Meet tab in Brave and joins with mic and camera off.</string>
+</dict>
+</plist>
