@@ -1,0 +1,7 @@
+runMeetLinkTests()
+runMergeTests()
+runIsMeetingTests()
+runSchedulerTests()
+runGoogleEventsTests()
+runJoinPlanTests()
+finish()
