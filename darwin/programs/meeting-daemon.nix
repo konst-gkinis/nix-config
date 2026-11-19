@@ -17,11 +17,20 @@ let
   daemonLink = "${config.xdg.dataHome}/meeting-daemon/meeting-daemond";
   label = "org.nix-config.meeting-daemon";
 
+  # Looped by afplay while an alarm rings. The CLI writes it into the launchd
+  # plist (MEETING_DAEMON_SOUND), so changing it needs no rebuild of the daemon
+  # binary and so no new Calendar/Automation prompts.
+  alarmSound = "/System/Library/Sounds/Hero.aiff";
+
   cli = pkgs.writeShellApplication {
     name = "meeting-daemon";
     runtimeInputs = [ pkgs.jq ];
+    # launchctl, open, … live in /bin and /usr/bin, which home-manager's
+    # activation PATH (where restart runs on build-switch) leaves out.
     text = ''
+      export PATH="$PATH:/bin:/usr/bin"
       DAEMON=${lib.escapeShellArg daemonLink}
+      ALARM_SOUND=${lib.escapeShellArg alarmSound}
       ${builtins.readFile ./meeting-daemon/meeting-daemon.sh}
     '';
   };
@@ -77,10 +86,11 @@ in
     run ${allowBraveAppleEventsJs}
   '';
 
-  # A running daemon keeps the old binary until restarted.
+  # A running daemon keeps the old binary and plist until restarted; restart
+  # rewrites the plist, picking up a changed alarmSound.
   home.activation.restartMeetingDaemon = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
     if /bin/launchctl print "gui/$(id -u)/${label}" >/dev/null 2>&1; then
-      run /bin/launchctl kickstart -k "gui/$(id -u)/${label}"
+      run ${cli}/bin/meeting-daemon restart
     fi
   '';
 }

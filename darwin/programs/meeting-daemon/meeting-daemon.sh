@@ -1,6 +1,6 @@
 # meeting-daemon: manage the meeting alarm daemon (launchd) and pass the rest
-# through to meeting-daemond. DAEMON (the stable symlink launchd runs) is
-# defined above this file by darwin/programs/meeting-daemon.nix.
+# through to meeting-daemond. DAEMON (the stable symlink launchd runs) and
+# ALARM_SOUND are defined above this file by darwin/programs/meeting-daemon.nix.
 
 LABEL=org.nix-config.meeting-daemon
 DOMAIN="gui/$(id -u)"
@@ -10,6 +10,8 @@ AGENT_PLIST="$HOME/Library/LaunchAgents/$LABEL.plist"
 # directory at login, so the daemon runs until logout / `stop` only.
 SESSION_PLIST="${XDG_STATE_HOME:-$HOME/.local/state}/meeting-daemon/$LABEL.plist"
 LOG="$HOME/Library/Logs/meeting-daemon.log"
+# Set in the shell to try a sound: MEETING_DAEMON_SOUND=… md test-alarm
+export MEETING_DAEMON_SOUND="${MEETING_DAEMON_SOUND:-$ALARM_SOUND}"
 BRAVE_DIR="$HOME/Library/Application Support/BraveSoftware/Brave-Browser"
 
 usage() {
@@ -164,6 +166,8 @@ write_plist() {
   <key>RunAtLoad</key><true/>
   <key>KeepAlive</key><true/>
   <key>ProcessType</key><string>Interactive</string>
+  <key>EnvironmentVariables</key>
+  <dict><key>MEETING_DAEMON_SOUND</key><string>$MEETING_DAEMON_SOUND</string></dict>
   <key>StandardOutPath</key><string>$LOG</string>
   <key>StandardErrorPath</key><string>$LOG</string>
 </dict>
@@ -187,6 +191,7 @@ start() {
   if is_loaded; then
     launchctl kickstart "$SERVICE"
   elif [ -f "$AGENT_PLIST" ]; then
+    write_plist "$AGENT_PLIST"
     load "$AGENT_PLIST"
   else
     write_plist "$SESSION_PLIST"
