@@ -6,8 +6,8 @@
 }:
 
 let
-  # Writing-style skill, pinned. Bump rev and hash together:
-  #   nix flake prefetch --json github:blader/humanizer/<rev>
+  # Writing-style skill. `nup --pins` bumps rev and hash (scripts/update-pins.sh).
+  # nup --pins: follow main
   humanizer = pkgs.fetchFromGitHub {
     owner = "blader";
     repo = "humanizer";

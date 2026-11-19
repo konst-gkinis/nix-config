@@ -100,6 +100,7 @@ in
         }
       ];
       flavors = {
+        # nup --pins: follow main
         ayu-dark = pkgs.fetchFromGitHub {
           owner = "kmlupreti";
           repo = "ayu-dark.yazi";

@@ -17,6 +17,7 @@
       # bat only reads .tmTheme (XML) themes; current dempfi/ayu ships the
       # newer .sublime-color-scheme format, so pin the last commit that
       # still had the .tmTheme files. home-manager runs `bat cache --build`.
+      # No `nup --pins` marker on purpose: upstream main has no .tmTheme.
       themes = {
         ayu-dark = {
           src = pkgs.fetchFromGitHub {

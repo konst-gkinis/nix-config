@@ -1,36 +1,35 @@
 self: super: with super; {
-  feather-font =
-    let
-      version = "1.0";
-      pname = "feather-font";
-    in
-    stdenv.mkDerivation {
-      name = "${pname}-${version}";
+  feather-font = stdenv.mkDerivation rec {
+    pname = "feather-font";
+    version = src.rev;
 
-      src = fetchzip {
-        url = "https://github.com/dustinlyons/feather-font/archive/refs/tags/${version}.zip";
-        sha256 = "sha256-Zsz8/qn7XAG6BVp4XdqooEqioFRV7bLH0bQkHZvFbsg=";
-      };
-
-      buildInputs = [ unzip ];
-      phases = [
-        "unpackPhase"
-        "installPhase"
-      ];
-
-      installPhase = ''
-        mkdir -p $out/share/fonts/truetype
-        cp $src/feather.ttf $out/share/fonts/truetype/
-      '';
-
-      meta = with lib; {
-        homepage = "https://www.feathericons.com/";
-        description = "Set of font icons from the open source collection Feather Icons";
-        license = licenses.mit;
-        maintainers = [ maintainers.dlyons ];
-        platforms = [
-          "x86_64-linux"
-        ];
-      };
+    # nup --pins: follow tags
+    src = fetchFromGitHub {
+      owner = "dustinlyons";
+      repo = "feather-font";
+      rev = "1.0";
+      hash = "sha256-Zsz8/qn7XAG6BVp4XdqooEqioFRV7bLH0bQkHZvFbsg=";
     };
+
+    buildInputs = [ unzip ];
+    phases = [
+      "unpackPhase"
+      "installPhase"
+    ];
+
+    installPhase = ''
+      mkdir -p $out/share/fonts/truetype
+      cp $src/feather.ttf $out/share/fonts/truetype/
+    '';
+
+    meta = with lib; {
+      homepage = "https://www.feathericons.com/";
+      description = "Set of font icons from the open source collection Feather Icons";
+      license = licenses.mit;
+      maintainers = [ maintainers.dlyons ];
+      platforms = [
+        "x86_64-linux"
+      ];
+    };
+  };
 }
