@@ -32,6 +32,7 @@ BROWSERS = [
     "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
 ]
 START_URL = "https://app.slack.com/client"
+HINT = "Sign in, and if Slack offers to open the desktop app, pick 'use Slack in your browser' instead."
 
 
 class LoginFailed(Exception):
@@ -92,7 +93,7 @@ def browser_login(timeout: float = 600, team_hint: str | None = None) -> Session
     browser = find_browser()
     profile = tempfile.mkdtemp(prefix="slack-daemon-login-")
     port = _free_port()
-    log.info("opening Slack sign-in in %s", os.path.basename(browser))
+    log.info("opening Slack sign-in in %s. %s", os.path.basename(browser), HINT)
     process = subprocess.Popen(
         [
             browser,
@@ -127,7 +128,7 @@ def browser_login(timeout: float = 600, team_hint: str | None = None) -> Session
                     continue
                 if session:
                     return verify(session)
-        raise LoginFailed(f"not signed in within {int(timeout // 60)} minutes")
+        raise LoginFailed(f"not signed in within {int(timeout)} seconds")
     finally:
         process.terminate()
         try:

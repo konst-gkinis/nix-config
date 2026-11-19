@@ -14,7 +14,7 @@ from . import keychain
 from .core import watches_all_posts
 from .daemon import WARN, Daemon, HaikuUnavailable, Settings, SlackAuthError, State
 from .haiku import HaikuTriage
-from .login import LoginFailed, browser_login
+from .login import HINT, LoginFailed, browser_login
 from .notify import Notifier
 from .slack import Session, SlackClient, SlackError
 
@@ -83,7 +83,7 @@ class Runner:
         if now - self.last_login < LOGIN_RETRY_SECONDS:
             return
         self.last_login = now
-        self.notifier.notify(f"{WARN}slack-daemon: {reason}", "Opening a Slack sign-in window…")
+        self.notifier.notify(f"{WARN}slack-daemon: {reason}", f"Opening a Slack sign-in window. {HINT}")
         try:
             session = browser_login()
         except (LoginFailed, SlackError, SlackAuthError) as error:
@@ -182,6 +182,7 @@ def main() -> None:
     elif command == "once":
         Runner(load_config()).step()
     elif command == "login":
+        print(f"Opening a Slack sign-in window. {HINT}")
         try:
             session = browser_login()
         except (LoginFailed, SlackError, SlackAuthError) as error:
