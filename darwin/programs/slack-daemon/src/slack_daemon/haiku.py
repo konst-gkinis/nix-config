@@ -128,7 +128,7 @@ class HaikuTriage:
             raise HaikuUnavailable(None, f"network: {error}") from error
 
     def check(self) -> str:
-        """For `sd check`: proves the key works and names the model in use."""
+        """For `slackd check`: proves the key works and names the model in use."""
         client = self._client()
         return self.model(client, refresh=True)
 

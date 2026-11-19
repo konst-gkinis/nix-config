@@ -14,12 +14,12 @@ KEY_SERVICE=slack-daemon.anthropic-api-key
 
 usage() {
   cat <<EOF
-usage: slack-daemon <command>   (alias: sd <command>)
+usage: slack-daemon <command>   (alias: slackd <command>)
 
-  install     run at every login from now on, and start now   (sd install)
-  uninstall   stop and no longer run at login                 (sd uninstall)
-  start       start now (until logout if not installed)       (sd start)
-  stop        stop now; an installed daemon returns at login  (sd stop)
+  install     run at every login from now on, and start now   (slackd install)
+  uninstall   stop and no longer run at login                 (slackd uninstall)
+  start       start now (until logout if not installed)       (slackd start)
+  stop        stop now; an installed daemon returns at login  (slackd stop)
   restart     stop and start
   status      whether it is installed / running, and the last log lines
   logs        follow the log ($LOG)
@@ -104,7 +104,7 @@ status() {
   if security find-generic-password -s "$KEY_SERVICE" -a "$USER" >/dev/null 2>&1; then
     echo "api key:    in the Keychain"
   else
-    echo "api key:    missing (run \`sd set-key\`)"
+    echo "api key:    missing (run \`slackd set-key\`)"
   fi
   if [ -f "$LOG" ]; then
     echo

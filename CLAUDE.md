@@ -15,12 +15,11 @@ nix-darwin config for macOS, user `kg`, home `/Users/kg`.
   daemon (`md`, `md-install`, …). Core logic tests run in the package's checkPhase (a plain test
   executable: nixpkgs' Swift has no xctest runner or swift-testing plugin). Every rebuild of the
   binary changes its ad-hoc signature, so macOS re-asks for Calendar/Automation access.
-- `darwin/programs/slack-daemon.nix` + `slack-daemon/` — Python Slack triage daemon (`sd`): unread
+- `darwin/programs/slack-daemon.nix` + `slack-daemon/` — Python Slack triage daemon (`slackd`): unread
   messages → newest Claude Haiku → 🔴 notification; 👀 on addressed messages unread for 2 min.
   Uses your own Slack web session (xoxc token + `d` cookie, read from a throwaway browser profile
   over DevTools), not an approved app. The session and the Anthropic API key live in the login
-  Keychain, never in the store. Address terms are in the module; tests run in checkPhase. The `sd`
-  alias shadows the find-and-replace `sd` (use `command sd`).
+  Keychain, never in the store. Address terms are in the module; tests run in checkPhase.
 - `nixos/default.nix` — bare-metal NixOS config (X11, disko, bootloader)
 - `wsl/default.nix` — NixOS-WSL config (no bootloader/X11/disko)
 - `wsl/home.nix`, `wsl/packages.nix` — WSL-specific home-manager config and packages

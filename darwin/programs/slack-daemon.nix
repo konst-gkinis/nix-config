@@ -4,7 +4,7 @@
 # messages addressed to you get a 👀 reaction after 2 minutes. Signs in with
 # your own Slack web session (no admin-approved app); the Anthropic API key
 # and the session live in the login Keychain, never in the Nix store.
-# Opt-in at runtime: `sd install` / `sd start`.
+# Opt-in at runtime: `slackd install` / `slackd start`.
 {
   pkgs,
   lib,
@@ -55,14 +55,12 @@ in
   };
 
   programs.zsh.shellAliases = {
-    # Shadows the `sd` find-and-replace tool in interactive shells; reach it
-    # with `command sd`.
-    sd = "slack-daemon";
+    slackd = "slack-daemon";
   };
 
   halp.descriptions = {
     slack-daemon = "Slack triage daemon: Haiku picks what needs you (start/stop/install/auth/set-key/…)";
-    sd = "slack-daemon (e.g. sd start, sd status, sd auth); the sd tool is `command sd`";
+    slackd = "slack-daemon (e.g. slackd start, slackd status, slackd auth)";
   };
 
   # A running daemon keeps the old code until restarted.

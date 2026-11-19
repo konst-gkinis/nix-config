@@ -90,7 +90,7 @@ class Runner:
             log.warning("sign-in failed: %s", error)
             self.notifier.notify(
                 f"{WARN}slack-daemon: not signed in",
-                f"{error}. Retrying in {LOGIN_RETRY_SECONDS // 60} min, or run `sd auth`.",
+                f"{error}. Retrying in {LOGIN_RETRY_SECONDS // 60} min, or run `slackd auth`.",
             )
             return
         session.store()
@@ -130,14 +130,14 @@ def check() -> int:
     ok = True
     session = Session.load()
     if session is None:
-        print("slack:    not signed in (run `sd auth`)")
+        print("slack:    not signed in (run `slackd auth`)")
         ok = False
     else:
         try:
             info = SlackClient(session).call("auth.test")
             print(f"slack:    signed in as {info['user']} on {info['url']}")
         except (SlackError, SlackAuthError, OSError) as error:
-            print(f"slack:    session not working: {error} (run `sd auth`)")
+            print(f"slack:    session not working: {error} (run `slackd auth`)")
             ok = False
     triage = HaikuTriage(keychain.anthropic_api_key, "you", [], model_cache={})
     try:
@@ -152,7 +152,7 @@ def channels() -> int:
     """Lists conversations with unread messages and whether they're triaged."""
     session = Session.load()
     if session is None:
-        print("not signed in (run `sd auth`)", file=sys.stderr)
+        print("not signed in (run `slackd auth`)", file=sys.stderr)
         return 1
     slack = SlackClient(session)
     prefs = slack.prefs()

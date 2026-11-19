@@ -111,7 +111,7 @@ class Settings:
 HAIKU_PROBLEM_TEXT = {
     KEY_PROBLEM: (
         "Anthropic API key rejected",
-        "It has expired or been revoked. Run `sd set-key` with a new one. Until then messages aren't triaged (👀 still works).",
+        "It has expired or been revoked. Run `slackd set-key` with a new one. Until then messages aren't triaged (👀 still works).",
     ),
     CREDITS_PROBLEM: (
         "Anthropic API out of credits",
@@ -119,7 +119,7 @@ HAIKU_PROBLEM_TEXT = {
     ),
     NO_KEY_PROBLEM: (
         "No Anthropic API key",
-        "Run `sd set-key` to store one in the Keychain. Until then messages aren't triaged (👀 still works).",
+        "Run `slackd set-key` to store one in the Keychain. Until then messages aren't triaged (👀 still works).",
     ),
 }
 
