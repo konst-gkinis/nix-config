@@ -1,4 +1,4 @@
-import Foundation
+import AppKit
 
 enum BrowserError: Error, CustomStringConvertible {
     case javascriptDisabled
@@ -81,9 +81,47 @@ struct Brave {
     /// brings it (and Brave) to the front. Returns true when it had to open one.
     @discardableResult
     func focusOrOpen(_ url: URL, focus: Bool) throws -> Bool {
+        if !isRunning {
+            try coldStart(with: url)
+            return true
+        }
         let result = appleScript(Self.focusOrOpenScript, [url.absoluteString, url.lastPathComponent, focus ? "1" : "0"])
         guard result.ok else { throw classify(result.err) }
         return result.out == "opened"
+    }
+
+    private var isRunning: Bool {
+        !NSRunningApplication.runningApplications(withBundleIdentifier: "com.brave.Browser").isEmpty
+    }
+
+    /// Starting Brave through AppleScript would show its profile picker, so a
+    /// cold start opens the URL directly in a chosen profile instead.
+    private func coldStart(with url: URL) throws {
+        let profile = Self.profileDirectory()
+        log("Brave isn't running; starting it in profile \(profile)")
+        let result = runProcess("/usr/bin/open", ["-a", Self.app, "--args", "--profile-directory=\(profile)", url.absoluteString])
+        guard result.ok else { throw BrowserError.script("couldn't start Brave: \(result.err)") }
+        for _ in 0..<30 {
+            Thread.sleep(forTimeInterval: 1)
+            if (try? javascript(inTabWith: url.lastPathComponent, "1")) != nil { return }
+        }
+        throw BrowserError.script("Brave started but the Meet tab never appeared")
+    }
+
+    /// The profile directory to cold-start in: the one named by
+    /// MEETING_DAEMON_BRAVE_PROFILE, else the one named "main", else the first.
+    static func profileDirectory() -> String {
+        let localState = FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent("Library/Application Support/BraveSoftware/Brave-Browser/Local State")
+        let wanted = (ProcessInfo.processInfo.environment["MEETING_DAEMON_BRAVE_PROFILE"] ?? "main").lowercased()
+        guard let data = try? Data(contentsOf: localState),
+              let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let cache = (root["profile"] as? [String: Any])?["info_cache"] as? [String: [String: Any]]
+        else { return "Default" }
+        if let match = cache.first(where: { ($0.value["name"] as? String)?.lowercased() == wanted }) {
+            return match.key
+        }
+        return cache.keys.contains("Default") ? "Default" : cache.keys.sorted().first ?? "Default"
     }
 
     func javascript(inTabWith code: String, _ js: String) throws -> String {
