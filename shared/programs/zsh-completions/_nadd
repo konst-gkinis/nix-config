@@ -1,0 +1,25 @@
+#compdef nadd
+# nadd (scripts/nadd.sh): its flags, then a nixpkgs package or Homebrew cask
+# name. --nix / --cask narrow the names the way they narrow nadd's search.
+
+local curcontext=$curcontext state line ret=1
+typeset -A opt_args
+
+_arguments -s -C \
+  '(--nix)--cask[only look for a Homebrew cask]' \
+  '(--cask --login)--nix[only look for a nixpkgs package]' \
+  '(--nix)--login[start the cask at login]' \
+  '--switch[run build-switch afterwards]' \
+  '(-v --verbose)'{-v,--verbose}'[also print the diff, the apply hint and Nix warnings]' \
+  '(- *)'{-h,--help}'[show usage]' \
+  '1:package name or GitHub URL:->pkg' && ret=0
+
+if [[ $state == pkg ]]; then
+  if (( ! $+opt_args[--cask] )); then
+    _nix_config_pkgs nixpkgs && ret=0
+  fi
+  if [[ $OSTYPE == darwin* ]] && (( ! $+opt_args[--nix] )); then
+    _nix_config_pkgs casks && ret=0
+  fi
+fi
+return ret

@@ -1,0 +1,5 @@
+#compdef ns
+# ns (shared/programs/zsh/init.zsh): a temporary shell with nixpkgs packages.
+# Names come from nadd's cached nixpkgs list; full refs (nixpkgs#foo) still work.
+
+_arguments '*:nixpkgs package:_nix_config_pkgs nixpkgs'

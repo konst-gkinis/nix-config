@@ -28,6 +28,13 @@ nix-darwin config for macOS, user `kg`, home `/Users/kg`.
 - `shared/home.nix` — import list of the shared home-manager modules
 - `shared/programs/<name>.nix` — one module per program (git, zsh, tmux, vim, …);
   long plain-text config sits next to it (`zsh/init.zsh`, `vim/vimrc`, `tmux/tmux.conf`)
+- `shared/programs/zsh-completions.nix` + `zsh-completions/` — zsh Tab completion for this
+  config's own commands (`nadd`, `ns`, `nbs`, `git backup-*`): one `_<command>` file each, on
+  fpath via the profile's `share/zsh/site-functions`. A module that adds a command ships its
+  own the same way (`_meeting-daemon`, `_slack-daemon` next to their scripts); those read their
+  subcommands from the script's `help`, so only commands taking arguments need editing. Package
+  names (`nadd`, `ns`) come from nadd's cache in `~/.cache/nadd`, never a live eval. A name zsh
+  already claims (`ns`, by `_hosts`) needs a `compdef` in `initContent` to win.
 - `shared/palette.nix` — Ayu colours used by lazygit, delta, ripgrep and lsd
 - `shared/home-manager.nix`, `shared/nix-settings.nix`, `shared/nixpkgs.nix` — wiring,
   Nix daemon settings and nixpkgs config common to all targets

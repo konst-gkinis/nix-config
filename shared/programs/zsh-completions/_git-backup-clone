@@ -1,0 +1,8 @@
+#compdef git-backup-clone
+#description fzf-pick a repo from the pvegit backup and shallow-clone it
+# git backup-clone (scripts/git-backup-clone.sh). The repo is picked with fzf,
+# so the only arguments are --full and what goes on to git clone (a directory).
+
+_arguments \
+  '--full[clone the full history instead of --depth=1]' \
+  '*:target directory:_directories'

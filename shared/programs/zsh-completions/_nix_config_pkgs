@@ -1,0 +1,39 @@
+#autoload
+# Package names for nadd and ns, read from nadd's own cache (~/.cache/nadd) so a
+# completion never evaluates nixpkgs or hits the network:
+#   _nix_config_pkgs nixpkgs   attrs from the newest nixpkgs-<rev>-<system>.tsv
+#   _nix_config_pkgs casks     tokens from cask.json (the Homebrew cask API)
+# Each list is kept in a global for the session and re-read when its file changes.
+# The kind is the last argument: as an _arguments action this gets compadd
+# options (-J …) in front of it, which _wanted supplies again anyway.
+
+zmodload -F zsh/stat b:zstat
+local kind=$argv[-1] cache=${XDG_CACHE_HOME:-$HOME/.cache}/nadd file stamp expl
+local -a files
+
+case $kind in
+  nixpkgs) files=($cache/nixpkgs-*.tsv(N.om[1])) ;;
+  casks) files=($cache/cask.json(N.)) ;;
+  *) return 1 ;;
+esac
+if (( ! $#files )); then
+  _message "$kind name (run nadd once to cache the list)"
+  return 1
+fi
+file=$files[1]
+stamp="$file:$(zstat +mtime -- $file)"
+
+typeset -gA _nix_config_pkgs_stamp
+typeset -ga _nix_config_pkgs_nixpkgs _nix_config_pkgs_casks
+if [[ $_nix_config_pkgs_stamp[$kind] != $stamp ]]; then
+  case $kind in
+    nixpkgs) _nix_config_pkgs_nixpkgs=(${(f)"$(cut -f1 -- $file)"}) ;;
+    casks) _nix_config_pkgs_casks=(${(f)"$(jq -r '.[].token' -- $file 2>/dev/null)"}) ;;
+  esac
+  _nix_config_pkgs_stamp[$kind]=$stamp
+fi
+
+case $kind in
+  nixpkgs) _wanted nixpkgs expl 'nixpkgs package' compadd -a _nix_config_pkgs_nixpkgs ;;
+  casks) _wanted casks expl 'Homebrew cask' compadd -a _nix_config_pkgs_casks ;;
+esac

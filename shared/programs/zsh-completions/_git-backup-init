@@ -1,0 +1,6 @@
+#compdef git-backup-init
+#description add a "home" remote at pvegit:<name>.git and push everything there
+# git backup-init (scripts/git-backup-init.sh). zsh's _git lists any _git-*
+# function on fpath as a command and shows the #description line above.
+
+_arguments ":repo name on pvegit (default: origin's name)"

@@ -1,0 +1,4 @@
+#compdef nbs
+# nbs (shared/programs/zsh/init.zsh): build-switch, then exec zsh.
+
+_arguments '--host=[switch to this flake host instead of the detected one]:host'

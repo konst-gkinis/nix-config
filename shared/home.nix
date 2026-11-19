@@ -12,6 +12,7 @@
     ./programs/fzf.nix
     ./programs/lsd.nix
     ./programs/zsh.nix
+    ./programs/zsh-completions.nix
     ./programs/git.nix
     ./programs/vim.nix
     ./programs/alacritty.nix
