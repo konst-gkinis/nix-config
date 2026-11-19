@@ -53,6 +53,10 @@ case "meet-status":
     }
     do { print(try MeetJoiner(brave: Brave()).status(code)) } catch { fail("\(error)") }
 
+case "alert":
+    guard args.count == 4 else { fail("usage: alert <heading> <detail> <0|1>") }
+    showAlert(heading: args[1], detail: args[2], canOpen: args[3] == "1")
+
 case "google-auth":
     guard let path = args.dropFirst().first else { fail("usage: google-auth <client_secret.json>") }
     do { try googleAuth(clientSecretPath: path) } catch { fail("\(error)") }

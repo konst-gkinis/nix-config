@@ -45,7 +45,10 @@ final class Daemon {
         log("meeting-daemon running (sources: \(sources.map(\.name).joined(separator: ", ")))")
         signal(SIGUSR1, SIG_IGN)
         silenceSignal = DispatchSource.makeSignalSource(signal: SIGUSR1, queue: .main)
-        silenceSignal?.setEventHandler { [weak self] in self?.alarms.silenceAll() }
+        silenceSignal?.setEventHandler { [weak self] in
+            log("silence requested")
+            self?.alarms.silenceAll()
+        }
         silenceSignal?.resume()
 
         let today = collectMeetings(sources, from: Date(), to: Date() + 12 * 3600)

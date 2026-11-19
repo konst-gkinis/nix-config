@@ -5,18 +5,6 @@ import Foundation
 /// Main-thread only.
 final class Alarms {
     static let openButton = "Open meeting"
-    private static let dialogScript = """
-        on run argv
-          if (item 3 of argv) is "1" then
-            set choices to {"\(openButton)", "Stop"}
-          else
-            set choices to {"Stop"}
-          end if
-          activate
-          set answer to display alert (item 1 of argv) message (item 2 of argv) as critical buttons choices default button "Stop"
-          return button returned of answer
-        end run
-        """
 
     private let soundPath = ProcessInfo.processInfo.environment["MEETING_DAEMON_SOUND"]
         ?? "/System/Library/Sounds/Sosumi.aiff"
@@ -31,10 +19,9 @@ final class Alarms {
         }
         let sound = SoundLoop(path: soundPath)
         let dialog = Process()
-        dialog.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
-        dialog.arguments = ["-", heading, detail, canOpen ? "1" : "0"]
-        let input = Pipe(), output = Pipe(), errors = Pipe()
-        dialog.standardInput = input
+        dialog.executableURL = Bundle.main.executableURL
+        dialog.arguments = ["alert", heading, detail, canOpen ? "1" : "0"]
+        let output = Pipe(), errors = Pipe()
         dialog.standardOutput = output
         dialog.standardError = errors
         dialog.terminationHandler = { process in
@@ -62,8 +49,6 @@ final class Alarms {
             notify(heading, detail)
             return
         }
-        input.fileHandleForWriting.write(Data(Self.dialogScript.utf8))
-        try? input.fileHandleForWriting.close()
         sound.start()
         active[key] = (dialog, sound)
         log("alarm ringing: \(heading) — \(detail)")
