@@ -17,6 +17,10 @@ To add a tool **permanently**, edit the Nix config at `~/repos/nix-config`:
 - macOS GUI apps → `~/repos/nix-config/darwin/casks.nix` (Homebrew cask)
 - Then apply with `nix run .#build-switch` from `~/repos/nix-config`
 
+## Shell tools
+
+`sed` is GNU sed on every machine, macOS included (installed from nixpkgs, and Nix devshells add it too). Use GNU syntax: `sed -i 's/a/b/' file`, never `sed -i '' …`.
+
 # Working preferences
 
 - When a result isn't directly observable (GUI, game, rendered output), capture it — render a screenshot, etc. — and verify before reporting success. Don't rely on logs or headless checks alone.

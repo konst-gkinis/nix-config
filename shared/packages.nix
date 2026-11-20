@@ -6,6 +6,8 @@ with pkgs;
   bash-completion
   # bat, btop: installed via home-manager (programs.bat / programs.btop)
   coreutils
+  # GNU sed on every target, so plain shells match Nix devshells (whose stdenv adds it)
+  gnused
 
   # Media-related packages
   dejavu_fonts
