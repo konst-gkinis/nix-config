@@ -1,0 +1,9 @@
+#compdef clog
+#description read the last Claude Code session in $PAGER
+# clog (scripts/clog.sh).
+
+_arguments \
+  '(-p --pick)'{-p,--pick}'[pick from recent sessions with fzf]' \
+  '(-d --here)'{-d,--here}'[only sessions from the current directory]' \
+  '-n[how many sessions to list for --pick]:count' \
+  '(- *)'{-h,--help}'[show usage]'

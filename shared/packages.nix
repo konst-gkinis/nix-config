@@ -65,6 +65,16 @@ with pkgs;
   (writeShellScriptBin "git-backup-init" (builtins.readFile ../scripts/git-backup-init.sh))
   # `git backup-clone`: fzf-pick a repo from that backup and shallow-clone it
   (writeShellScriptBin "git-backup-clone" (builtins.readFile ../scripts/git-backup-clone.sh))
+  # `clog [-p] [-d]`: read a past Claude Code session in $PAGER
+  (writeShellApplication {
+    name = "clog";
+    runtimeInputs = [
+      findutils # GNU find for -printf; the find on PATH may be bfs
+      fzf
+      jq
+    ];
+    text = builtins.readFile ../scripts/clog.sh;
+  })
   # `nadd <name|github-url>`: add a nixpkgs package or Homebrew cask to this config
   (writeShellApplication {
     name = "nadd";
