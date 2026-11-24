@@ -1,23 +1,27 @@
 import Foundation
 
 /// A critical alert with a looping sound that keeps going until you click a
-/// button (or run `meeting-daemon silence`). One per meeting at a time.
+/// button (or run `meeting-daemon silence`); `quiet` leaves the sound out.
+/// One per meeting at a time.
 /// Main-thread only.
 final class Alarms {
     static let openButton = "Open meeting"
 
     private let soundPath = ProcessInfo.processInfo.environment["MEETING_DAEMON_SOUND"]
         ?? "/System/Library/Sounds/Sosumi.aiff"
-    private var active: [String: (dialog: Process, sound: SoundLoop)] = [:]
+    private var active: [String: (dialog: Process, sound: SoundLoop?)] = [:]
 
     var isRinging: Bool { !active.isEmpty }
 
-    func ring(key: String, heading: String, detail: String, canOpen: Bool, onOpen: @escaping () -> Void) {
+    func ring(
+        key: String, heading: String, detail: String, canOpen: Bool, quiet: Bool = false,
+        onOpen: @escaping () -> Void
+    ) {
         guard active[key] == nil else {
             log("alarm for \(key) is already ringing")
             return
         }
-        let sound = SoundLoop(path: soundPath)
+        let sound = quiet ? nil : SoundLoop(path: soundPath)
         let dialog = Process()
         dialog.executableURL = Bundle.main.executableURL
         dialog.arguments = ["alert", heading, detail, canOpen ? "1" : "0"]
@@ -29,7 +33,7 @@ final class Alarms {
                 .trimmingCharacters(in: .whitespacesAndNewlines)
             let error = String(decoding: errors.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
             DispatchQueue.main.async { [self] in
-                sound.stop()
+                sound?.stop()
                 active[key] = nil
                 if process.terminationReason == .uncaughtSignal {
                     log("alarm \(key) silenced")
@@ -49,9 +53,9 @@ final class Alarms {
             notify(heading, detail)
             return
         }
-        sound.start()
+        sound?.start()
         active[key] = (dialog, sound)
-        log("alarm ringing: \(heading) — \(detail)")
+        log("alarm \(quiet ? "showing silently" : "ringing"): \(heading) — \(detail)")
     }
 
     func silenceAll() {

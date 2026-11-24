@@ -70,11 +70,19 @@ final class Daemon {
     private func perform(_ action: Action) {
         switch action {
         case .alarm(let meeting, let minutesLeft):
-            ringAlarm(
-                for: meeting,
-                heading: "\(meeting.title) in \(minutesLeft) min",
-                detail: "Starts at \(timeOfDay.string(from: meeting.start))."
-            )
+            // Already in the call (joined early): show the alarm without sound,
+            // so it isn't heard by everyone else in it.
+            browserQueue.async { [joiner] in
+                let inCall = joiner.isInCall(meeting)
+                DispatchQueue.main.async {
+                    self.ringAlarm(
+                        for: meeting,
+                        heading: "\(meeting.title) in \(minutesLeft) min",
+                        detail: "Starts at \(timeOfDay.string(from: meeting.start)).",
+                        quiet: inCall
+                    )
+                }
+            }
 
         case .openTab(let meeting):
             browserQueue.async { [joiner] in
@@ -111,8 +119,10 @@ final class Daemon {
         }
     }
 
-    private func ringAlarm(for meeting: Meeting, heading: String, detail: String) {
-        alarms.ring(key: meeting.key, heading: heading, detail: detail, canOpen: meeting.meetURL != nil) { [weak self] in
+    private func ringAlarm(for meeting: Meeting, heading: String, detail: String, quiet: Bool = false) {
+        alarms.ring(
+            key: meeting.key, heading: heading, detail: detail, canOpen: meeting.meetURL != nil, quiet: quiet
+        ) { [weak self] in
             self?.browserQueue.async {
                 _ = try? self?.joiner.brave.focusOrOpen(meeting.meetURL!, focus: true)
             }

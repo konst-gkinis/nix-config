@@ -90,7 +90,7 @@ struct Brave {
         return result.out == "opened"
     }
 
-    private var isRunning: Bool {
+    var isRunning: Bool {
         !NSRunningApplication.runningApplications(withBundleIdentifier: "com.brave.Browser").isEmpty
     }
 
@@ -193,6 +193,13 @@ struct MeetJoiner {
             if let status = try? status(code), status.joined { return .joined }
         }
         return .askedToJoin
+    }
+
+    /// Whether you're already in this meeting's Meet call. Never starts Brave
+    /// (an AppleScript `tell` would), and any failure counts as not in the call.
+    func isInCall(_ meeting: Meeting) -> Bool {
+        guard brave.isRunning, let code = meeting.meetCode else { return false }
+        return (try? status(code))?.joined ?? false
     }
 
     func status(_ code: String) throws -> MeetPageStatus {
