@@ -12,7 +12,8 @@ nix-darwin config for macOS, user `kg`, home `/Users/kg`.
   pkg-update-check); data files sit next to it (`programs/iterm2/`)
 - `darwin/dock/` — dock config
 - `darwin/programs/meeting-daemon.nix` + `meeting-daemon/` — Swift meeting alarm / Meet auto-join
-  daemon (`md`, `md-install`, …). Core logic tests run in the package's checkPhase (a plain test
+  daemon (`md`, `md-install`, …), which also pops up silently every 5 min about invites you
+  haven't answered (`md unanswered`, `md mute`/`unmute <title>`). Core logic tests run in the package's checkPhase (a plain test
   executable: nixpkgs' Swift has no xctest runner or swift-testing plugin). Every rebuild of the
   binary changes its ad-hoc signature, so macOS re-asks for Calendar/Automation access.
 - `darwin/programs/slack-daemon.nix` + `slack-daemon/` — Python Slack triage daemon (`slackd`): unread

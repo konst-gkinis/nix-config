@@ -30,6 +30,7 @@ final class Daemon {
     /// Browser work blocks for up to a minute; it mustn't hold up polling or alarms.
     private let browserQueue = DispatchQueue(label: "browser")
     private var timer: Timer?
+    private var inviteTimer: Timer?
     private var silenceSignal: DispatchSourceSignal?
 
     init(sources: [MeetingSource]) {
@@ -53,6 +54,10 @@ final class Daemon {
 
         timer = Timer.scheduledTimer(withTimeInterval: 15, repeats: true) { [weak self] _ in self?.tick() }
         tick()
+        inviteTimer = Timer.scheduledTimer(withTimeInterval: 5 * 60, repeats: true) { [weak self] _ in
+            self?.checkInvites()
+        }
+        checkInvites()
         RunLoop.main.run()
         exit(0)
     }
@@ -119,9 +124,31 @@ final class Daemon {
         }
     }
 
+    /// Pops up, silently, about invites you haven't answered yes, no or maybe.
+    /// Again on every check until you answer or mute them; one still on
+    /// screen from the last check isn't stacked.
+    private func checkInvites() {
+        let now = Date()
+        let muted = Set(MuteList.load().map(\.id))
+        let invites = invitesToNag(collectMeetings(sources, from: now, to: now + inviteHorizon), muted: muted)
+        guard !invites.isEmpty else { return }
+        let list = invites.map { "\($0.title)\n\(inviteDay.string(from: $0.start))" }.joined(separator: "\n\n")
+        alarms.ring(
+            key: "unanswered-invites",
+            heading: invites.count == 1 ? "Answer this invite" : "Answer \(invites.count) invites",
+            detail: list + "\n\nStop reminders about one with:\nmd mute <title>",
+            openButton: "Open Calendar",
+            dismissButton: "Later",
+            quiet: true
+        ) {
+            runProcess("/usr/bin/open", ["-a", "Calendar"])
+        }
+    }
+
     private func ringAlarm(for meeting: Meeting, heading: String, detail: String, quiet: Bool = false) {
         alarms.ring(
-            key: meeting.key, heading: heading, detail: detail, canOpen: meeting.meetURL != nil, quiet: quiet
+            key: meeting.key, heading: heading, detail: detail,
+            openButton: meeting.meetURL == nil ? nil : "Open meeting", quiet: quiet
         ) { [weak self] in
             self?.browserQueue.async {
                 _ = try? self?.joiner.brave.focusOrOpen(meeting.meetURL!, focus: true)

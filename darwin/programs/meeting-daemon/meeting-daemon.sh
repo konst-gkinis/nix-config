@@ -28,6 +28,9 @@ usage: meeting-daemon <command>   (alias: md <command>)
   silence     stop every ringing alarm
 
   upcoming [hours]          meetings the daemon would act on (default 12 h)
+  unanswered                invites not yet answered, next 14 days (popup every 5 min)
+  mute <title>              stop the popups about that invite (whole series)
+  unmute <title>            start them again
   test-alarm                ring a test alarm
   join <meet link>          join now with mic/camera off (if not already in)
   meet-status <meet link>   what the daemon sees in that Meet tab
@@ -135,7 +138,7 @@ case "${1:-help}" in
   status) status ;;
   logs) exec tail -n 50 -f "$LOG" ;;
   silence) launchctl kill SIGUSR1 "$SERVICE" ;;
-  upcoming | test-alarm | join | meet-status) exec "$DAEMON" "$@" ;;
+  upcoming | test-alarm | join | meet-status | unanswered | mute | unmute) exec "$DAEMON" "$@" ;;
   help | -h | --help) usage ;;
   *)
     usage >&2

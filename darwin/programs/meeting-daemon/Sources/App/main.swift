@@ -32,7 +32,7 @@ case "upcoming":
 case "test-alarm":
     let alarms = Alarms()
     alarms.ring(key: "test", heading: "Test meeting in 10 min", detail: "This is what a meeting alarm looks like.",
-                canOpen: false) {}
+                openButton: nil) {}
     while alarms.isRinging { RunLoop.main.run(until: Date() + 0.2) }
 
 case "join":
@@ -53,9 +53,14 @@ case "meet-status":
     }
     do { print(try MeetJoiner(brave: Brave()).status(code)) } catch { fail("\(error)") }
 
+case "unanswered", "mute", "unmute":
+    inviteCommand(args)
+
 case "alert":
-    guard args.count == 4 else { fail("usage: alert <heading> <detail> <0|1>") }
-    showAlert(heading: args[1], detail: args[2], canOpen: args[3] == "1")
+    guard args.count == 4 || args.count == 5 else {
+        fail("usage: alert <heading> <detail> <open button title, or empty> [dismiss button title]")
+    }
+    showAlert(heading: args[1], detail: args[2], openButton: args[3], dismissButton: args.count == 5 ? args[4] : "Stop")
 
 default:
     fail("unknown command; see `meeting-daemon help`")

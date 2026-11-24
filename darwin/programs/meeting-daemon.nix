@@ -1,7 +1,9 @@
 # meeting-daemon: rings an alarm 10 and 5 minutes before each meeting (from
 # Calendar.app), without sound if you're already in its Meet call. Opens the
 # Meet tab in Brave 2 minutes before, and 1 minute before joins with mic and
-# camera off unless you're already in. Opt-in at runtime: `md-install` / `md start`.
+# camera off unless you're already in. Every 5 minutes a silent popup lists the
+# invites (next 14 days) you haven't answered yes/no/maybe; `md mute <title>`
+# drops one from it. Opt-in at runtime: `md-install` / `md start`.
 {
   pkgs,
   lib,

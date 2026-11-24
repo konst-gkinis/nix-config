@@ -2,10 +2,9 @@ import Foundation
 
 /// A critical alert with a looping sound that keeps going until you click a
 /// button (or run `meeting-daemon silence`); `quiet` leaves the sound out.
-/// One per meeting at a time.
+/// One per key at a time.
 /// Main-thread only.
 final class Alarms {
-    static let openButton = "Open meeting"
 
     private let soundPath = ProcessInfo.processInfo.environment["MEETING_DAEMON_SOUND"]
         ?? "/System/Library/Sounds/Sosumi.aiff"
@@ -14,7 +13,8 @@ final class Alarms {
     var isRinging: Bool { !active.isEmpty }
 
     func ring(
-        key: String, heading: String, detail: String, canOpen: Bool, quiet: Bool = false,
+        key: String, heading: String, detail: String, openButton: String?, dismissButton: String = "Stop",
+        quiet: Bool = false,
         onOpen: @escaping () -> Void
     ) {
         guard active[key] == nil else {
@@ -24,7 +24,7 @@ final class Alarms {
         let sound = quiet ? nil : SoundLoop(path: soundPath)
         let dialog = Process()
         dialog.executableURL = Bundle.main.executableURL
-        dialog.arguments = ["alert", heading, detail, canOpen ? "1" : "0"]
+        dialog.arguments = ["alert", heading, detail, openButton ?? "", dismissButton]
         let output = Pipe(), errors = Pipe()
         dialog.standardOutput = output
         dialog.standardError = errors
@@ -42,7 +42,7 @@ final class Alarms {
                     notify(heading, detail)
                 } else {
                     log("alarm \(key) dismissed with \"\(answer)\"")
-                    if answer == Self.openButton { onOpen() }
+                    if answer == alertOpenAnswer { onOpen() }
                 }
             }
         }

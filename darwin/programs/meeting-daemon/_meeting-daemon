@@ -18,5 +18,13 @@ elif (( CURRENT == 3 )); then
   case $words[2] in
     upcoming) _message 'hours ahead (default 12)' ;;
     join | meet-status) _message 'Google Meet link' ;;
+    mute) _message 'title (or part) of an unanswered invite; see: meeting-daemon unanswered' ;;
+    unmute)
+      # Titles straight from the mute list (id<TAB>title), no Calendar lookup.
+      local -a titles
+      titles=(${(f)"$(cut -f2- "${XDG_STATE_HOME:-$HOME/.local/state}/meeting-daemon/muted-invites" 2>/dev/null)"})
+      titles=(${titles//:/\\:})  # _describe splits on ':'
+      _describe -t titles 'muted invite' titles
+      ;;
   esac
 fi
