@@ -10,9 +10,14 @@ func buildMeeting(
     start: Date = meetingStart,
     meetURL: URL? = URL(string: "https://meet.google.com/aaa-bbbb-ccc"),
     invitation: Invitation = .attending,
-    source: String = "SOURCE"
+    source: String = "SOURCE",
+    eventID: String? = nil
 ) -> Meeting {
-    Meeting(title: title, start: start, meetURL: meetURL, invitation: invitation, source: source)
+    Meeting(title: title, start: start, meetURL: meetURL, invitation: invitation, source: source, eventID: eventID)
+}
+
+func buildInviteRef(id: String = "EVENT_ID", title: String = "MEETING_TITLE") -> InviteRef {
+    InviteRef(id: id, title: title)
 }
 
 func buildMeetPageStatus(

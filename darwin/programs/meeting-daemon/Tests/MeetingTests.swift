@@ -54,11 +54,30 @@ func runMergeTests() {
 
         expectEqual(merged.map(\.invitation), [.attending])
     }
+
+    test("merge marks the meeting unanswered when your own copy is") {
+        let colleagueView = buildMeeting(invitation: .notInvited)
+        let ownView = buildMeeting(invitation: .unanswered)
+
+        let merged = mergeDuplicates([colleagueView, ownView])
+
+        expectEqual(merged.map(\.invitation), [.unanswered])
+    }
+
+    test("merge borrows the event id from the copy that has it") {
+        let withoutID = buildMeeting(eventID: nil)
+        let withID = buildMeeting(eventID: "EVENT_ID")
+
+        let merged = mergeDuplicates([withoutID, withID])
+
+        expectEqual(merged.map(\.eventID), ["EVENT_ID"])
+    }
 }
 
 func runIsMeetingTests() {
     let cases: [(name: String, meeting: Meeting, expected: Bool)] = [
         ("attending without a link", buildMeeting(meetURL: nil, invitation: .attending), true),
+        ("unanswered invite", buildMeeting(meetURL: nil, invitation: .unanswered), true),
         ("no attendees but a Meet link", buildMeeting(meetURL: meetURL, invitation: .noAttendees), true),
         ("no attendees and no link (a personal block)", buildMeeting(meetURL: nil, invitation: .noAttendees), false),
         ("declined, even with a link", buildMeeting(meetURL: meetURL, invitation: .declined), false),

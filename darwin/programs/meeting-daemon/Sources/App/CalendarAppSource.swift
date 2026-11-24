@@ -47,7 +47,8 @@ final class CalendarAppSource: MeetingSource {
                 start: event.startDate,
                 meetURL: extractMeetURL(from: [event.url?.absoluteString, event.location, event.notes]),
                 invitation: invitation(of: event),
-                source: name
+                source: name,
+                eventID: event.calendarItemExternalIdentifier
             )
         }
     }
@@ -55,7 +56,11 @@ final class CalendarAppSource: MeetingSource {
     private func invitation(of event: EKEvent) -> Invitation {
         guard let attendees = event.attendees, !attendees.isEmpty else { return .noAttendees }
         if let me = attendees.first(where: \.isCurrentUser) {
-            return me.participantStatus == .declined ? .declined : .attending
+            switch me.participantStatus {
+            case .declined: return .declined
+            case .pending: return .unanswered
+            default: return .attending
+            }
         }
         return event.organizer?.isCurrentUser == true ? .attending : .notInvited
     }
