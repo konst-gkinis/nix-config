@@ -5,6 +5,11 @@
   system.defaults = {
     NSGlobalDomain = {
       "com.apple.mouse.tapBehavior" = 1;
+
+      # Keyboard → Text Input → Input Sources → Edit…
+      NSAutomaticSpellingCorrectionEnabled = false; # "Correct spelling automatically"
+      NSAutomaticCapitalizationEnabled = false; # "Capitalise words automatically"
+      NSAutomaticPeriodSubstitutionEnabled = false; # "Add period with double-space"
     };
 
     controlcenter = {
