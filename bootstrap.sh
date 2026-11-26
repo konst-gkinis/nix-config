@@ -17,18 +17,71 @@ NC='\033[0m'
 REPO_URL="https://github.com/konst-gkinis/nix-config"
 REPO_DIR="${HOME}/repos/nix-config"
 
+# Prompts use gum when it could be fetched (set in "Prompt UI" below) and fall
+# back to plain `read`, so a failed fetch never blocks a bootstrap. gum draws on
+# stderr and prints the answer on stdout, so it works inside $(...).
+GUM=""
+
 # Helper: prompt with a default value
 # Usage: result=$(ask "Prompt text" "default value")
 ask() {
   _prompt="$1"
   _default="$2"
-  printf "%b%s [%s]: %b" "$YELLOW" "$_prompt" "$_default" "$NC" >&2
-  read -r _answer
+  if [ -n "$GUM" ]; then
+    # Esc / Ctrl-C returns non-zero, which set -e turns into an abort.
+    _answer="$("$GUM" input --header "$_prompt" --value "$_default" --width 0)" || return
+  else
+    printf "%b%s [%s]: %b" "$YELLOW" "$_prompt" "$_default" "$NC" >&2
+    read -r _answer
+  fi
   if [ -z "$_answer" ]; then
     printf "%s" "$_default"
   else
     printf "%s" "$_answer"
   fi
+}
+
+# Helper: yes/no question; succeeds on yes.
+# Usage: if confirm "Question?" yes|no; then ...
+confirm() {
+  _prompt="$1"
+  _default="$2"
+  if [ -n "$GUM" ]; then
+    _rc=0
+    if [ "$_default" = "no" ]; then
+      "$GUM" confirm --default=false "$_prompt" || _rc=$?
+    else
+      "$GUM" confirm "$_prompt" || _rc=$?
+    fi
+    # 0 = yes, 1 = no, anything else (130 on Ctrl-C) aborts.
+    [ "$_rc" -le 1 ] || exit "$_rc"
+    return "$_rc"
+  fi
+  if [ "$_default" = "no" ]; then _hint="y/N"; else _hint="Y/n"; fi
+  printf "%b%s [%s]: %b" "$YELLOW" "$_prompt" "$_hint" "$NC" >&2
+  read -r _ans
+  case "$_ans" in
+    y|Y|yes|YES|Yes) return 0 ;;
+    n|N|no|NO|No)    return 1 ;;
+    *) [ "$_default" != "no" ] ;;
+  esac
+}
+
+# Helper: read a secret without echoing it.
+# Usage: secret=$(ask_secret "Prompt text")
+ask_secret() {
+  if [ -n "$GUM" ]; then
+    "$GUM" input --password --header "$1" --width 0
+    return
+  fi
+  printf "%b%s: %b" "$YELLOW" "$1" "$NC" >&2
+  trap 'stty echo; exit 130' INT
+  stty -echo
+  read -r _secret
+  stty echo
+  trap - INT
+  printf "\n" >&2
+  printf "%s" "$_secret"
 }
 
 # Helper: escape double-quotes for Nix string literals
@@ -126,6 +179,24 @@ fi
 
 cd "$REPO_DIR"
 
+# ── Prompt UI ────────────────────────────────────────────────────────────────
+# gum from the nixpkgs pinned in flake.lock, so the download is shared with
+# build-switch. path:. because host.nix may already exist (see CLAUDE.md).
+
+# gum's masked input panics on a terminal that reports 0 columns (some serial
+# consoles), so require a real width as well as a TTY.
+_cols="$(stty size 2>/dev/null | cut -d' ' -f2)"
+if [ -t 0 ] && [ -t 2 ] && [ "${_cols:-0}" -gt 0 ]; then
+  printf "%b==> Fetching gum for the prompts...%b\n" "$GREEN" "$NC"
+  if _gum_out="$(nix --extra-experimental-features 'nix-command flakes' build \
+        --no-link --print-out-paths --inputs-from path:. nixpkgs#gum 2>/dev/null)" \
+     && [ -x "${_gum_out}/bin/gum" ]; then
+    GUM="${_gum_out}/bin/gum"
+  else
+    printf "%bCould not fetch gum; using plain prompts.%b\n" "$YELLOW" "$NC"
+  fi
+fi
+
 # ── Collect user answers ─────────────────────────────────────────────────────
 
 printf "%b==> Gathering machine settings (press Enter to keep default)...%b\n" "$GREEN" "$NC"
@@ -141,12 +212,11 @@ CFG_NAME="$(ask "Full name" "Konstantinos Gkinis")"
 CFG_EMAIL="$(ask "Git email" "konst.gkinis@gmail.com")"
 
 # Personal machine?
-printf "%b%s [Y/n]: %b" "$YELLOW" "Personal machine?" "$NC" >&2
-read -r _personal_ans
-case "$_personal_ans" in
-  n|N) CFG_IS_PERSONAL="false" ;;
-  *)   CFG_IS_PERSONAL="true"  ;;
-esac
+if confirm "Personal machine?" yes; then
+  CFG_IS_PERSONAL="true"
+else
+  CFG_IS_PERSONAL="false"
+fi
 
 # Hostname
 if [ "$OS" = "Darwin" ]; then
@@ -174,21 +244,39 @@ if [ ! -f "$SSH_KEY_PATH" ]; then
   printf "%b==> No SSH key at %s — generating ed25519 keypair...%b\n" "$GREEN" "$SSH_KEY_PATH" "$NC"
   mkdir -p "${HOME}/.ssh"
   chmod 700 "${HOME}/.ssh"
-  printf "%bProtect the private key with a passphrase? [Y/n]: %b" "$YELLOW" "$NC"
-  read -r _pass_ans
-  case "$_pass_ans" in
-    n|N)
-      ssh-keygen -t ed25519 -C "$SSH_KEY_COMMENT" -N "" -f "$SSH_KEY_PATH"
-      ;;
-    *)
-      # ssh-keygen will prompt twice for the passphrase
-      ssh-keygen -t ed25519 -C "$SSH_KEY_COMMENT" -f "$SSH_KEY_PATH"
-      ;;
-  esac
-  if [ "$OS" = "Darwin" ]; then
-    # Store passphrase in macOS Keychain so signing/auth is friction-free
-    ssh-add --apple-use-keychain "$SSH_KEY_PATH" 2>/dev/null || true
+  # The passphrase is read masked and kept in a shell variable only: never
+  # echoed, written to disk or exported. ssh-keygen has no stdin/askpass input,
+  # so it gets it via -N, i.e. on its argv for the instant it runs.
+  _key_pass=""
+  if confirm "Protect the private key with a passphrase?" yes; then
+    while :; do
+      _key_pass="$(ask_secret "Key passphrase")"
+      if [ -z "$_key_pass" ]; then
+        printf "%bPassphrase can't be empty.%b\n" "$RED" "$NC" >&2
+        continue
+      fi
+      _key_pass2="$(ask_secret "Repeat passphrase")"
+      [ "$_key_pass" = "$_key_pass2" ] && break
+      printf "%bPassphrases don't match, try again.%b\n" "$RED" "$NC" >&2
+    done
+    unset _key_pass2
   fi
+  ssh-keygen -q -t ed25519 -C "$SSH_KEY_COMMENT" -N "$_key_pass" -f "$SSH_KEY_PATH"
+  if [ "$OS" = "Darwin" ] && [ -n "$_key_pass" ]; then
+    # Store the passphrase in the macOS Keychain so signing/auth is
+    # friction-free. ssh-add takes it from a throwaway askpass helper that
+    # reads it from ssh-add's environment (visible to this user only), so it
+    # isn't typed a third time. The helper itself holds no secret.
+    _askpass="$(mktemp)"
+    # shellcheck disable=SC2016  # $BOOTSTRAP_KEY_PASS expands in the helper
+    printf '#!/bin/sh\nprintf "%%s\\n" "$BOOTSTRAP_KEY_PASS"\n' > "$_askpass"
+    chmod 700 "$_askpass"
+    BOOTSTRAP_KEY_PASS="$_key_pass" SSH_ASKPASS="$_askpass" SSH_ASKPASS_REQUIRE=force \
+      DISPLAY="${DISPLAY:-:0}" ssh-add -q --apple-use-keychain "$SSH_KEY_PATH" < /dev/null \
+      || printf "%bCould not add the key to the Keychain (non-fatal).%b\n" "$YELLOW" "$NC"
+    rm -f "$_askpass"
+  fi
+  unset _key_pass
 else
   printf "%b==> Reusing existing SSH key at %s%b\n" "$GREEN" "$SSH_KEY_PATH" "$NC"
 fi
@@ -206,10 +294,18 @@ if [ "$OS" = "Linux" ]; then
   fi
   CFG_SSH_KEY="$(ask "SSH authorized public key" "$DEFAULT_SSH_KEY")"
 
-  # Disk device
-  printf "%bAvailable block devices:%b\n" "$YELLOW" "$NC"
-  lsblk -dpno NAME,SIZE,MODEL 2>/dev/null || true
-  CFG_DISK="$(ask "Disk device" "/dev/nvme0n1")"
+  # Disk device: pick from the list with gum, else type it.
+  _disks="$(lsblk -dpno NAME,SIZE,MODEL 2>/dev/null || true)"
+  if [ -n "$GUM" ] && [ -n "$_disks" ]; then
+    _default_disk="$(printf "%s\n" "$_disks" | grep '^/dev/nvme0n1 ' || true)"
+    _disk_line="$(printf "%s\n" "$_disks" \
+      | "$GUM" choose --header "Disk device" --selected "$_default_disk")"
+    CFG_DISK="${_disk_line%% *}"
+  else
+    printf "%bAvailable block devices:%b\n" "$YELLOW" "$NC"
+    printf "%s\n" "$_disks"
+    CFG_DISK="$(ask "Disk device" "/dev/nvme0n1")"
+  fi
 else
   # macOS — use defaults from flake settings
   CFG_SSH_KEY="ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICz8fpWR17uro4SHsoQJHwAJvERwaiKvSwddpj4jCD8A konst.gkinis@gmail.com (KG-air)"
@@ -235,11 +331,10 @@ printf "%b    key AND a Signing key (separate forms — paste twice):%b\n" "$YEL
 printf "    %s\n" "$SSH_PUBKEY"
 printf "    https://github.com/settings/ssh/new\n"
 printf "    https://github.com/settings/ssh/new?type=signing\n"
-printf "%bPress Enter when added (or to skip)...%b" "$YELLOW" "$NC"
-read -r _ack
+confirm "Added it to GitHub? (either answer continues)" yes || true
 
-printf "\n%bProceed with build-switch? [Y/n]: %b" "$YELLOW" "$NC"
-read -r _confirm
+PROCEED=1
+confirm "Proceed with build-switch?" yes || PROCEED=0
 
 # ── Write host.nix ───────────────────────────────────────────────────────────
 
@@ -269,15 +364,13 @@ HOSTNIX
 printf "%bhost.nix written to %s/host.nix%b\n" "$GREEN" "$REPO_DIR" "$NC"
 
 # Exit early if user declined; host.nix is kept so it can be inspected first.
-case "$_confirm" in
-  n|N|no|NO|No)
-    printf "%bBuild skipped. Run manually:%b\n" "$YELLOW" "$NC"
-    printf "  cd %s\n" "$REPO_DIR"
-    printf "  nix --extra-experimental-features 'nix-command flakes' run '.#build-switch'\n"
-    printf "  sh scripts/setup-signature-verification.sh '%s'\n" "$CFG_EMAIL"
-    exit 0
-    ;;
-esac
+if [ "$PROCEED" = "0" ]; then
+  printf "%bBuild skipped. Run manually:%b\n" "$YELLOW" "$NC"
+  printf "  cd %s\n" "$REPO_DIR"
+  printf "  nix --extra-experimental-features 'nix-command flakes' run '.#build-switch'\n"
+  printf "  sh scripts/setup-signature-verification.sh '%s'\n" "$CFG_EMAIL"
+  exit 0
+fi
 
 # ── Build & switch ────────────────────────────────────────────────────────────
 
