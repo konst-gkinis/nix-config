@@ -42,6 +42,32 @@
         # windows after cmd-Q (iTerm2 then reattaches its still-running jobs).
         NSQuitAlwaysKeepsWindows = true;
       };
+
+      # Keyboard → Text Input → Input Sources: ABC and Greek. The two input
+      # methods are macOS's own (emoji/character viewer, press-and-hold accents).
+      # Takes effect at next login, or straight away if the list already matches.
+      "com.apple.HIToolbox" = {
+        AppleEnabledInputSources = [
+          {
+            InputSourceKind = "Keyboard Layout";
+            "KeyboardLayout ID" = 252;
+            "KeyboardLayout Name" = "ABC";
+          }
+          {
+            InputSourceKind = "Keyboard Layout";
+            "KeyboardLayout ID" = -18944;
+            "KeyboardLayout Name" = "Greek";
+          }
+          {
+            InputSourceKind = "Non Keyboard Input Method";
+            "Bundle ID" = "com.apple.CharacterPaletteIM";
+          }
+          {
+            InputSourceKind = "Non Keyboard Input Method";
+            "Bundle ID" = "com.apple.PressAndHold";
+          }
+        ];
+      };
     };
   };
 }
