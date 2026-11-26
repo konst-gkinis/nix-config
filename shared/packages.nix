@@ -86,4 +86,5 @@ with pkgs;
     ];
     text = builtins.readFile ../scripts/nadd.sh;
   })
+  confetty
 ]
