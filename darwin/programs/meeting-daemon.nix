@@ -3,7 +3,8 @@
 # Meet tab in Brave 2 minutes before, and 1 minute before joins with mic and
 # camera off unless you're already in. Every 5 minutes a silent popup lists the
 # invites (next 14 days) you haven't answered yes/no/maybe; `md mute <title>`
-# drops one from it. Opt-in at runtime: `md-install` / `md start`.
+# drops one from it. `md stop <N>m` / `md stop <N>h` (21m, 7h) pauses all of that for a
+# while. Opt-in at runtime: `md-install` / `md start`.
 {
   pkgs,
   lib,
@@ -79,7 +80,7 @@ in
   halp.descriptions = {
     meeting-daemon = "meeting alarm + Meet auto-join daemon (start/stop/install/status/upcoming/…)";
     md = "meeting-daemon (e.g. md start, md status, md silence)";
-    md-stop = "stop the meeting daemon (an installed one returns at login)";
+    md-stop = "stop the meeting daemon (an installed one returns at login); md-stop <N>m / <N>h pauses it";
     md-install = "run the meeting daemon at every login, starting now";
     md-uninstall = "stop the meeting daemon and remove it from login";
   };

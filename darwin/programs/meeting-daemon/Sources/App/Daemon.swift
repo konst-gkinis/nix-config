@@ -69,7 +69,22 @@ final class Daemon {
             from: now - scheduler.leads.lateGrace - 60,
             to: now + scheduler.leads.horizon + 60
         )
-        for action in scheduler.actions(for: meetings, now: now) { perform(action) }
+        // Run the scheduler even while paused, so whatever fell due during
+        // the pause is used up rather than done late when it ends.
+        let actions = scheduler.actions(for: meetings, now: now)
+        if let until = PauseFile.pausedUntil(now: now) {
+            for action in actions { log("paused until \(timeOfDay.string(from: until)): skipped \(describe(action))") }
+            return
+        }
+        for action in actions { perform(action) }
+    }
+
+    private func describe(_ action: Action) -> String {
+        switch action {
+        case .alarm(let meeting, let minutesLeft): return "\(minutesLeft)-min alarm for \(meeting.title)"
+        case .openTab(let meeting): return "opening the Meet tab for \(meeting.title)"
+        case .ensureJoined(let meeting): return "joining \(meeting.title)"
+        }
     }
 
     private func perform(_ action: Action) {
@@ -129,6 +144,7 @@ final class Daemon {
     /// screen from the last check isn't stacked.
     private func checkInvites() {
         let now = Date()
+        guard PauseFile.pausedUntil(now: now) == nil else { return }
         let muted = Set(MuteList.load().map(\.id))
         let invites = invitesToNag(collectMeetings(sources, from: now, to: now + inviteHorizon), muted: muted)
         guard !invites.isEmpty else { return }

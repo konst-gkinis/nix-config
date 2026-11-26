@@ -53,6 +53,9 @@ case "meet-status":
     }
     do { print(try MeetJoiner(brave: Brave()).status(code)) } catch { fail("\(error)") }
 
+case "pause":
+    pauseCommand(args)
+
 case "unanswered", "mute", "unmute":
     inviteCommand(args)
 

@@ -17,6 +17,7 @@ if (( CURRENT == 2 )); then
 elif (( CURRENT == 3 )); then
   case $words[2] in
     upcoming) _message 'hours ahead (default 12)' ;;
+    stop) _message 'how long to pause: <N>m or <N>h, e.g. 21m, 7h (none: stop the daemon)' ;;
     join | meet-status) _message 'Google Meet link' ;;
     mute) _message 'title (or part) of an unanswered invite; see: meeting-daemon unanswered' ;;
     unmute)

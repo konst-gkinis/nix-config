@@ -9,6 +9,8 @@ AGENT_PLIST="$HOME/Library/LaunchAgents/$LABEL.plist"
 # `start` without `install` loads a plist from here: launchd doesn't read this
 # directory at login, so the daemon runs until logout / `stop` only.
 SESSION_PLIST="${XDG_STATE_HOME:-$HOME/.local/state}/meeting-daemon/$LABEL.plist"
+# Written by `stop <duration>` (the end, in Unix seconds); read by the daemon.
+PAUSE_FILE="${XDG_STATE_HOME:-$HOME/.local/state}/meeting-daemon/paused-until"
 LOG="$HOME/Library/Logs/meeting-daemon.log"
 # Set in the shell to try a sound: MEETING_DAEMON_SOUND=… md test-alarm
 export MEETING_DAEMON_SOUND="${MEETING_DAEMON_SOUND:-$ALARM_SOUND}"
@@ -22,6 +24,8 @@ usage: meeting-daemon <command>   (alias: md <command>)
   uninstall   stop and no longer run at login                 (md-uninstall)
   start       start now (until logout if not installed)       (md start)
   stop        stop now; an installed daemon returns at login  (md-stop)
+              stop <N>m / stop <N>h (e.g. 21m, 7h): keep running but do nothing that long
+              (no alarms, Meet tabs, joining or invite popups; start resumes)
   restart     stop and start
   status      whether it is installed / running, and setup checks
   logs        follow the log ($LOG)
@@ -106,6 +110,11 @@ status() {
   else
     echo "running:    no"
   fi
+  local paused_until
+  paused_until=$(cat "$PAUSE_FILE" 2>/dev/null || true)
+  if [ -n "$paused_until" ] && [ "$paused_until" -gt "$(/bin/date +%s)" ] 2>/dev/null; then
+    echo "paused:     until $(/bin/date -r "$paused_until" '+%a %H:%M') (md start resumes)"
+  fi
   if brave_js_allowed; then
     echo "brave:      JavaScript from Apple Events allowed"
   else
@@ -126,10 +135,24 @@ case "${1:-help}" in
     rm -f "$AGENT_PLIST" "$SESSION_PLIST"
     echo "meeting-daemon uninstalled"
     ;;
-  start) start ;;
+  start)
+    # restart (run by build-switch) goes straight to start(), keeping a pause.
+    rm -f "$PAUSE_FILE"
+    start
+    ;;
   stop)
-    unload
-    echo "meeting-daemon stopped"
+    if [ $# -gt 1 ]; then
+      shift
+      "$DAEMON" pause "$@"
+      if is_loaded; then
+        launchctl kill SIGUSR1 "$SERVICE" # silence whatever is ringing now
+      else
+        echo "(the daemon isn't running, so there is nothing to pause right now)"
+      fi
+    else
+      unload
+      echo "meeting-daemon stopped"
+    fi
     ;;
   restart)
     unload
